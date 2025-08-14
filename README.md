@@ -17,7 +17,7 @@ HavenX is a decentralized platform that combines emotional wellness with blockch
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS v4
 - **Blockchain**: Solana Network
 - **AI**: Fine-tuned LLM for emotional context
 - **Smart Contracts**: Rust/Anchor Framework
