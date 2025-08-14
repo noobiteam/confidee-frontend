@@ -1,7 +1,7 @@
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-purple-50/20 to-green-50/30"></div>
+      <div className="fixed inset-0 bg-gradient-to-r from-blue-100 via-white to-blue-100"></div>
       <div className="relative">
         <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
           <div className="max-w-6xl mx-auto px-6 py-4">
@@ -37,22 +37,22 @@ export default function HomePage() {
 
             <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
               <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                 <span>Complete anonymity</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                 <span>AI emotional support</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                 <span>Helping others literally pays</span>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="py-20 px-6 bg-gray-50">
+        <section className="py-20 px-6 ">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-3 gap-6">
               <div className="bg-blue-50 p-8 rounded-2xl">
@@ -130,7 +130,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="py-20 px-6 bg-gray-50">
+        <section className="py-20 px-6 ">
           <div className="max-w-4xl mx-auto text-center">
             <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-200">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
