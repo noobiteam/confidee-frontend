@@ -109,19 +109,19 @@ export default function HomePage() {
                   <span className="text-sm font-medium text-gray-600">AU</span>
                 </div>
                 <div className="flex-1 w-full">
-                  <div className="text-xs sm:text-sm text-gray-500 mb-2">Anonymous User • 2 minutes ago</div>
+                  <div className="text-xs sm:text-sm text-gray-500 mb-2">Anonymous User • 5 minutes ago</div>
                   <div className="text-sm sm:text-base text-gray-900 mb-4">
-                    &quot;Just got rejected from my dream job after months of interviews. Feeling really discouraged and questioning my abilities...&quot;
+                    "Just got liquidated on my ETH long position because of that surprise Fed announcement. Lost 3 months of DCA savings in 10 minutes... Why did I use 10x leverage? Feeling so stupid right now 😭"
                   </div>
                   <div className="bg-blue-50 border-l-4 border-blue-400 p-3 sm:p-4 rounded-r-lg">
                     <div className="text-xs sm:text-sm font-medium text-blue-900 mb-1">AI Response</div>
                     <div className="text-blue-800 text-xs sm:text-sm">
-                      &quot;That must feel incredibly heavy after all the effort you&apos;ve put in. Remember: a rejection doesn&apos;t erase your skills or your journey. The right door will open — and you&apos;re more ready than ever to walk through it.&quot;
+                      "Ouch, that stings anon. Fed announcements are brutal for leveraged positions. Take a breather, then maybe stick to spot trading for a while? If you're gonna use leverage again, 2-3x max with proper stop losses. The market will always be here tomorrow 🫂"
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500">
-                    <span className="bg-blue-100 text-blue-700 px-2 sm:px-3 py-1 rounded-full font-medium">1.2 SOL received</span>
-                    <span>8 supportive replies</span>
+                    <span className="bg-blue-100 text-blue-700 px-2 sm:px-3 py-1 rounded-full font-medium">0.8 SOL received</span>
+                    <span>12 supportive replies</span>
                   </div>
                 </div>
               </div>
