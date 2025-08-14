@@ -37,21 +37,15 @@ export default function HomePage() {
 
             <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
               <div className="flex items-center space-x-2">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                 <span>Complete anonymity</span>
               </div>
               <div className="flex items-center space-x-2">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                 <span>AI emotional support</span>
               </div>
               <div className="flex items-center space-x-2">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                 <span>Tokenized rewards</span>
               </div>
             </div>
@@ -64,7 +58,7 @@ export default function HomePage() {
               <div className="bg-blue-50 p-8 rounded-2xl">
                 <div className="bg-blue-100 w-12 h-12 rounded-xl flex items-center justify-center mb-6">
                   <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Anonymous Sharing</h3>
@@ -88,10 +82,10 @@ export default function HomePage() {
               <div className="bg-green-50 p-8 rounded-2xl">
                 <div className="bg-green-100 w-12 h-12 rounded-xl flex items-center justify-center mb-6">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Earn & Give</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Community Support</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
                   Support community members with SOL tips and earn tokens for providing helpful responses and emotional support.
                 </p>
@@ -112,7 +106,7 @@ export default function HomePage() {
             <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
               <div className="flex items-start space-x-4 text-left max-w-2xl mx-auto">
                 <div className="bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-medium text-gray-600">AU</span>
+                  <span className="text-sm font-medium text-gray-600">X</span>
                 </div>
                 <div className="flex-1">
                   <div className="text-sm text-gray-500 mb-2">Anonymous User • 2 minutes ago</div>
@@ -126,7 +120,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 mt-4 text-sm text-gray-500">
-                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full">💚 12 SOL received</span>
+                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">1.2 SOL received</span>
                     <span>8 supportive replies</span>
                   </div>
                 </div>
@@ -148,9 +142,11 @@ export default function HomePage() {
                 Connect Wallet & Start
               </button>
               <div className="flex items-center justify-center space-x-6 mt-6 text-sm text-gray-500">
-                <span>✓ Free to join</span>
-                <span>✓ No personal data required</span>
-                <span>✓ Solana network</span>
+                <span>Free to join</span>
+                <span>•</span>
+                <span>No personal data required</span>
+                <span>•</span>
+                <span>Solana network</span>
               </div>
             </div>
           </div>
