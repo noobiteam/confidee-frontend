@@ -111,12 +111,12 @@ export default function HomePage() {
                 <div className="flex-1 w-full">
                   <div className="text-xs sm:text-sm text-gray-500 mb-2">Anonymous User • 5 minutes ago</div>
                   <div className="text-sm sm:text-base text-gray-900 mb-4">
-                    "Just got liquidated on my ETH long position because of that surprise Fed announcement. Lost 3 months of DCA savings in 10 minutes... Why did I use 10x leverage? Feeling so stupid right now 😭"
+                    &quot;Just got liquidated on my ETH long position because of that surprise Fed announcement. Lost 3 months of DCA savings in 10 minutes... Why did I use 100x leverage? Feeling so stupid right now 😭&quot;
                   </div>
                   <div className="bg-blue-50 border-l-4 border-blue-400 p-3 sm:p-4 rounded-r-lg">
                     <div className="text-xs sm:text-sm font-medium text-blue-900 mb-1">AI Response</div>
                     <div className="text-blue-800 text-xs sm:text-sm">
-                      "Ouch, that stings anon. Fed announcements are brutal for leveraged positions. Take a breather, then maybe stick to spot trading for a while? If you're gonna use leverage again, 2-3x max with proper stop losses. The market will always be here tomorrow 🫂"
+                      &quot;Ouch, that stings anon. Fed announcements are brutal for leveraged positions. Take a breather, then maybe stick to spot trading for a while? If you&quot;re gonna use leverage again, 2-3x max with proper stop losses. The market will always be here tomorrow 🫂&quot;
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500">
