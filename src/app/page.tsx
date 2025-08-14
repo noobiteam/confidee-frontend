@@ -23,7 +23,7 @@ export default function HomePage() {
             </div>
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2 sm:px-0">
-              The world's first anonymous
+              The world&apos;s first anonymous
               <span className="text-blue-600"> Web3 safe space</span> where your feelings matter
             </h1>
 
@@ -116,7 +116,7 @@ export default function HomePage() {
                   <div className="bg-blue-50 border-l-4 border-blue-400 p-3 sm:p-4 rounded-r-lg">
                     <div className="text-xs sm:text-sm font-medium text-blue-900 mb-1">AI Response</div>
                     <div className="text-blue-800 text-xs sm:text-sm">
-                      "That must feel incredibly heavy after all the effort you've put in. Remember: a rejection doesn't erase your skills or your journey. The right door will open — and you're more ready than ever to walk through it."
+                      "That must feel incredibly heavy after all the effort you&apos;ve put in. Remember: a rejection doesn&apos;t erase your skills or your journey. The right door will open — and you&apos;re more ready than ever to walk through it."
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500">
@@ -133,7 +133,7 @@ export default function HomePage() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="bg-white rounded-2xl p-6 sm:p-12 shadow-sm border border-gray-200">
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 px-2 sm:px-0">
-                Ready to join the world's first tokenized emotional support network?
+                Ready to join the world&apos;s first tokenized emotional support network?
               </h2>
               <p className="text-gray-600 mb-6 sm:mb-8 text-base sm:text-lg px-2 sm:px-0">
                 Connect your Solana wallet and start sharing anonymously. Your feelings matter, and your care has real value.
