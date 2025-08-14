@@ -111,12 +111,12 @@ export default function HomePage() {
                 <div className="flex-1 w-full">
                   <div className="text-xs sm:text-sm text-gray-500 mb-2">Anonymous User • 2 minutes ago</div>
                   <div className="text-sm sm:text-base text-gray-900 mb-4">
-                    "Just got rejected from my dream job after months of interviews. Feeling really discouraged and questioning my abilities..."
+                    &quot;Just got rejected from my dream job after months of interviews. Feeling really discouraged and questioning my abilities...&quot;
                   </div>
                   <div className="bg-blue-50 border-l-4 border-blue-400 p-3 sm:p-4 rounded-r-lg">
                     <div className="text-xs sm:text-sm font-medium text-blue-900 mb-1">AI Response</div>
                     <div className="text-blue-800 text-xs sm:text-sm">
-                      "That must feel incredibly heavy after all the effort you&apos;ve put in. Remember: a rejection doesn&apos;t erase your skills or your journey. The right door will open — and you&apos;re more ready than ever to walk through it."
+                      &quot;That must feel incredibly heavy after all the effort you&apos;ve put in. Remember: a rejection doesn&apos;t erase your skills or your journey. The right door will open — and you&apos;re more ready than ever to walk through it.&quot;
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500">
