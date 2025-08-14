@@ -9,8 +9,8 @@ export default function HomePage() {
               <div className="text-2xl font-bold text-gray-900">
                 HavenX
               </div>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors">
-                Connect Wallet
+              <button className="bg-gray-400 cursor-not-allowed disabled text-white px-6 py-2.5 rounded-lg font-medium transition-colors">
+                Coming Soon
               </button>
             </div>
           </div>
@@ -31,8 +31,8 @@ export default function HomePage() {
               Share your thoughts without fear, receive AI-powered emotional support, and earn rewards for helping others. Your care has real value.
             </p>
 
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-semibold rounded-lg transition-colors mb-12">
-              Connect Wallet & Start
+            <button className="bg-gray-400 cursor-not-allowed disabled text-white px-8 py-4 text-lg font-semibold rounded-lg transition-colors mb-12">
+              Coming Soon
             </button>
 
             <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
@@ -139,8 +139,8 @@ export default function HomePage() {
               <p className="text-gray-600 mb-8 text-lg">
                 Connect your Solana wallet and start sharing anonymously. Your feelings matter, and your care has real value.
               </p>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-semibold rounded-lg transition-colors">
-                Connect Wallet & Start
+              <button className="bg-gray-400 cursor-not-allowed disabled text-white px-8 py-4 text-lg font-semibold rounded-lg transition-colors">
+                Coming Soon
               </button>
               <div className="flex items-center justify-center space-x-6 mt-6 text-sm text-gray-500">
                 <span>Free to join</span>
