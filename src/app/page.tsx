@@ -1,7 +1,7 @@
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white">
-      <div className="fixed inset-0 bg-gradient-to-r from-blue-100 via-white to-blue-100"></div>
+      <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
       <div className="relative">
         <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
