@@ -8,7 +8,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'HavenX - Anonymous Support Platform',
+  title: 'HavenX',
   description: 'Share your thoughts anonymously, get AI-powered emotional support, and participate in a tokenized care economy.',
 }
 
