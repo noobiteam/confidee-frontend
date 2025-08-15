@@ -1,19 +1,32 @@
 'use client'
 
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import WalletButton from '@/components/WalletButton'
+import CreatePostModal from '@/components/CreatePostModal'
 
 export default function DashboardPage() {
     const { publicKey } = useWallet()
     const router = useRouter()
+    const [isPostModalOpen, setIsPostModalOpen] = useState(false)
+    const [posts, setPosts] = useState<Array<{ id: string, content: string, timestamp: Date, wallet: string }>>([])
 
     useEffect(() => {
         if (!publicKey) {
             router.push('/')
         }
     }, [publicKey, router])
+
+    const handlePostSubmit = (content: string) => {
+        const newPost = {
+            id: Date.now().toString(),
+            content,
+            timestamp: new Date(),
+            wallet: publicKey?.toString() || ''
+        }
+        setPosts(prev => [newPost, ...prev])
+    }
 
     if (!publicKey) {
         return null
@@ -40,11 +53,24 @@ export default function DashboardPage() {
                             Welcome to your dashboard
                         </h1>
                         <p className="text-base sm:text-lg text-gray-600 mb-8 sm:mb-10">
-                            Your anonymous safe space is being prepared. Coming soon.
+                            Share your thoughts anonymously and connect with the community.
                         </p>
+
+                        <button
+                            onClick={() => setIsPostModalOpen(true)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors"
+                        >
+                            Share Your Thoughts
+                        </button>
                     </div>
                 </section>
             </div>
+
+            <CreatePostModal
+                isOpen={isPostModalOpen}
+                onClose={() => setIsPostModalOpen(false)}
+                onSubmit={handlePostSubmit}
+            />
         </main>
     )
 }
