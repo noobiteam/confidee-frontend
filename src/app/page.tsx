@@ -1,6 +1,20 @@
+'use client'
+
+import { useWallet } from '@solana/wallet-adapter-react'
+import { useState } from 'react'
 import WalletButton from '@/components/WalletButton'
+import WalletModal from '@/components/WalletModal'
 
 export default function HomePage() {
+  const { publicKey } = useWallet()
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
+
+  const handleMainButtonClick = () => {
+    if (!publicKey) {
+      setIsWalletModalOpen(true)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-white">
       <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
@@ -31,8 +45,14 @@ export default function HomePage() {
               Share your thoughts without fear, receive AI-powered emotional support, and earn rewards for helping others. Your care has real value.
             </p>
 
-            <button className="bg-gray-400 cursor-not-allowed disabled text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors mb-8 sm:mb-12">
-              Coming Soon
+            <button
+              onClick={handleMainButtonClick}
+              className={`px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors mb-8 sm:mb-12 ${publicKey
+                ? 'bg-gray-400 cursor-not-allowed text-white'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+            >
+              {publicKey ? 'Dashboard Coming Soon' : 'Connect Wallet to Start'}
             </button>
 
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-gray-500 max-w-md sm:max-w-none mx-auto">
@@ -138,8 +158,14 @@ export default function HomePage() {
               <p className="text-gray-600 mb-6 sm:mb-8 text-base sm:text-lg px-2 sm:px-0">
                 Connect your Solana wallet and start sharing anonymously. Your feelings matter, and your care has real value.
               </p>
-              <button className="bg-gray-400 cursor-not-allowed disabled text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors">
-                Coming Soon
+              <button
+                onClick={handleMainButtonClick}
+                className={`px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors ${publicKey
+                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+              >
+                {publicKey ? 'Dashboard Coming Soon' : 'Connect Wallet to Start'}
               </button>
 
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 mt-4 sm:mt-6 text-xs sm:text-sm text-gray-500">
@@ -153,6 +179,11 @@ export default function HomePage() {
           </div>
         </section>
       </div>
+
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+      />
     </main>
   );
 }
