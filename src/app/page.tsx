@@ -2,16 +2,20 @@
 
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import WalletButton from '@/components/WalletButton'
 import WalletModal from '@/components/WalletModal'
 
 export default function HomePage() {
   const { publicKey } = useWallet()
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
+  const router = useRouter()
 
   const handleMainButtonClick = () => {
     if (!publicKey) {
       setIsWalletModalOpen(true)
+    } else {
+      router.push('/dashboard')
     }
   }
 
@@ -47,15 +51,15 @@ export default function HomePage() {
 
             <button
               onClick={handleMainButtonClick}
-              className={`px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors mb-8 sm:mb-12 ${publicKey
-                ? 'bg-gray-400 cursor-not-allowed text-white'
+              className={`px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors ${publicKey
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
                 : 'bg-blue-600 hover:bg-blue-700 text-white'
                 }`}
             >
-              {publicKey ? 'Dashboard Coming Soon' : 'Connect Wallet to Start'}
+              {publicKey ? 'Go to Dashboard' : 'Connect Wallet to Start'}
             </button>
 
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-gray-500 max-w-md sm:max-w-none mx-auto">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-gray-500 max-w-md sm:max-w-none mx-auto mt-10">
               <div className="flex items-center space-x-2">
                 <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                 <span>Complete anonymity</span>
