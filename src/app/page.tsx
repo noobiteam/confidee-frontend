@@ -1,3 +1,5 @@
+import WalletButton from '@/components/WalletButton'
+
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white">
@@ -9,9 +11,7 @@ export default function HomePage() {
               <div className="text-xl sm:text-2xl font-bold text-gray-900">
                 Confidee
               </div>
-              <button className="bg-gray-400 cursor-not-allowed disabled text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-colors">
-                Coming Soon
-              </button>
+              <WalletButton />
             </div>
           </div>
         </nav>
