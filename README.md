@@ -1,10 +1,10 @@
-# HavenX
+# Confidee
 
 Anonymous Web3 platform for emotional support with AI-powered responses and tokenized community economy.
 
 ## Overview
 
-HavenX is a decentralized platform that combines emotional wellness with blockchain technology. Users can share their thoughts anonymously, receive AI-generated supportive responses, and participate in a tokenized care economy where helping others is directly rewarded.
+Confidee is a decentralized platform that combines emotional wellness with blockchain technology. Users can share their thoughts anonymously, receive AI-generated supportive responses, and participate in a tokenized care economy where helping others is directly rewarded.
 
 ## Key Features
 
@@ -36,6 +36,6 @@ HavenX is a decentralized platform that combines emotional wellness with blockch
 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/havenx-frontend.git
-cd havenx-frontend
+git clone https://github.com/yourusername/confidee-frontend.git
+cd confidee-frontend
 ```

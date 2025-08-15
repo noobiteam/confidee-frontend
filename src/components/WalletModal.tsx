@@ -3,6 +3,7 @@
 import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletName } from '@solana/wallet-adapter-base'
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 interface WalletModalProps {
     isOpen: boolean
@@ -28,7 +29,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
     if (!mounted || !isOpen) return null
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
 
@@ -74,6 +75,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     </p>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }
