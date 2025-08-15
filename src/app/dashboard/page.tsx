@@ -6,12 +6,30 @@ import { useRouter } from 'next/navigation'
 import WalletButton from '@/components/WalletButton'
 import CreatePostModal from '@/components/CreatePostModal'
 import PostCard from '@/components/PostCard'
+import ReplyModal from '@/components/ReplyModal'
 
 export default function DashboardPage() {
     const { publicKey } = useWallet()
     const router = useRouter()
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
-    const [posts, setPosts] = useState<Array<{ id: string, content: string, timestamp: Date, wallet: string }>>([])
+    const [isReplyModalOpen, setIsReplyModalOpen] = useState(false)
+    const [replyingToPostId, setReplyingToPostId] = useState<string>('')
+    const [posts, setPosts] = useState<Array<{
+        id: string,
+        content: string,
+        timestamp: Date,
+        wallet: string,
+        aiResponse?: {
+            content: string,
+            timestamp: Date
+        },
+        replies: Array<{
+            id: string,
+            content: string,
+            timestamp: Date,
+            wallet: string
+        }>
+    }>>([])
 
     useEffect(() => {
         if (!publicKey) {
@@ -24,9 +42,62 @@ export default function DashboardPage() {
             id: Date.now().toString(),
             content,
             timestamp: new Date(),
-            wallet: publicKey?.toString() || ''
+            wallet: publicKey?.toString() || '',
+            replies: []
         }
         setPosts(prev => [newPost, ...prev])
+
+        setTimeout(() => {
+            const aiResponseContent = generateAIResponse(content)
+            setPosts(prev => prev.map(post =>
+                post.id === newPost.id
+                    ? {
+                        ...post,
+                        aiResponse: {
+                            content: aiResponseContent,
+                            timestamp: new Date()
+                        }
+                    }
+                    : post
+            ))
+        }, 2000)
+    }
+
+    const handleReplyClick = (postId: string) => {
+        setReplyingToPostId(postId)
+        setIsReplyModalOpen(true)
+    }
+
+    const handleReplySubmit = (content: string) => {
+        const newReply = {
+            id: Date.now().toString(),
+            content,
+            timestamp: new Date(),
+            wallet: publicKey?.toString() || ''
+        }
+
+        setPosts(prev => prev.map(post =>
+            post.id === replyingToPostId
+                ? {
+                    ...post,
+                    replies: [...post.replies, newReply]
+                }
+                : post
+        ))
+    }
+
+    const generateAIResponse = (postContent: string) => {
+        const responses = [
+            "I hear you anon. That sounds really tough. Remember that setbacks are temporary, and you're stronger than you think. Take it one day at a time.",
+            "Thanks for sharing this with us. What you're feeling is completely valid. Have you considered talking to someone you trust about this?",
+            "That's a lot to process. Sometimes writing down our thoughts like this can be the first step toward feeling better. You're not alone in this.",
+            "I appreciate you being vulnerable here. It takes courage to share what's really on your mind. How are you taking care of yourself right now?",
+            "This resonates with me. Life can be overwhelming sometimes. What's one small thing that usually helps you feel a bit better?",
+            "Thank you for trusting the community with this. Your feelings matter, and it's okay to not have all the answers right now.",
+            "I can sense the weight you're carrying. Sometimes just getting these thoughts out can provide some relief. What support do you have around you?"
+        ]
+
+        return responses[Math.floor(Math.random() * responses.length)]
     }
 
     if (!publicKey) {
@@ -77,6 +148,9 @@ export default function DashboardPage() {
                                         content={post.content}
                                         timestamp={post.timestamp}
                                         wallet={post.wallet}
+                                        aiResponse={post.aiResponse}
+                                        replies={post.replies}
+                                        onReply={handleReplyClick}
                                     />
                                 ))}
                             </div>
@@ -104,6 +178,13 @@ export default function DashboardPage() {
                 isOpen={isPostModalOpen}
                 onClose={() => setIsPostModalOpen(false)}
                 onSubmit={handlePostSubmit}
+            />
+
+            <ReplyModal
+                isOpen={isReplyModalOpen}
+                onClose={() => setIsReplyModalOpen(false)}
+                onSubmit={handleReplySubmit}
+                postId={replyingToPostId}
             />
         </main>
     )
