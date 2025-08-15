@@ -7,7 +7,7 @@ export default function HomePage() {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
             <div className="flex items-center justify-between">
               <div className="text-xl sm:text-2xl font-bold text-gray-900">
-                HavenX
+                Confidee
               </div>
               <button className="bg-gray-400 cursor-not-allowed disabled text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-colors">
                 Coming Soon
