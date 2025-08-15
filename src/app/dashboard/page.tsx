@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import WalletButton from '@/components/WalletButton'
 import CreatePostModal from '@/components/CreatePostModal'
+import PostCard from '@/components/PostCard'
 
 export default function DashboardPage() {
     const { publicKey } = useWallet()
@@ -62,6 +63,39 @@ export default function DashboardPage() {
                         >
                             Share Your Thoughts
                         </button>
+                    </div>
+                </section>
+
+                <section className="pb-12 sm:pb-20 px-4 sm:px-6">
+                    <div className="max-w-4xl mx-auto">
+                        {posts.length > 0 ? (
+                            <div className="space-y-6">
+                                {posts.map((post) => (
+                                    <PostCard
+                                        key={post.id}
+                                        id={post.id}
+                                        content={post.content}
+                                        timestamp={post.timestamp}
+                                        wallet={post.wallet}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12">
+                                <div className="bg-gray-50 rounded-2xl p-8 sm:p-12">
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-3">No posts yet</h3>
+                                    <p className="text-gray-600 mb-6">
+                                        Be the first to share your thoughts with the community. Your voice matters.
+                                    </p>
+                                    <button
+                                        onClick={() => setIsPostModalOpen(true)}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-medium rounded-lg transition-colors"
+                                    >
+                                        Create Your First Post
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </section>
             </div>
