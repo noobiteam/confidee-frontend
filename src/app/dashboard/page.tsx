@@ -161,7 +161,7 @@ export default function DashboardPage() {
                             Welcome to your safe space
                         </h1>
                         <p className="text-base sm:text-lg text-gray-600 mb-8 sm:mb-10">
-                            Share whatever's on your heart, we're here to listen
+                            Share whatever&apos;s on your heart, we&apos;re here to listen
                         </p>
 
                         <button
