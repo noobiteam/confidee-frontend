@@ -4,6 +4,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletName } from '@solana/wallet-adapter-base'
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import Link from 'next/link'
 
 interface WalletModalProps {
     isOpen: boolean
@@ -71,7 +72,22 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
                 <div className="mt-6 text-center">
                     <p className="text-xs text-gray-500">
-                        By connecting, you agree to Confidee&apos;s terms of service
+                        By connecting, you agree to our{' '}
+                        <Link
+                            href="/terms"
+                            target="_blank"
+                            className="text-blue-600 hover:text-blue-700 underline"
+                        >
+                            Terms of Service
+                        </Link>
+                        {' '}and{' '}
+                        <Link
+                            href="/privacy"
+                            target="_blank"
+                            className="text-blue-600 hover:text-blue-700 underline"
+                        >
+                            Privacy Policy
+                        </Link>
                     </p>
                 </div>
             </div>
