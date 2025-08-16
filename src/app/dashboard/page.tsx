@@ -137,10 +137,15 @@ export default function DashboardPage() {
                     </div>
                 </section>
 
-                <section className="pb-12 sm:pb-20 px-4 sm:px-6">
-                    <div className="max-w-4xl mx-auto">
+                <section className="pb-12 sm:pb-20 px-20">
+                    <div className="mx-auto">
                         {posts.length > 0 ? (
-                            <div className="space-y-6">
+                            <div className={`grid gap-6 ${posts.length === 1
+                                ? 'grid-cols-1'
+                                : posts.length === 2
+                                    ? 'grid-cols-1 sm:grid-cols-2'
+                                    : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
+                                }`}>
                                 {posts.map((post) => (
                                     <PostCard
                                         key={post.id}
