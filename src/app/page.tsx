@@ -165,11 +165,11 @@ export default function HomePage() {
               <button
                 onClick={handleMainButtonClick}
                 className={`px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors ${publicKey
-                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
                   }`}
               >
-                {publicKey ? 'Dashboard Coming Soon' : 'Connect Wallet to Start'}
+                {publicKey ? 'Enter your safe space' : 'Connect Wallet to Start'}
               </button>
 
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 mt-4 sm:mt-6 text-xs sm:text-sm text-gray-500">
