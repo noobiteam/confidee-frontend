@@ -9,6 +9,7 @@ import PostCard from '@/components/PostCard'
 import ReplyModal from '@/components/ReplyModal'
 import UsernameModal from '@/components/UsernameModal'
 import { hasUsername, saveUsername, getUsername } from '@/utils/username'
+import { saveLike, removeLike, hasUserLiked, getLikeData } from '@/utils/likes'
 import Footer from '@/components/Footer'
 
 export default function DashboardPage() {
@@ -24,6 +25,8 @@ export default function DashboardPage() {
         content: string,
         timestamp: Date,
         wallet: string,
+        likes: string[],
+        likeCount: number,
         aiResponse?: {
             content: string,
             timestamp: Date
@@ -48,6 +51,17 @@ export default function DashboardPage() {
             setIsEditingUsername(false)
         }
     }, [publicKey, router])
+
+    useEffect(() => {
+        setPosts(prev => prev.map(post => {
+            const { likes, likeCount } = getLikeData(post.id)
+            return {
+                ...post,
+                likes,
+                likeCount
+            }
+        }))
+    }, [])
 
     const handleEditUsername = () => {
         setIsEditingUsername(true)
@@ -75,11 +89,16 @@ export default function DashboardPage() {
     }
 
     const handlePostSubmit = (content: string) => {
+        const postId = Date.now().toString()
+        const { likes, likeCount } = getLikeData(postId)
+
         const newPost = {
-            id: Date.now().toString(),
+            id: postId,
             content,
             timestamp: new Date(),
             wallet: publicKey?.toString() || '',
+            likes,
+            likeCount,
             replies: []
         }
         setPosts(prev => [newPost, ...prev])
@@ -121,6 +140,31 @@ export default function DashboardPage() {
                 }
                 : post
         ))
+    }
+
+    const handleLike = (postId: string) => {
+        if (!publicKey) return
+
+        const walletAddress = publicKey.toString()
+        const userHasLiked = hasUserLiked(postId, walletAddress)
+
+        if (userHasLiked) {
+            removeLike(postId, walletAddress)
+        } else {
+            saveLike(postId, walletAddress)
+        }
+
+        setPosts(prev => prev.map(post => {
+            if (post.id === postId) {
+                const { likes, likeCount } = getLikeData(postId)
+                return {
+                    ...post,
+                    likes,
+                    likeCount
+                }
+            }
+            return post
+        }))
     }
 
     const generateAIResponse = (postContent: string) => {
@@ -196,9 +240,13 @@ export default function DashboardPage() {
                                             content={post.content}
                                             timestamp={post.timestamp}
                                             wallet={post.wallet}
+                                            likes={post.likes}
+                                            likeCount={post.likeCount}
+                                            currentUserWallet={publicKey?.toString() || ''}
                                             aiResponse={post.aiResponse}
                                             replies={post.replies}
                                             onReply={handleReplyClick}
+                                            onLike={handleLike}
                                         />
                                     </div>
                                 ))}

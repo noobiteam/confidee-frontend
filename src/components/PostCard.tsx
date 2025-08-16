@@ -7,6 +7,9 @@ interface PostCardProps {
     content: string
     timestamp: Date
     wallet: string
+    likes: string[]
+    likeCount: number
+    currentUserWallet: string
     aiResponse?: {
         content: string
         timestamp: Date
@@ -18,13 +21,15 @@ interface PostCardProps {
         wallet: string
     }>
     onReply: (postId: string) => void
+    onLike: (postId: string) => void
 }
 
-export default function PostCard({ id, content, timestamp, wallet, aiResponse, replies, onReply }: PostCardProps) {
+export default function PostCard({ id, content, timestamp, wallet, likes, likeCount, currentUserWallet, aiResponse, replies, onReply, onLike }: PostCardProps) {
     const shortWallet = `${wallet.slice(0, 4)}...${wallet.slice(-4)}`
     const timeAgo = new Date(timestamp).toLocaleString()
     const username = getUsername(wallet)
     const displayName = username || 'Anonymous User'
+    const hasUserLiked = likes.includes(currentUserWallet)
 
     return (
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
@@ -77,12 +82,27 @@ export default function PostCard({ id, content, timestamp, wallet, aiResponse, r
 
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                         <span className="bg-gray-100 px-3 py-1 rounded-full">{shortWallet}</span>
+
+                        <button
+                            onClick={() => onLike(id)}
+                            className={`flex items-center space-x-1 transition-all duration-150 ease-out hover:scale-105 active:scale-110 ${hasUserLiked
+                                ? 'text-red-600 hover:text-red-700'
+                                : 'text-gray-500 hover:text-red-600'
+                                }`}
+                        >
+                            <svg className="w-4 h-4 transition-transform duration-150 ease-out" fill={hasUserLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            <span className="transition-all duration-150 ease-out">{likeCount}</span>
+                        </button>
+
                         <button
                             onClick={() => onReply(id)}
                             className="hover:text-blue-600 transition-colors"
                         >
                             Reply
                         </button>
+
                         <button className="hover:text-green-600 transition-colors">Tip</button>
                     </div>
                 </div>
