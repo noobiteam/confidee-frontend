@@ -6,8 +6,6 @@ import { useRouter } from 'next/navigation'
 import WalletButton from '@/components/WalletButton'
 import CreatePostModal from '@/components/CreatePostModal'
 import PostCard from '@/components/PostCard'
-import UsernameModal from '@/components/UsernameModal'
-import { hasUsername, saveUsername, getUsername } from '@/utils/username'
 import { saveLike, removeLike, hasUserLiked, getLikeData } from '@/utils/likes'
 import { getPosts, savePost, updatePost, Post } from '@/utils/posts'
 import Footer from '@/components/Footer'
@@ -17,19 +15,12 @@ export default function DashboardPage() {
     const { publicKey } = useWallet()
     const router = useRouter()
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
-    const [isUsernameModalOpen, setIsUsernameModalOpen] = useState(false)
-    const [isEditingUsername, setIsEditingUsername] = useState(false)
     const [posts, setPosts] = useState<Post[]>([])
+
     useEffect(() => {
         if (!publicKey) {
             router.push('/')
             return
-        }
-
-        const walletAddress = publicKey.toString()
-        if (!hasUsername(walletAddress)) {
-            setIsUsernameModalOpen(true)
-            setIsEditingUsername(false)
         }
 
         const storedPosts = getPosts()
@@ -46,31 +37,6 @@ export default function DashboardPage() {
             }
         }))
     }, [])
-
-    const handleEditUsername = () => {
-        setIsEditingUsername(true)
-        setIsUsernameModalOpen(true)
-    }
-
-    const handleUsernameSubmit = (username: string) => {
-        if (publicKey) {
-            saveUsername(publicKey.toString(), username)
-        }
-        setIsEditingUsername(false)
-    }
-
-    const handleUsernameModalClose = () => {
-        if (!isEditingUsername) {
-            return
-        }
-        setIsUsernameModalOpen(false)
-        setIsEditingUsername(false)
-    }
-
-    const getCurrentUsername = () => {
-        if (!publicKey) return ''
-        return getUsername(publicKey.toString()) || ''
-    }
 
     const handlePostSubmit = (content: string) => {
         const postId = Date.now().toString()
@@ -167,7 +133,7 @@ export default function DashboardPage() {
                             <Link href="/" className="text-xl sm:text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
                                 Confidee
                             </Link>
-                            <WalletButton onEditUsername={handleEditUsername} />
+                            <WalletButton />
                         </div>
                     </div>
                 </nav>
@@ -236,14 +202,6 @@ export default function DashboardPage() {
                 isOpen={isPostModalOpen}
                 onClose={() => setIsPostModalOpen(false)}
                 onSubmit={handlePostSubmit}
-            />
-
-            <UsernameModal
-                isOpen={isUsernameModalOpen}
-                onClose={handleUsernameModalClose}
-                onSubmit={handleUsernameSubmit}
-                currentUsername={getCurrentUsername()}
-                isEditing={isEditingUsername}
             />
         </main>
     )

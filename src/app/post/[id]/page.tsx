@@ -5,10 +5,8 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import WalletButton from '@/components/WalletButton'
-import { hasUsername, saveUsername, getUsername } from '@/utils/username'
 import { saveLike, removeLike, hasUserLiked, getLikeData } from '@/utils/likes'
 import { getPostById, updatePost, addReplyToPost, getPosts, Post } from '@/utils/posts'
-import UsernameModal from '@/components/UsernameModal'
 import PostsSidebar from '@/components/PostsSidebar'
 import Footer from '@/components/Footer'
 
@@ -18,8 +16,6 @@ export default function PostDetailPage() {
     const params = useParams()
     const postId = params?.id as string
 
-    const [isUsernameModalOpen, setIsUsernameModalOpen] = useState(false)
-    const [isEditingUsername, setIsEditingUsername] = useState(false)
     const [post, setPost] = useState<Post | null>(null)
     const [allPosts, setAllPosts] = useState<Post[]>([])
     const [loading, setLoading] = useState(true)
@@ -30,12 +26,6 @@ export default function PostDetailPage() {
         if (!publicKey) {
             router.push('/')
             return
-        }
-
-        const walletAddress = publicKey.toString()
-        if (!hasUsername(walletAddress)) {
-            setIsUsernameModalOpen(true)
-            setIsEditingUsername(false)
         }
 
         const storedPosts = getPosts()
@@ -55,31 +45,6 @@ export default function PostDetailPage() {
             setSidebarLoading(false)
         }
     }, [publicKey, router, postId])
-
-    const handleEditUsername = () => {
-        setIsEditingUsername(true)
-        setIsUsernameModalOpen(true)
-    }
-
-    const handleUsernameSubmit = (username: string) => {
-        if (publicKey) {
-            saveUsername(publicKey.toString(), username)
-        }
-        setIsEditingUsername(false)
-    }
-
-    const handleUsernameModalClose = () => {
-        if (!isEditingUsername) {
-            return
-        }
-        setIsUsernameModalOpen(false)
-        setIsEditingUsername(false)
-    }
-
-    const getCurrentUsername = () => {
-        if (!publicKey) return ''
-        return getUsername(publicKey.toString()) || ''
-    }
 
     const handleLike = () => {
         if (!publicKey || !post) return
@@ -150,7 +115,7 @@ export default function PostDetailPage() {
                                 <Link href="/" className="text-xl sm:text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
                                     Confidee
                                 </Link>
-                                <WalletButton onEditUsername={handleEditUsername} />
+                                <WalletButton />
                             </div>
                         </div>
                     </nav>
@@ -162,13 +127,6 @@ export default function PostDetailPage() {
                     </section>
                 </div>
                 <Footer />
-                <UsernameModal
-                    isOpen={isUsernameModalOpen}
-                    onClose={handleUsernameModalClose}
-                    onSubmit={handleUsernameSubmit}
-                    currentUsername={getCurrentUsername()}
-                    isEditing={isEditingUsername}
-                />
             </main>
         )
     }
@@ -184,7 +142,7 @@ export default function PostDetailPage() {
                                 <Link href="/dashboard" className="text-xl sm:text-2xl font-bold text-gray-900">
                                     Confidee
                                 </Link>
-                                <WalletButton onEditUsername={handleEditUsername} />
+                                <WalletButton />
                             </div>
                         </div>
                     </nav>
@@ -207,13 +165,6 @@ export default function PostDetailPage() {
                     </section>
                 </div>
                 <Footer />
-                <UsernameModal
-                    isOpen={isUsernameModalOpen}
-                    onClose={handleUsernameModalClose}
-                    onSubmit={handleUsernameSubmit}
-                    currentUsername={getCurrentUsername()}
-                    isEditing={isEditingUsername}
-                />
             </main>
         )
     }
@@ -228,7 +179,7 @@ export default function PostDetailPage() {
                             <Link href="/dashboard" className="text-xl sm:text-2xl font-bold text-gray-900">
                                 Confidee
                             </Link>
-                            <WalletButton onEditUsername={handleEditUsername} />
+                            <WalletButton />
                         </div>
                     </div>
                 </nav>
@@ -257,7 +208,7 @@ export default function PostDetailPage() {
                                         <div className="flex-1">
                                             <div className="flex items-center space-x-2 mb-3">
                                                 <span className="text-sm font-medium text-gray-500">
-                                                    {getUsername(post.wallet) || 'Anonymous User'}
+                                                    Anonymous User
                                                 </span>
                                                 <span className="text-gray-300">•</span>
                                                 <span className="text-sm text-gray-500">
@@ -335,7 +286,7 @@ export default function PostDetailPage() {
                                             <div key={reply.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4">
                                                 <div className="flex items-center space-x-2 mb-2">
                                                     <span className="text-sm font-medium text-gray-500">
-                                                        {getUsername(reply.wallet) || 'Anonymous User'}
+                                                        Anonymous User
                                                     </span>
                                                     <span className="text-gray-300">•</span>
                                                     <span className="text-sm text-gray-500">
@@ -391,13 +342,6 @@ export default function PostDetailPage() {
                 </section>
             </div>
             <Footer />
-            <UsernameModal
-                isOpen={isUsernameModalOpen}
-                onClose={handleUsernameModalClose}
-                onSubmit={handleUsernameSubmit}
-                currentUsername={getCurrentUsername()}
-                isEditing={isEditingUsername}
-            />
         </main>
     )
 }

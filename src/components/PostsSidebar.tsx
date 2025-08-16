@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Post } from '@/utils/posts'
-import { getUsername } from '@/utils/username'
 
 interface PostsSidebarProps {
     posts: Post[]
@@ -54,7 +53,7 @@ export default function PostsSidebar({ posts, currentPostId, onPostClick, loadin
                                 <span className="text-xs font-medium text-gray-600">AU</span>
                             </div>
                             <span className="text-xs font-medium text-gray-500 truncate">
-                                {getUsername(post.wallet) || 'Anonymous User'}
+                                Anonymous User
                             </span>
                             <span className="text-xs text-gray-400">•</span>
                             <span className="text-xs text-gray-400 truncate">
