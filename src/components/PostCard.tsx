@@ -1,5 +1,7 @@
 'use client'
 
+import { getUsername } from '@/utils/username'
+
 interface PostCardProps {
     id: string
     content: string
@@ -21,6 +23,8 @@ interface PostCardProps {
 export default function PostCard({ id, content, timestamp, wallet, aiResponse, replies, onReply }: PostCardProps) {
     const shortWallet = `${wallet.slice(0, 4)}...${wallet.slice(-4)}`
     const timeAgo = new Date(timestamp).toLocaleString()
+    const username = getUsername(wallet)
+    const displayName = username || 'Anonymous User'
 
     return (
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
@@ -30,7 +34,7 @@ export default function PostCard({ id, content, timestamp, wallet, aiResponse, r
                 </div>
                 <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
-                        <span className="text-sm font-medium text-gray-500">Anonymous User</span>
+                        <span className="text-sm font-medium text-gray-500">{displayName}</span>
                         <span className="text-gray-300">•</span>
                         <span className="text-sm text-gray-500">{timeAgo}</span>
                     </div>
@@ -53,16 +57,21 @@ export default function PostCard({ id, content, timestamp, wallet, aiResponse, r
 
                     {replies.length > 0 && (
                         <div className="space-y-3 mb-4">
-                            {replies.map((reply) => (
-                                <div key={reply.id} className="bg-gray-50 p-3 rounded-lg ml-4">
-                                    <div className="flex items-center space-x-2 mb-1">
-                                        <span className="text-xs font-medium text-gray-500">Anonymous User</span>
-                                        <span className="text-gray-300">•</span>
-                                        <span className="text-xs text-gray-500">{new Date(reply.timestamp).toLocaleString()}</span>
+                            {replies.map((reply) => {
+                                const replyUsername = getUsername(reply.wallet)
+                                const replyDisplayName = replyUsername || 'Anonymous User'
+
+                                return (
+                                    <div key={reply.id} className="bg-gray-50 p-3 rounded-lg ml-4">
+                                        <div className="flex items-center space-x-2 mb-1">
+                                            <span className="text-xs font-medium text-gray-500">{replyDisplayName}</span>
+                                            <span className="text-gray-300">•</span>
+                                            <span className="text-xs text-gray-500">{new Date(reply.timestamp).toLocaleString()}</span>
+                                        </div>
+                                        <div className="text-sm text-gray-800">{reply.content}</div>
                                     </div>
-                                    <div className="text-sm text-gray-800">{reply.content}</div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     )}
 

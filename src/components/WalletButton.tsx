@@ -4,7 +4,11 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useState, useEffect } from 'react'
 import WalletModal from './WalletModal'
 
-export default function WalletButton() {
+interface WalletButtonProps {
+    onEditUsername?: () => void
+}
+
+export default function WalletButton({ onEditUsername }: WalletButtonProps) {
     const { publicKey, disconnect, connecting } = useWallet()
     const [mounted, setMounted] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -41,6 +45,16 @@ export default function WalletButton() {
                     <div className="p-3">
                         <div className="text-xs text-gray-500 mb-2">Connected Wallet</div>
                         <div className="text-sm font-mono text-gray-900 mb-3 break-all">{publicKey.toString()}</div>
+
+                        {onEditUsername && (
+                            <button
+                                onClick={onEditUsername}
+                                className="w-full bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors mb-2"
+                            >
+                                Edit Username
+                            </button>
+                        )}
+
                         <button
                             onClick={disconnect}
                             className="w-full bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"

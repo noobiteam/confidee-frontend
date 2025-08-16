@@ -7,12 +7,16 @@ import WalletButton from '@/components/WalletButton'
 import CreatePostModal from '@/components/CreatePostModal'
 import PostCard from '@/components/PostCard'
 import ReplyModal from '@/components/ReplyModal'
+import UsernameModal from '@/components/UsernameModal'
+import { hasUsername, saveUsername, getUsername } from '@/utils/username'
 
 export default function DashboardPage() {
     const { publicKey } = useWallet()
     const router = useRouter()
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
     const [isReplyModalOpen, setIsReplyModalOpen] = useState(false)
+    const [isUsernameModalOpen, setIsUsernameModalOpen] = useState(false)
+    const [isEditingUsername, setIsEditingUsername] = useState(false)
     const [replyingToPostId, setReplyingToPostId] = useState<string>('')
     const [posts, setPosts] = useState<Array<{
         id: string,
@@ -34,8 +38,40 @@ export default function DashboardPage() {
     useEffect(() => {
         if (!publicKey) {
             router.push('/')
+            return
+        }
+
+        const walletAddress = publicKey.toString()
+        if (!hasUsername(walletAddress)) {
+            setIsUsernameModalOpen(true)
+            setIsEditingUsername(false)
         }
     }, [publicKey, router])
+
+    const handleEditUsername = () => {
+        setIsEditingUsername(true)
+        setIsUsernameModalOpen(true)
+    }
+
+    const handleUsernameSubmit = (username: string) => {
+        if (publicKey) {
+            saveUsername(publicKey.toString(), username)
+        }
+        setIsEditingUsername(false)
+    }
+
+    const handleUsernameModalClose = () => {
+        if (!isEditingUsername) {
+            return
+        }
+        setIsUsernameModalOpen(false)
+        setIsEditingUsername(false)
+    }
+
+    const getCurrentUsername = () => {
+        if (!publicKey) return ''
+        return getUsername(publicKey.toString()) || ''
+    }
 
     const handlePostSubmit = (content: string) => {
         const newPost = {
@@ -114,7 +150,7 @@ export default function DashboardPage() {
                             <div className="text-xl sm:text-2xl font-bold text-gray-900">
                                 Confidee
                             </div>
-                            <WalletButton />
+                            <WalletButton onEditUsername={handleEditUsername} />
                         </div>
                     </div>
                 </nav>
@@ -125,7 +161,7 @@ export default function DashboardPage() {
                             Welcome to your safe space
                         </h1>
                         <p className="text-base sm:text-lg text-gray-600 mb-8 sm:mb-10">
-                            Share whatever&apos;s on your heart, we&apos;re here to listen
+                            Share whatever's on your heart, we're here to listen
                         </p>
 
                         <button
@@ -168,7 +204,7 @@ export default function DashboardPage() {
                             </div>
                         ) : (
                             <div className="text-center py-12">
-                                <div className="rounded-2xl p-8 sm:p-12">
+                                <div className="bg-gray-50 rounded-2xl p-8 sm:p-12">
                                     <h3 className="text-xl font-semibold text-gray-900 mb-3">Your space is ready for your first thought</h3>
                                     <p className="text-gray-600">
                                         This is where your story begins
@@ -191,6 +227,14 @@ export default function DashboardPage() {
                 onClose={() => setIsReplyModalOpen(false)}
                 onSubmit={handleReplySubmit}
                 postId={replyingToPostId}
+            />
+
+            <UsernameModal
+                isOpen={isUsernameModalOpen}
+                onClose={handleUsernameModalClose}
+                onSubmit={handleUsernameSubmit}
+                currentUsername={getCurrentUsername()}
+                isEditing={isEditingUsername}
             />
         </main>
     )
