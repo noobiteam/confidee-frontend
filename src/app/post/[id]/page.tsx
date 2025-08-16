@@ -147,7 +147,7 @@ export default function PostDetailPage() {
                     <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
                         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
                             <div className="flex items-center justify-between">
-                                <Link href="/dashboard" className="text-xl sm:text-2xl font-bold text-gray-900">
+                                <Link href="/" className="text-xl sm:text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
                                     Confidee
                                 </Link>
                                 <WalletButton onEditUsername={handleEditUsername} />

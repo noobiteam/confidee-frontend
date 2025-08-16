@@ -11,6 +11,7 @@ import { hasUsername, saveUsername, getUsername } from '@/utils/username'
 import { saveLike, removeLike, hasUserLiked, getLikeData } from '@/utils/likes'
 import { getPosts, savePost, updatePost, Post } from '@/utils/posts'
 import Footer from '@/components/Footer'
+import Link from 'next/link'
 
 export default function DashboardPage() {
     const { publicKey } = useWallet()
@@ -163,9 +164,9 @@ export default function DashboardPage() {
                 <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
                     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
                         <div className="flex items-center justify-between">
-                            <div className="text-xl sm:text-2xl font-bold text-gray-900">
+                            <Link href="/" className="text-xl sm:text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
                                 Confidee
-                            </div>
+                            </Link>
                             <WalletButton onEditUsername={handleEditUsername} />
                         </div>
                     </div>
