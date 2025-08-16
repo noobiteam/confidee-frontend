@@ -27,7 +27,7 @@ export const getPosts = (): Post[] => {
     if (!stored) return [];
 
     const posts = JSON.parse(stored);
-    return posts.map((post: any) => ({
+    return posts.map((post: Post) => ({
       ...post,
       timestamp: new Date(post.timestamp),
       aiResponse: post.aiResponse
@@ -36,7 +36,7 @@ export const getPosts = (): Post[] => {
             timestamp: new Date(post.aiResponse.timestamp),
           }
         : undefined,
-      replies: post.replies.map((reply: any) => ({
+      replies: post.replies.map((reply: Post["replies"][0]) => ({
         ...reply,
         timestamp: new Date(reply.timestamp),
       })),

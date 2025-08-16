@@ -7,10 +7,9 @@ interface ReplyModalProps {
     isOpen: boolean
     onClose: () => void
     onSubmit: (content: string) => void
-    postId: string
 }
 
-export default function ReplyModal({ isOpen, onClose, onSubmit, postId }: ReplyModalProps) {
+export default function ReplyModal({ isOpen, onClose, onSubmit }: ReplyModalProps) {
     const [content, setContent] = useState('')
     const [mounted, setMounted] = useState(false)
 

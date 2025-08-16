@@ -9,7 +9,7 @@ import PostCard from '@/components/PostCard'
 import UsernameModal from '@/components/UsernameModal'
 import { hasUsername, saveUsername, getUsername } from '@/utils/username'
 import { saveLike, removeLike, hasUserLiked, getLikeData } from '@/utils/likes'
-import { getPosts, savePost, addReplyToPost, updatePost, Post } from '@/utils/posts'
+import { getPosts, savePost, updatePost, Post } from '@/utils/posts'
 import Footer from '@/components/Footer'
 
 export default function DashboardPage() {
@@ -89,7 +89,7 @@ export default function DashboardPage() {
         setPosts(prev => [newPost, ...prev])
 
         setTimeout(() => {
-            const aiResponseContent = generateAIResponse(content)
+            const aiResponseContent = generateAIResponse()
             const updatedPost = {
                 ...newPost,
                 aiResponse: {
@@ -137,7 +137,7 @@ export default function DashboardPage() {
         }))
     }
 
-    const generateAIResponse = (postContent: string) => {
+    const generateAIResponse = () => {
         const responses = [
             "I hear you anon. That sounds really tough. Remember that setbacks are temporary, and you're stronger than you think. Take it one day at a time.",
             "Thanks for sharing this with us. What you're feeling is completely valid. Have you considered talking to someone you trust about this?",
@@ -192,7 +192,7 @@ export default function DashboardPage() {
                     <div className="mx-auto">
                         {posts.length > 0 ? (
                             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                                {posts.map((post, index) => (
+                                {posts.map((post) => (
                                     <div
                                         key={post.id}
                                         className={posts.length === 1 ? 'md:col-start-2' : ''}
