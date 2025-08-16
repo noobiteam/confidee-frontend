@@ -122,17 +122,17 @@ export default function DashboardPage() {
                 <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6">
                     <div className="max-w-4xl mx-auto text-center">
                         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
-                            Welcome to your dashboard
+                            Welcome to your safe space
                         </h1>
                         <p className="text-base sm:text-lg text-gray-600 mb-8 sm:mb-10">
-                            Share your thoughts anonymously and connect with the community.
+                            Share whatever's on your heart, we're here to listen
                         </p>
 
                         <button
                             onClick={() => setIsPostModalOpen(true)}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors"
                         >
-                            Share Your Thoughts
+                            Ready to share?
                         </button>
                     </div>
                 </section>
@@ -156,17 +156,11 @@ export default function DashboardPage() {
                             </div>
                         ) : (
                             <div className="text-center py-12">
-                                <div className="bg-gray-50 rounded-2xl p-8 sm:p-12">
-                                    <h3 className="text-xl font-semibold text-gray-900 mb-3">No posts yet</h3>
-                                    <p className="text-gray-600 mb-6">
-                                        Be the first to share your thoughts with the community. Your voice matters.
+                                <div className="rounded-2xl p-8 sm:p-12">
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-3">Your space is ready for your first thought</h3>
+                                    <p className="text-gray-600">
+                                        This is where your story begins
                                     </p>
-                                    <button
-                                        onClick={() => setIsPostModalOpen(true)}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-medium rounded-lg transition-colors"
-                                    >
-                                        Create Your First Post
-                                    </button>
                                 </div>
                             </div>
                         )}
