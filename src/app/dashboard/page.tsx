@@ -6,39 +6,19 @@ import { useRouter } from 'next/navigation'
 import WalletButton from '@/components/WalletButton'
 import CreatePostModal from '@/components/CreatePostModal'
 import PostCard from '@/components/PostCard'
-import ReplyModal from '@/components/ReplyModal'
 import UsernameModal from '@/components/UsernameModal'
 import { hasUsername, saveUsername, getUsername } from '@/utils/username'
 import { saveLike, removeLike, hasUserLiked, getLikeData } from '@/utils/likes'
+import { getPosts, savePost, addReplyToPost, updatePost, Post } from '@/utils/posts'
 import Footer from '@/components/Footer'
 
 export default function DashboardPage() {
     const { publicKey } = useWallet()
     const router = useRouter()
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
-    const [isReplyModalOpen, setIsReplyModalOpen] = useState(false)
     const [isUsernameModalOpen, setIsUsernameModalOpen] = useState(false)
     const [isEditingUsername, setIsEditingUsername] = useState(false)
-    const [replyingToPostId, setReplyingToPostId] = useState<string>('')
-    const [posts, setPosts] = useState<Array<{
-        id: string,
-        content: string,
-        timestamp: Date,
-        wallet: string,
-        likes: string[],
-        likeCount: number,
-        aiResponse?: {
-            content: string,
-            timestamp: Date
-        },
-        replies: Array<{
-            id: string,
-            content: string,
-            timestamp: Date,
-            wallet: string
-        }>
-    }>>([])
-
+    const [posts, setPosts] = useState<Post[]>([])
     useEffect(() => {
         if (!publicKey) {
             router.push('/')
@@ -50,6 +30,9 @@ export default function DashboardPage() {
             setIsUsernameModalOpen(true)
             setIsEditingUsername(false)
         }
+
+        const storedPosts = getPosts()
+        setPosts(storedPosts)
     }, [publicKey, router])
 
     useEffect(() => {
@@ -92,7 +75,7 @@ export default function DashboardPage() {
         const postId = Date.now().toString()
         const { likes, likeCount } = getLikeData(postId)
 
-        const newPost = {
+        const newPost: Post = {
             id: postId,
             content,
             timestamp: new Date(),
@@ -101,45 +84,29 @@ export default function DashboardPage() {
             likeCount,
             replies: []
         }
+
+        savePost(newPost)
         setPosts(prev => [newPost, ...prev])
 
         setTimeout(() => {
             const aiResponseContent = generateAIResponse(content)
+            const updatedPost = {
+                ...newPost,
+                aiResponse: {
+                    content: aiResponseContent,
+                    timestamp: new Date()
+                }
+            }
+
+            savePost(updatedPost)
             setPosts(prev => prev.map(post =>
-                post.id === newPost.id
-                    ? {
-                        ...post,
-                        aiResponse: {
-                            content: aiResponseContent,
-                            timestamp: new Date()
-                        }
-                    }
-                    : post
+                post.id === newPost.id ? updatedPost : post
             ))
         }, 2000)
     }
 
     const handleReplyClick = (postId: string) => {
-        setReplyingToPostId(postId)
-        setIsReplyModalOpen(true)
-    }
-
-    const handleReplySubmit = (content: string) => {
-        const newReply = {
-            id: Date.now().toString(),
-            content,
-            timestamp: new Date(),
-            wallet: publicKey?.toString() || ''
-        }
-
-        setPosts(prev => prev.map(post =>
-            post.id === replyingToPostId
-                ? {
-                    ...post,
-                    replies: [...post.replies, newReply]
-                }
-                : post
-        ))
+        router.push(`/post/${postId}`)
     }
 
     const handleLike = (postId: string) => {
@@ -154,14 +121,17 @@ export default function DashboardPage() {
             saveLike(postId, walletAddress)
         }
 
+        const { likes, likeCount } = getLikeData(postId)
+
         setPosts(prev => prev.map(post => {
             if (post.id === postId) {
-                const { likes, likeCount } = getLikeData(postId)
-                return {
+                const updatedPost = {
                     ...post,
                     likes,
                     likeCount
                 }
+                updatePost(postId, { likes, likeCount })
+                return updatedPost
             }
             return post
         }))
@@ -263,13 +233,6 @@ export default function DashboardPage() {
                 isOpen={isPostModalOpen}
                 onClose={() => setIsPostModalOpen(false)}
                 onSubmit={handlePostSubmit}
-            />
-
-            <ReplyModal
-                isOpen={isReplyModalOpen}
-                onClose={() => setIsReplyModalOpen(false)}
-                onSubmit={handleReplySubmit}
-                postId={replyingToPostId}
             />
 
             <UsernameModal
