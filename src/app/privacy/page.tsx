@@ -105,7 +105,7 @@ export default function PrivacyPage() {
 
                                 <h2 className="text-2xl font-semibold text-gray-900 mb-6">5. Data Sharing</h2>
                                 <p className="text-gray-700 mb-4">
-                                    We do not sell, rent, or share your data with third parties. The only "sharing" that occurs is:
+                                    We do not sell, rent, or share your data with third parties. The only &quot;sharing&quot; that occurs is:
                                 </p>
                                 <ul className="list-disc pl-6 text-gray-700 mb-6">
                                     <li>Content you voluntarily post becomes visible to other platform users</li>
@@ -135,7 +135,7 @@ export default function PrivacyPage() {
                                     <li>Secure blockchain infrastructure for content storage</li>
                                 </ul>
 
-                                <h2 className="text-2xl font-semibold text-gray-900 mb-6">8. Children's Privacy</h2>
+                                <h2 className="text-2xl font-semibold text-gray-900 mb-6">8. Children&quot;s Privacy</h2>
                                 <p className="text-gray-700 mb-6">
                                     Confidee is not intended for users under 18. We do not knowingly collect information from minors. If you believe a minor has used our platform, please contact us immediately.
                                 </p>

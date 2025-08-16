@@ -80,7 +80,7 @@ export default function TermsPage() {
                                 <ul className="list-disc pl-6 text-gray-700 mb-4">
                                     <li>Promotes violence, self-harm, or illegal activities</li>
                                     <li>Contains harassment, discrimination, or hate speech</li>
-                                    <li>Violates others' privacy or intellectual property rights</li>
+                                    <li>Violates others&quot; privacy or intellectual property rights</li>
                                     <li>Contains spam, advertising, or promotional content</li>
                                     <li>Provides medical advice or claims to offer professional treatment</li>
                                 </ul>
@@ -100,7 +100,7 @@ export default function TermsPage() {
 
                                 <h2 className="text-2xl font-semibold text-gray-900 mb-6">8. Limitation of Liability</h2>
                                 <p className="text-gray-700 mb-6">
-                                    Confidee is provided "as is" without warranties. We are not liable for any damages arising from your use of the platform, including but not limited to financial losses from tipping, emotional distress, or decisions made based on community interactions or AI responses.
+                                    Confidee is provided &quot;as is&quot; without warranties. We are not liable for any damages arising from your use of the platform, including but not limited to financial losses from tipping, emotional distress, or decisions made based on community interactions or AI responses.
                                 </p>
 
                                 <h2 className="text-2xl font-semibold text-gray-900 mb-6">9. Intellectual Property</h2>
