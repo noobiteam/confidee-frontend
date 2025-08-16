@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import WalletButton from '@/components/WalletButton'
 import WalletModal from '@/components/WalletModal'
+import Footer from '@/components/Footer'
 
 export default function HomePage() {
   const { publicKey } = useWallet()
@@ -182,8 +183,8 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+        <Footer />
       </div>
-
       <WalletModal
         isOpen={isWalletModalOpen}
         onClose={() => setIsWalletModalOpen(false)}

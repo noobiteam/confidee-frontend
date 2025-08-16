@@ -9,6 +9,7 @@ import PostCard from '@/components/PostCard'
 import ReplyModal from '@/components/ReplyModal'
 import UsernameModal from '@/components/UsernameModal'
 import { hasUsername, saveUsername, getUsername } from '@/utils/username'
+import Footer from '@/components/Footer'
 
 export default function DashboardPage() {
     const { publicKey } = useWallet()
@@ -141,9 +142,9 @@ export default function DashboardPage() {
     }
 
     return (
-        <main className="min-h-screen bg-white">
+        <main className="min-h-screen bg-white flex flex-col">
             <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
-            <div className="relative">
+            <div className="relative flex-1">
                 <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
                     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
                         <div className="flex items-center justify-between">
@@ -173,8 +174,8 @@ export default function DashboardPage() {
                     </div>
                 </section>
 
-                <section className="pb-12 sm:pb-20 px-20">
-                    <div className="mx-auto">
+                <section className="pb-12 sm:pb-20 px-4 sm:px-6">
+                    <div className="max-w-4xl mx-auto">
                         {posts.length > 0 ? (
                             <div className={`grid gap-6 ${posts.length === 1
                                 ? 'grid-cols-1'
@@ -215,6 +216,8 @@ export default function DashboardPage() {
                     </div>
                 </section>
             </div>
+
+            <Footer />
 
             <CreatePostModal
                 isOpen={isPostModalOpen}

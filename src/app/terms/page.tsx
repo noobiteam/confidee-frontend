@@ -1,5 +1,6 @@
 'use client'
 
+import Footer from '@/components/Footer'
 import Link from 'next/link'
 
 export default function TermsPage() {
@@ -15,7 +16,7 @@ export default function TermsPage() {
                             </Link>
                             <Link
                                 href="/"
-                                className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-colors"
                             >
                                 Back to Home
                             </Link>
@@ -125,6 +126,8 @@ export default function TermsPage() {
                         </div>
                     </div>
                 </section>
+
+                <Footer />
             </div>
         </main>
     )
