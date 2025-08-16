@@ -19,6 +19,18 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         setMounted(true)
     }, [])
 
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden'
+        } else {
+            document.body.style.overflow = ''
+        }
+
+        return () => {
+            document.body.style.overflow = ''
+        }
+    }, [isOpen])
+
     const handleWalletSelect = async (walletName: WalletName) => {
         try {
             select(walletName)
