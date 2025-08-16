@@ -23,6 +23,7 @@ export default function PostDetailPage() {
     const [post, setPost] = useState<Post | null>(null)
     const [allPosts, setAllPosts] = useState<Post[]>([])
     const [loading, setLoading] = useState(true)
+    const [sidebarLoading, setSidebarLoading] = useState(false)
     const [replyContent, setReplyContent] = useState('')
 
     useEffect(() => {
@@ -51,6 +52,7 @@ export default function PostDetailPage() {
                 })
             }
             setLoading(false)
+            setSidebarLoading(false)
         }
     }, [publicKey, router, postId])
 
@@ -124,7 +126,13 @@ export default function PostDetailPage() {
     }
 
     const handleSidebarPostClick = (selectedPostId: string) => {
-        router.push(`/post/${selectedPostId}`)
+        setSidebarLoading(true)
+
+        setTimeout(() => {
+            router.push(`/post/${selectedPostId}`)
+        }, 200)
+
+        window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
     if (!publicKey) {
@@ -239,7 +247,7 @@ export default function PostDetailPage() {
                             </Link>
                         </div>
 
-                        <div className="flex flex-col lg:flex-row gap-8">
+                        <div className="flex flex-col lg:flex-row justify-between">
                             <div className="flex-1 lg:max-w-3xl">
                                 <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm mb-6">
                                     <div className="flex items-start space-x-4">
@@ -361,6 +369,7 @@ export default function PostDetailPage() {
                                     posts={allPosts}
                                     currentPostId={post.id}
                                     onPostClick={handleSidebarPostClick}
+                                    loading={sidebarLoading}
                                 />
                             </div>
                         </div>
