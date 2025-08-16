@@ -174,8 +174,8 @@ export default function DashboardPage() {
                     </div>
                 </section>
 
-                <section className="pb-12 sm:pb-20 px-4 sm:px-6">
-                    <div className="max-w-4xl mx-auto">
+                <section className="pb-12 sm:pb-20 px-20">
+                    <div className="mx-auto">
                         {posts.length > 0 ? (
                             <div className={`grid gap-6 ${posts.length === 1
                                 ? 'grid-cols-1'
