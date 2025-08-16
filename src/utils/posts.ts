@@ -7,6 +7,7 @@ export interface Post {
   wallet: string;
   likes: string[];
   likeCount: number;
+  totalTips: number;
   aiResponse?: {
     content: string;
     timestamp: Date;
@@ -30,6 +31,7 @@ export const getPosts = (): Post[] => {
     return posts.map((post: Post) => ({
       ...post,
       timestamp: new Date(post.timestamp),
+      totalTips: post.totalTips || 0,
       aiResponse: post.aiResponse
         ? {
             ...post.aiResponse,

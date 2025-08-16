@@ -82,6 +82,7 @@ export default function DashboardPage() {
             wallet: publicKey?.toString() || '',
             likes,
             likeCount,
+            totalTips: 0,
             replies: []
         }
 
@@ -204,6 +205,7 @@ export default function DashboardPage() {
                                             wallet={post.wallet}
                                             likes={post.likes}
                                             likeCount={post.likeCount}
+                                            totalTips={post.totalTips}
                                             currentUserWallet={publicKey?.toString() || ''}
                                             aiResponse={post.aiResponse}
                                             replies={post.replies}
