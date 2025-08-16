@@ -146,17 +146,24 @@ export default function DashboardPage() {
                                     ? 'grid-cols-1 sm:grid-cols-2'
                                     : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
                                 }`}>
-                                {posts.map((post) => (
-                                    <PostCard
+                                {posts.map((post, index) => (
+                                    <div
                                         key={post.id}
-                                        id={post.id}
-                                        content={post.content}
-                                        timestamp={post.timestamp}
-                                        wallet={post.wallet}
-                                        aiResponse={post.aiResponse}
-                                        replies={post.replies}
-                                        onReply={handleReplyClick}
-                                    />
+                                        className={`${posts.length > 3 && posts.length % 3 === 1 && index === posts.length - 1
+                                            ? 'md:col-start-2'
+                                            : ''
+                                            }`}
+                                    >
+                                        <PostCard
+                                            id={post.id}
+                                            content={post.content}
+                                            timestamp={post.timestamp}
+                                            wallet={post.wallet}
+                                            aiResponse={post.aiResponse}
+                                            replies={post.replies}
+                                            onReply={handleReplyClick}
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         ) : (
