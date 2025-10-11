@@ -1,6 +1,6 @@
 'use client'
 
-import { useWallet } from '@solana/wallet-adapter-react'
+import { useAccount } from 'wagmi'
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -11,7 +11,7 @@ import PostsSidebar from '@/components/PostsSidebar'
 import Footer from '@/components/Footer'
 
 export default function PostDetailPage() {
-    const { publicKey } = useWallet()
+    const { address } = useAccount()
     const router = useRouter()
     const params = useParams()
     const postId = params?.id as string
@@ -23,7 +23,7 @@ export default function PostDetailPage() {
     const [replyContent, setReplyContent] = useState('')
 
     useEffect(() => {
-        if (!publicKey) {
+        if (!address) {
             router.push('/')
             return
         }
@@ -44,12 +44,12 @@ export default function PostDetailPage() {
             setLoading(false)
             setSidebarLoading(false)
         }
-    }, [publicKey, router, postId])
+    }, [address, router, postId])
 
     const handleLike = () => {
-        if (!publicKey || !post) return
+        if (!address || !post) return
 
-        const walletAddress = publicKey.toString()
+        const walletAddress = address
         const userHasLiked = hasUserLiked(post.id, walletAddress)
 
         if (userHasLiked) {
@@ -71,13 +71,13 @@ export default function PostDetailPage() {
 
     const handleReplySubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        if (!publicKey || !post || !replyContent.trim()) return
+        if (!address || !post || !replyContent.trim()) return
 
         const newReply = {
             id: Date.now().toString(),
             content: replyContent.trim(),
             timestamp: new Date(),
-            wallet: publicKey.toString()
+            wallet: address
         }
 
         addReplyToPost(post.id, newReply)
@@ -100,7 +100,7 @@ export default function PostDetailPage() {
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    if (!publicKey) {
+    if (!address) {
         return null
     }
 
@@ -198,9 +198,9 @@ export default function PostDetailPage() {
                             </Link>
                         </div>
 
-                        <div className="flex flex-col lg:flex-row justify-between">
-                            <div className="flex-1 lg:max-w-3xl">
-                                <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm mb-6">
+                        <div className="flex flex-col lg:flex-row lg:gap-6 justify-between">
+                            <div className="flex-1 lg:max-w-3xl mb-8 lg:mb-0">
+                                <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm mb-6">
                                     <div className="flex items-start space-x-4">
                                         <div className="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
                                             <span className="text-sm font-medium text-gray-600">AU</span>
@@ -215,24 +215,24 @@ export default function PostDetailPage() {
                                                     {post.timestamp.toLocaleString()}
                                                 </span>
                                             </div>
-                                            <div className="text-gray-900 text-lg leading-relaxed mb-6">
+                                            <div className="text-gray-900 text-base sm:text-lg leading-relaxed mb-6">
                                                 {post.content}
                                             </div>
 
-                                            <div className="flex items-center space-x-6 text-sm text-gray-500">
+                                            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm text-gray-500">
                                                 <span className="bg-gray-100 px-3 py-1 rounded-full">
                                                     {`${post.wallet.slice(0, 4)}...${post.wallet.slice(-4)}`}
                                                 </span>
 
                                                 <button
                                                     onClick={handleLike}
-                                                    className={`flex items-center space-x-1 transition-all duration-150 ease-out hover:scale-105 active:scale-110 ${post.likes.includes(publicKey?.toString() || '')
+                                                    className={`flex items-center space-x-1 transition-all duration-150 ease-out hover:scale-105 active:scale-110 ${post.likes.includes(address || '')
                                                         ? 'text-red-600 hover:text-red-700'
                                                         : 'text-gray-500 hover:text-red-600'
                                                         }`}
                                                 >
                                                     <svg className="w-4 h-4 transition-transform duration-150 ease-out"
-                                                        fill={post.likes.includes(publicKey?.toString() || '') ? "currentColor" : "none"}
+                                                        fill={post.likes.includes(address || '') ? "currentColor" : "none"}
                                                         stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                                     </svg>
@@ -250,7 +250,7 @@ export default function PostDetailPage() {
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
-                                                    <span>{post.totalTips} SOL</span>
+                                                    <span>{post.totalTips} ETH</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -258,7 +258,7 @@ export default function PostDetailPage() {
                                 </div>
 
                                 {post.aiResponse && (
-                                    <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 shadow-sm mb-6">
+                                    <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 sm:p-6 shadow-sm mb-6">
                                         <div className="flex items-center space-x-2 mb-3">
                                             <div className="bg-blue-100 w-8 h-8 rounded-full flex items-center justify-center">
                                                 <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +279,7 @@ export default function PostDetailPage() {
 
                                 {post.replies.length > 0 && (
                                     <div className="space-y-4 mb-6">
-                                        <h3 className="text-lg font-semibold text-gray-900">
+                                        <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                                             Replies ({post.replies.length})
                                         </h3>
                                         {post.replies.map((reply) => (
@@ -301,8 +301,8 @@ export default function PostDetailPage() {
                                     </div>
                                 )}
 
-                                <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Add your reply</h3>
+                                <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
+                                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Add your reply</h3>
                                     <form onSubmit={handleReplySubmit}>
                                         <textarea
                                             value={replyContent}
@@ -312,7 +312,7 @@ export default function PostDetailPage() {
                                             maxLength={300}
                                         />
 
-                                        <div className="flex items-center justify-between mt-4">
+                                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mt-4">
                                             <span className="text-sm text-gray-500">
                                                 {replyContent.length}/300 characters
                                             </span>
@@ -320,7 +320,7 @@ export default function PostDetailPage() {
                                             <button
                                                 type="submit"
                                                 disabled={!replyContent.trim()}
-                                                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                                                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-colors"
                                             >
                                                 Reply
                                             </button>

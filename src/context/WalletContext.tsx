@@ -1,17 +1,13 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets'
-import { clusterApiUrl } from '@solana/web3.js'
+import { WagmiProvider } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import { config } from '@/config/wagmi'
+import '@rainbow-me/rainbowkit/styles.css'
 
-const network = WalletAdapterNetwork.Devnet
-const endpoint = clusterApiUrl(network)
-
-const wallets = [
-    new PhantomWalletAdapter(),
-]
+const queryClient = new QueryClient()
 
 interface WalletContextProviderProps {
     children: ReactNode
@@ -19,10 +15,12 @@ interface WalletContextProviderProps {
 
 export function WalletContextProvider({ children }: WalletContextProviderProps) {
     return (
-        <ConnectionProvider endpoint={endpoint}>
-            <WalletProvider wallets={wallets} autoConnect>
-                {children}
-            </WalletProvider>
-        </ConnectionProvider>
+        <WagmiProvider config={config}>
+            <QueryClientProvider client={queryClient}>
+                <RainbowKitProvider>
+                    {children}
+                </RainbowKitProvider>
+            </QueryClientProvider>
+        </WagmiProvider>
     )
 }

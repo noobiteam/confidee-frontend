@@ -32,9 +32,9 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }: CreatePos
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
 
-            <div className="relative bg-white rounded-2xl p-6 sm:p-8 mx-4 w-full max-w-2xl shadow-xl">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-semibold text-gray-900">Share your thoughts</h2>
+            <div className="relative bg-white rounded-2xl p-4 sm:p-6 md:p-8 mx-4 w-full max-w-2xl shadow-xl">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Share your thoughts</h2>
                     <button
                         onClick={onClose}
                         className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -54,23 +54,23 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }: CreatePos
                         maxLength={500}
                     />
 
-                    <div className="flex items-center justify-between mt-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4">
                         <span className="text-sm text-gray-500">
                             {content.length}/500 characters
                         </span>
 
-                        <div className="flex space-x-3">
+                        <div className="flex space-x-3 w-full sm:w-auto">
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                                className="flex-1 sm:flex-none px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={!content.trim()}
-                                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                                className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-colors"
                             >
                                 Share
                             </button>

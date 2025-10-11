@@ -1,7 +1,6 @@
 'use client'
 
-import { useWallet } from '@solana/wallet-adapter-react'
-import { WalletName } from '@solana/wallet-adapter-base'
+import { useConnect } from 'wagmi'
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
@@ -12,7 +11,7 @@ interface WalletModalProps {
 }
 
 export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
-    const { wallets, select, connecting } = useWallet()
+    const { connectors, connect, isPending } = useConnect()
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
@@ -31,9 +30,9 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         }
     }, [isOpen])
 
-    const handleWalletSelect = async (walletName: WalletName) => {
+    const handleWalletSelect = async (connector: typeof connectors[0]) => {
         try {
-            select(walletName)
+            connect({ connector })
             onClose()
         } catch (error) {
             console.error('Wallet connection failed:', error)
@@ -60,22 +59,24 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 </div>
 
                 <div className="space-y-3">
-                    {wallets.map((wallet) => (
+                    {connectors.map((connector) => (
                         <button
-                            key={wallet.adapter.name}
-                            onClick={() => handleWalletSelect(wallet.adapter.name)}
-                            disabled={connecting}
+                            key={connector.id}
+                            onClick={() => handleWalletSelect(connector)}
+                            disabled={isPending}
                             className="w-full flex items-center space-x-4 p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <img
-                                src={wallet.adapter.icon}
-                                alt={wallet.adapter.name}
-                                className="w-8 h-8"
-                            />
+                            {connector.icon && (
+                                <img
+                                    src={connector.icon}
+                                    alt={connector.name}
+                                    className="w-8 h-8"
+                                />
+                            )}
                             <div className="flex-1 text-left">
-                                <div className="font-medium text-gray-900">{wallet.adapter.name}</div>
+                                <div className="font-medium text-gray-900">{connector.name}</div>
                                 <div className="text-sm text-gray-500">
-                                    {connecting ? 'Connecting...' : 'Connect with your wallet'}
+                                    {isPending ? 'Connecting...' : 'Connect with your wallet'}
                                 </div>
                             </div>
                         </button>

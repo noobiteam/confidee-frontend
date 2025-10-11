@@ -21,8 +21,8 @@ export default function PostsSidebar({ posts, currentPostId, onPostClick, loadin
 
     if (otherPosts.length === 0) {
         return (
-            <div className="sticky top-24 bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Other Posts</h3>
+            <div className="hidden lg:block sticky top-24 bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Other Posts</h3>
                 <div className="text-center text-gray-500 py-8">
                     No other posts yet. Create the first one!
                 </div>
@@ -31,8 +31,8 @@ export default function PostsSidebar({ posts, currentPostId, onPostClick, loadin
     }
 
     return (
-        <div className="sticky top-24 bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Other Posts</h3>
+        <div className="hidden lg:block sticky top-24 bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Other Posts</h3>
             <div className="space-y-3 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
                 {loading && (
                     <div className="text-center text-gray-500 py-4">
@@ -100,7 +100,7 @@ export default function PostsSidebar({ posts, currentPostId, onPostClick, loadin
                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span>{post.totalTips} SOL</span>
+                                <span>{post.totalTips} ETH</span>
                             </div>
                         </div>
                     </div>
