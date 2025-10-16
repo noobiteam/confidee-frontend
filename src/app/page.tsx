@@ -2,20 +2,16 @@
 
 import { useAccount } from 'wagmi'
 import { useRouter } from 'next/navigation'
-import { useConnectModal } from '@rainbow-me/rainbowkit'
 import WalletButton from '@/components/WalletButton'
 import Footer from '@/components/Footer'
 
 export default function HomePage() {
   const { address } = useAccount()
   const router = useRouter()
-  const { openConnectModal } = useConnectModal()
 
   const handleMainButtonClick = () => {
     if (address) {
       router.push('/dashboard')
-    } else {
-      openConnectModal?.()
     }
   }
 
