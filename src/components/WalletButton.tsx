@@ -33,7 +33,7 @@ export default function WalletButton() {
                                     <button
                                         onClick={openConnectModal}
                                         type="button"
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-colors"
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-colors cursor-pointer"
                                     >
                                         Connect Wallet
                                     </button>
@@ -45,7 +45,7 @@ export default function WalletButton() {
                                     <button
                                         onClick={openChainModal}
                                         type="button"
-                                        className="bg-red-600 hover:bg-red-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-colors"
+                                        className="bg-red-600 hover:bg-red-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-colors cursor-pointer"
                                     >
                                         Wrong network
                                     </button>
@@ -57,7 +57,7 @@ export default function WalletButton() {
                                     <button
                                         onClick={openChainModal}
                                         type="button"
-                                        className="bg-gray-100 hover:bg-gray-200 text-gray-900 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-colors flex items-center gap-2"
+                                        className="bg-gray-100 hover:bg-gray-200 text-gray-900 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-colors flex items-center gap-2 cursor-pointer"
                                     >
                                         {chain.hasIcon && (
                                             <div
@@ -84,7 +84,7 @@ export default function WalletButton() {
                                     <button
                                         onClick={openAccountModal}
                                         type="button"
-                                        className="bg-green-600 hover:bg-green-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-colors"
+                                        className="bg-green-600 hover:bg-green-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-colors cursor-pointer"
                                     >
                                         {account.displayName}
                                     </button>

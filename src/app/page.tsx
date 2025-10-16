@@ -2,16 +2,20 @@
 
 import { useAccount } from 'wagmi'
 import { useRouter } from 'next/navigation'
+import { useConnectModal } from '@rainbow-me/rainbowkit'
 import WalletButton from '@/components/WalletButton'
 import Footer from '@/components/Footer'
 
 export default function HomePage() {
   const { address } = useAccount()
   const router = useRouter()
+  const { openConnectModal } = useConnectModal()
 
   const handleMainButtonClick = () => {
     if (address) {
       router.push('/dashboard')
+    } else if (openConnectModal) {
+      openConnectModal()
     }
   }
 
@@ -47,7 +51,7 @@ export default function HomePage() {
 
             <button
               onClick={handleMainButtonClick}
-              className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors bg-blue-600 hover:bg-blue-700 text-white"
+              className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
             >
               {address ? 'Go to Dashboard' : 'Connect Wallet to Start'}
             </button>
@@ -157,7 +161,7 @@ export default function HomePage() {
               </p>
               <button
                 onClick={handleMainButtonClick}
-                className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors bg-blue-600 hover:bg-blue-700 text-white"
+                className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
               >
                 {address ? 'Enter your safe space' : 'Connect Wallet to Start'}
               </button>
