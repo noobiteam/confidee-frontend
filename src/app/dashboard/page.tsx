@@ -1,6 +1,6 @@
 'use client'
 
-import { useWallet } from '@solana/wallet-adapter-react'
+import { useAccount } from 'wagmi'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import WalletButton from '@/components/WalletButton'
@@ -12,20 +12,20 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 
 export default function DashboardPage() {
-    const { publicKey } = useWallet()
+    const { address } = useAccount()
     const router = useRouter()
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
     const [posts, setPosts] = useState<Post[]>([])
 
     useEffect(() => {
-        if (!publicKey) {
+        if (!address) {
             router.push('/')
             return
         }
 
         const storedPosts = getPosts()
         setPosts(storedPosts)
-    }, [publicKey, router])
+    }, [address, router])
 
     useEffect(() => {
         setPosts(prev => prev.map(post => {
@@ -46,7 +46,7 @@ export default function DashboardPage() {
             id: postId,
             content,
             timestamp: new Date(),
-            wallet: publicKey?.toString() || '',
+            wallet: address || '',
             likes,
             likeCount,
             totalTips: 0,
@@ -78,9 +78,9 @@ export default function DashboardPage() {
     }
 
     const handleLike = (postId: string) => {
-        if (!publicKey) return
+        if (!address) return
 
-        const walletAddress = publicKey.toString()
+        const walletAddress = address
         const userHasLiked = hasUserLiked(postId, walletAddress)
 
         if (userHasLiked) {
@@ -119,7 +119,7 @@ export default function DashboardPage() {
         return responses[Math.floor(Math.random() * responses.length)]
     }
 
-    if (!publicKey) {
+    if (!address) {
         return null
     }
 
@@ -173,7 +173,7 @@ export default function DashboardPage() {
                                             likes={post.likes}
                                             likeCount={post.likeCount}
                                             totalTips={post.totalTips}
-                                            currentUserWallet={publicKey?.toString() || ''}
+                                            currentUserWallet={address || ''}
                                             aiResponse={post.aiResponse}
                                             replies={post.replies}
                                             onReply={handleReplyClick}

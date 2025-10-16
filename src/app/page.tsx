@@ -1,21 +1,16 @@
 'use client'
 
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useState } from 'react'
+import { useAccount } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import WalletButton from '@/components/WalletButton'
-import WalletModal from '@/components/WalletModal'
 import Footer from '@/components/Footer'
 
 export default function HomePage() {
-  const { publicKey } = useWallet()
-  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
+  const { address } = useAccount()
   const router = useRouter()
 
   const handleMainButtonClick = () => {
-    if (!publicKey) {
-      setIsWalletModalOpen(true)
-    } else {
+    if (address) {
       router.push('/dashboard')
     }
   }
@@ -52,12 +47,9 @@ export default function HomePage() {
 
             <button
               onClick={handleMainButtonClick}
-              className={`px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors ${publicKey
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-                }`}
+              className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors bg-blue-600 hover:bg-blue-700 text-white"
             >
-              {publicKey ? 'Go to Dashboard' : 'Connect Wallet to Start'}
+              {address ? 'Go to Dashboard' : 'Connect Wallet to Start'}
             </button>
 
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-gray-500 max-w-md sm:max-w-none mx-auto mt-10">
@@ -112,7 +104,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Global Tokenized Community</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  Join channels by topic or country, connect with the world, and earn SOL for supporting others in meaningful ways.
+                  Join channels by topic or country, connect with the world, and earn ETH for supporting others in meaningful ways.
                 </p>
               </div>
             </div>
@@ -145,7 +137,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500">
-                    <span className="bg-blue-100 text-blue-700 px-2 sm:px-3 py-1 rounded-full font-medium">0.8 SOL received</span>
+                    <span className="bg-blue-100 text-blue-700 px-2 sm:px-3 py-1 rounded-full font-medium">0.05 ETH received</span>
                     <span>12 supportive replies</span>
                   </div>
                 </div>
@@ -161,16 +153,13 @@ export default function HomePage() {
                 Ready to join the world&apos;s first tokenized emotional support network?
               </h2>
               <p className="text-gray-600 mb-6 sm:mb-8 text-base sm:text-lg px-2 sm:px-0">
-                Connect your Solana wallet and start sharing anonymously. Your feelings matter, and your care has real value.
+                Connect your wallet and start sharing anonymously on Base network. Your feelings matter, and your care has real value.
               </p>
               <button
                 onClick={handleMainButtonClick}
-                className={`px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors ${publicKey
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
-                  }`}
+                className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors bg-blue-600 hover:bg-blue-700 text-white"
               >
-                {publicKey ? 'Enter your safe space' : 'Connect Wallet to Start'}
+                {address ? 'Enter your safe space' : 'Connect Wallet to Start'}
               </button>
 
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 mt-4 sm:mt-6 text-xs sm:text-sm text-gray-500">
@@ -178,17 +167,13 @@ export default function HomePage() {
                 <span className="hidden sm:inline">•</span>
                 <span>No personal data required</span>
                 <span className="hidden sm:inline">•</span>
-                <span>Powered by Solana network</span>
+                <span>Powered by Base network</span>
               </div>
             </div>
           </div>
         </section>
         <Footer />
       </div>
-      <WalletModal
-        isOpen={isWalletModalOpen}
-        onClose={() => setIsWalletModalOpen(false)}
-      />
     </main>
   );
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useWallet } from '@solana/wallet-adapter-react'
+import { useAccount } from 'wagmi'
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -11,7 +11,7 @@ import PostsSidebar from '@/components/PostsSidebar'
 import Footer from '@/components/Footer'
 
 export default function PostDetailPage() {
-    const { publicKey } = useWallet()
+    const { address } = useAccount()
     const router = useRouter()
     const params = useParams()
     const postId = params?.id as string
@@ -23,7 +23,7 @@ export default function PostDetailPage() {
     const [replyContent, setReplyContent] = useState('')
 
     useEffect(() => {
-        if (!publicKey) {
+        if (!address) {
             router.push('/')
             return
         }
@@ -44,12 +44,12 @@ export default function PostDetailPage() {
             setLoading(false)
             setSidebarLoading(false)
         }
-    }, [publicKey, router, postId])
+    }, [address, router, postId])
 
     const handleLike = () => {
-        if (!publicKey || !post) return
+        if (!address || !post) return
 
-        const walletAddress = publicKey.toString()
+        const walletAddress = address
         const userHasLiked = hasUserLiked(post.id, walletAddress)
 
         if (userHasLiked) {
@@ -71,13 +71,13 @@ export default function PostDetailPage() {
 
     const handleReplySubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        if (!publicKey || !post || !replyContent.trim()) return
+        if (!address || !post || !replyContent.trim()) return
 
         const newReply = {
             id: Date.now().toString(),
             content: replyContent.trim(),
             timestamp: new Date(),
-            wallet: publicKey.toString()
+            wallet: address
         }
 
         addReplyToPost(post.id, newReply)
@@ -100,7 +100,7 @@ export default function PostDetailPage() {
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    if (!publicKey) {
+    if (!address) {
         return null
     }
 
@@ -226,13 +226,13 @@ export default function PostDetailPage() {
 
                                                 <button
                                                     onClick={handleLike}
-                                                    className={`flex items-center space-x-1 transition-all duration-150 ease-out hover:scale-105 active:scale-110 ${post.likes.includes(publicKey?.toString() || '')
+                                                    className={`flex items-center space-x-1 transition-all duration-150 ease-out hover:scale-105 active:scale-110 ${post.likes.includes(address || '')
                                                         ? 'text-red-600 hover:text-red-700'
                                                         : 'text-gray-500 hover:text-red-600'
                                                         }`}
                                                 >
                                                     <svg className="w-4 h-4 transition-transform duration-150 ease-out"
-                                                        fill={post.likes.includes(publicKey?.toString() || '') ? "currentColor" : "none"}
+                                                        fill={post.likes.includes(address || '') ? "currentColor" : "none"}
                                                         stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                                     </svg>
@@ -250,7 +250,7 @@ export default function PostDetailPage() {
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
-                                                    <span>{post.totalTips} SOL</span>
+                                                    <span>{post.totalTips} ETH</span>
                                                 </div>
                                             </div>
                                         </div>

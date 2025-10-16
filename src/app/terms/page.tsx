@@ -31,7 +31,7 @@ export default function TermsPage() {
                                 Terms of Service
                             </h1>
                             <p className="text-gray-600">
-                                Last updated: August 16, 2025
+                                Last updated: October 16, 2025
                             </p>
                         </div>
 
@@ -49,7 +49,7 @@ export default function TermsPage() {
                                 <ul className="list-disc pl-6 text-gray-700 mb-6">
                                     <li>Anonymous emotional support and community discussions</li>
                                     <li>AI-generated supportive responses to user posts</li>
-                                    <li>Peer-to-peer SOL tipping functionality</li>
+                                    <li>Peer-to-peer ETH tipping functionality on Base network</li>
                                     <li>Topic-based and geographic community channels</li>
                                 </ul>
                                 <p className="text-gray-700 mb-6">
@@ -63,13 +63,13 @@ export default function TermsPage() {
 
                                 <h2 className="text-2xl font-semibold text-gray-900 mb-6">4. Wallet Connection and Transactions</h2>
                                 <p className="text-gray-700 mb-4">
-                                    By connecting your Solana wallet, you acknowledge:
+                                    By connecting your Ethereum wallet, you acknowledge:
                                 </p>
                                 <ul className="list-disc pl-6 text-gray-700 mb-6">
-                                    <li>All transactions on the Solana blockchain are irreversible</li>
+                                    <li>All transactions on the Base blockchain are irreversible</li>
                                     <li>You are responsible for the security of your private keys</li>
                                     <li>Confidee does not custody your funds or have access to your private keys</li>
-                                    <li>Network fees may apply to blockchain transactions</li>
+                                    <li>Network fees (gas fees) may apply to blockchain transactions</li>
                                     <li>You voluntarily participate in the tipping economy at your own risk</li>
                                 </ul>
 

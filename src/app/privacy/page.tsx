@@ -31,7 +31,7 @@ export default function PrivacyPage() {
                                 Privacy Policy
                             </h1>
                             <p className="text-gray-600">
-                                Last updated: August 16, 2025
+                                Last updated: October 16, 2025
                             </p>
                         </div>
 
@@ -49,7 +49,7 @@ export default function PrivacyPage() {
                                     Confidee collects only the minimum information necessary to function:
                                 </p>
                                 <ul className="list-disc pl-6 text-gray-700 mb-6">
-                                    <li><strong>Wallet Address:</strong> Your Solana wallet public address for platform access</li>
+                                    <li><strong>Wallet Address:</strong> Your Ethereum wallet public address for platform access</li>
                                     <li><strong>Username:</strong> Your chosen display name, stored locally on your device</li>
                                     <li><strong>Post Content:</strong> Text content you choose to share on the platform</li>
                                 </ul>
@@ -78,7 +78,7 @@ export default function PrivacyPage() {
 
                                 <h3 className="text-xl font-medium text-gray-900 mb-4">Blockchain Data</h3>
                                 <p className="text-gray-700 mb-6">
-                                    Post content and interactions are stored on the Solana blockchain, which is public and immutable. Your wallet address is visible on-chain, but this is standard for all blockchain applications.
+                                    Post content and interactions are stored on the Base blockchain, which is public and immutable. Your wallet address is visible on-chain, but this is standard for all blockchain applications.
                                 </p>
 
                                 <h2 className="text-2xl font-semibold text-gray-900 mb-6">3. AI Processing</h2>
@@ -95,12 +95,12 @@ export default function PrivacyPage() {
 
                                 <h3 className="text-xl font-medium text-gray-900 mb-4">Wallet Providers</h3>
                                 <p className="text-gray-700 mb-4">
-                                    When you connect your wallet (Phantom, Solflare, etc.), you interact directly with these services. Their privacy policies apply to that interaction.
+                                    When you connect your wallet (MetaMask, Coinbase Wallet, etc.), you interact directly with these services. Their privacy policies apply to that interaction.
                                 </p>
 
-                                <h3 className="text-xl font-medium text-gray-900 mb-4">Solana Network</h3>
+                                <h3 className="text-xl font-medium text-gray-900 mb-4">Base Network</h3>
                                 <p className="text-gray-700 mb-6">
-                                    Transactions and interactions occur on the public Solana blockchain. This network operates independently of Confidee and has its own transparency characteristics.
+                                    Transactions and interactions occur on the public Base blockchain (an Ethereum Layer 2). This network operates independently of Confidee and has its own transparency characteristics.
                                 </p>
 
                                 <h2 className="text-2xl font-semibold text-gray-900 mb-6">5. Data Sharing</h2>
