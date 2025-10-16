@@ -1,122 +1,89 @@
 'use client'
 
 import { useAccount } from 'wagmi'
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import WalletButton from '@/components/WalletButton'
-import CreatePostModal from '@/components/CreatePostModal'
-import PostCard from '@/components/PostCard'
-import { saveLike, removeLike, hasUserLiked, getLikeData } from '@/utils/likes'
-import { getPosts, savePost, updatePost, Post } from '@/utils/posts'
-import Footer from '@/components/Footer'
 import Link from 'next/link'
+import WalletButton from '@/components/WalletButton'
+import Footer from '@/components/Footer'
+import { useConfideeContract, useGetMySecrets, useGetSecret } from '@/hooks/useConfideeContract'
+import { encryptData, decryptData, generateEncryptionKey } from '@/utils/encryption'
 
 export default function DashboardPage() {
     const { address } = useAccount()
     const router = useRouter()
+    const { createSecret, isWritePending, isConfirming, isConfirmed } = useConfideeContract()
+    const { secretIds, isLoading: secretsLoading, refetch } = useGetMySecrets()
+
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
-    const [posts, setPosts] = useState<Post[]>([])
+    const [postContent, setPostContent] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [error, setError] = useState('')
+    const [success, setSuccess] = useState(false)
 
     useEffect(() => {
         if (!address) {
             router.push('/')
-            return
         }
-
-        const storedPosts = getPosts()
-        setPosts(storedPosts)
     }, [address, router])
 
     useEffect(() => {
-        setPosts(prev => prev.map(post => {
-            const { likes, likeCount } = getLikeData(post.id)
-            return {
-                ...post,
-                likes,
-                likeCount
-            }
-        }))
-    }, [])
+        if (isConfirmed && success) {
+            // Refetch secrets after successful post
+            refetch()
+            setSuccess(false)
+        }
+    }, [isConfirmed, success, refetch])
 
-    const handlePostSubmit = (content: string) => {
-        const postId = Date.now().toString()
-        const { likes, likeCount } = getLikeData(postId)
+    const handlePostSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setError('')
+        setIsSubmitting(true)
 
-        const newPost: Post = {
-            id: postId,
-            content,
-            timestamp: new Date(),
-            wallet: address || '',
-            likes,
-            likeCount,
-            totalTips: 0,
-            replies: []
+        if (!postContent.trim()) {
+            setError('Please write something to share')
+            setIsSubmitting(false)
+            return
         }
 
-        savePost(newPost)
-        setPosts(prev => [newPost, ...prev])
+        try {
+            // Generate encryption key (stored in localStorage for this demo)
+            const encryptionKey = generateEncryptionKey()
 
-        setTimeout(() => {
-            const aiResponseContent = generateAIResponse()
-            const updatedPost = {
-                ...newPost,
-                aiResponse: {
-                    content: aiResponseContent,
-                    timestamp: new Date()
-                }
+            // Create post object with metadata
+            const postData = {
+                content: postContent,
+                timestamp: new Date().toISOString(),
+                wallet: address,
             }
 
-            savePost(updatedPost)
-            setPosts(prev => prev.map(post =>
-                post.id === newPost.id ? updatedPost : post
-            ))
-        }, 2000)
-    }
+            // Encrypt the entire post
+            const encryptedData = encryptData(JSON.stringify(postData), encryptionKey)
 
-    const handleReplyClick = (postId: string) => {
-        router.push(`/post/${postId}`)
-    }
+            // Save to blockchain
+            await createSecret(encryptedData)
 
-    const handleLike = (postId: string) => {
-        if (!address) return
+            // Store encryption key in localStorage (in production, use better key management)
+            const keys = JSON.parse(localStorage.getItem('confidee_keys') || '{}')
+            keys[`secret_${Date.now()}`] = encryptionKey
+            localStorage.setItem('confidee_keys', JSON.stringify(keys))
 
-        const walletAddress = address
-        const userHasLiked = hasUserLiked(postId, walletAddress)
+            setSuccess(true)
+            setPostContent('')
+            setIsPostModalOpen(false)
 
-        if (userHasLiked) {
-            removeLike(postId, walletAddress)
-        } else {
-            saveLike(postId, walletAddress)
+            // Refetch secrets after a delay to ensure blockchain has processed
+            setTimeout(() => {
+                refetch()
+            }, 3000)
+
+        } catch (err) {
+            console.error('Error creating post:', err)
+            const errorMessage = err instanceof Error ? err.message : 'Failed to create post'
+            setError(errorMessage)
+        } finally {
+            setIsSubmitting(false)
         }
-
-        const { likes, likeCount } = getLikeData(postId)
-
-        setPosts(prev => prev.map(post => {
-            if (post.id === postId) {
-                const updatedPost = {
-                    ...post,
-                    likes,
-                    likeCount
-                }
-                updatePost(postId, { likes, likeCount })
-                return updatedPost
-            }
-            return post
-        }))
-    }
-
-    const generateAIResponse = () => {
-        const responses = [
-            "I hear you anon. That sounds really tough. Remember that setbacks are temporary, and you're stronger than you think. Take it one day at a time.",
-            "Thanks for sharing this with us. What you're feeling is completely valid. Have you considered talking to someone you trust about this?",
-            "That's a lot to process. Sometimes writing down our thoughts like this can be the first step toward feeling better. You're not alone in this.",
-            "I appreciate you being vulnerable here. It takes courage to share what's really on your mind. How are you taking care of yourself right now?",
-            "This resonates with me. Life can be overwhelming sometimes. What's one small thing that usually helps you feel a bit better?",
-            "Thank you for trusting the community with this. Your feelings matter, and it's okay to not have all the answers right now.",
-            "I can sense the weight you're carrying. Sometimes just getting these thoughts out can provide some relief. What support do you have around you?"
-        ]
-
-        return responses[Math.floor(Math.random() * responses.length)]
     }
 
     if (!address) {
@@ -144,40 +111,47 @@ export default function DashboardPage() {
                             Welcome to your safe space
                         </h1>
                         <p className="text-base sm:text-lg text-gray-600 mb-8 sm:mb-10">
-                            Share whatever&apos;s on your heart, we&apos;re here to listen
+                            Share whatever&apos;s on your heart, stored securely on blockchain
                         </p>
 
                         <button
                             onClick={() => setIsPostModalOpen(true)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors"
+                            disabled={isWritePending || isConfirming}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors disabled:bg-gray-400"
                         >
-                            Ready to share?
+                            {isWritePending || isConfirming ? 'Posting...' : 'Ready to share?'}
                         </button>
+
+                        {success && (
+                            <div className="mt-4 p-4 bg-green-100 text-green-700 rounded-lg">
+                                Post successfully added to blockchain! 🎉
+                            </div>
+                        )}
+
+                        {error && (
+                            <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
+                                {error}
+                            </div>
+                        )}
                     </div>
                 </section>
 
                 <section className="pb-12 sm:pb-20 px-20">
                     <div className="mx-auto">
-                        {posts.length > 0 ? (
+                        {secretsLoading ? (
+                            <div className="text-center py-12">
+                                <p className="text-gray-600">Loading your posts from blockchain...</p>
+                            </div>
+                        ) : secretIds.length > 0 ? (
                             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                                {posts.map((post) => (
+                                {secretIds.map((secretId) => (
                                     <div
-                                        key={post.id}
-                                        className={posts.length === 1 ? 'md:col-start-2' : ''}
+                                        key={secretId.toString()}
+                                        className={secretIds.length === 1 ? 'md:col-start-2' : ''}
                                     >
-                                        <PostCard
-                                            id={post.id}
-                                            content={post.content}
-                                            timestamp={post.timestamp}
-                                            wallet={post.wallet}
-                                            likes={post.likes}
-                                            likeCount={post.likeCount}
-                                            totalTips={post.totalTips}
-                                            currentUserWallet={address || ''}
-                                            aiResponse={post.aiResponse}
-                                            replies={post.replies}
-                                            onReply={handleReplyClick}
-                                            onLike={handleLike}
+                                        <PostCardBlockchain
+                                            secretId={secretId}
+                                            currentWallet={address || ''}
                                         />
                                     </div>
                                 ))}
@@ -185,7 +159,9 @@ export default function DashboardPage() {
                         ) : (
                             <div className="text-center py-12">
                                 <div className="rounded-2xl p-8 sm:p-12">
-                                    <h3 className="text-xl font-semibold text-gray-900 mb-3">Your space is ready for your first thought</h3>
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                                        Your space is ready for your first thought
+                                    </h3>
                                     <p className="text-gray-600">
                                         This is where your story begins
                                     </p>
@@ -198,11 +174,168 @@ export default function DashboardPage() {
 
             <Footer />
 
-            <CreatePostModal
-                isOpen={isPostModalOpen}
-                onClose={() => setIsPostModalOpen(false)}
-                onSubmit={handlePostSubmit}
-            />
+            {/* Create Post Modal - Matching original design */}
+            {isPostModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-2xl font-bold text-gray-900">Share your thoughts</h2>
+                            <button
+                                onClick={() => setIsPostModalOpen(false)}
+                                className="text-gray-400 hover:text-gray-600 text-2xl"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <form onSubmit={handlePostSubmit}>
+                            <textarea
+                                value={postContent}
+                                onChange={(e) => setPostContent(e.target.value)}
+                                placeholder="What's on your mind? Your post will be encrypted and stored on blockchain..."
+                                className="w-full h-48 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-gray-900"
+                                disabled={isSubmitting}
+                            />
+
+                            <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-gray-600">
+                                <p className="font-semibold mb-1">🔐 Blockchain powered</p>
+                                <ul className="list-disc list-inside space-y-1 text-xs">
+                                    <li>Encrypted before storing on Base Sepolia</li>
+                                    <li>Permanent and censorship-resistant</li>
+                                    <li>Only you can decrypt and view</li>
+                                </ul>
+                            </div>
+
+                            <div className="mt-6 flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsPostModalOpen(false)}
+                                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                                    disabled={isSubmitting}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting || !postContent.trim()}
+                                    className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? 'Posting to Blockchain...' : 'Post'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </main>
+    )
+}
+
+// Component untuk render individual post - matching PostCard design
+function PostCardBlockchain({ secretId, currentWallet }: { secretId: bigint, currentWallet: string }) {
+    const { secret, isLoading } = useGetSecret(secretId)
+    const [decryptedPost, setDecryptedPost] = useState<{ content: string; timestamp: string; wallet: string } | null>(null)
+    const [isExpanded, setIsExpanded] = useState(false)
+
+    useEffect(() => {
+        if (secret && !decryptedPost) {
+            try {
+                const keys = JSON.parse(localStorage.getItem('confidee_keys') || '{}')
+                const keyArray = Object.values(keys)
+
+                if (keyArray.length === 0) {
+                    // No keys available
+                    return
+                }
+
+                for (const key of keyArray) {
+                    try {
+                        const decrypted = decryptData(secret.encryptedData, key as string)
+                        const postData = JSON.parse(decrypted)
+                        setDecryptedPost(postData)
+                        break
+                    } catch (decryptErr) {
+                        // Silently continue to next key
+                        continue
+                    }
+                }
+            } catch (err) {
+                // Silent fail - post will show as encrypted
+                console.warn('Unable to decrypt secret:', secretId.toString())
+            }
+        }
+    }, [secret, decryptedPost, secretId])
+
+    if (isLoading) {
+        return (
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+        )
+    }
+
+    if (!secret) return null
+
+    const timeAgo = new Date(Number(secret.timestamp) * 1000).toLocaleString()
+
+    return (
+        <div
+            className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer"
+            onClick={() => setIsExpanded(!isExpanded)}
+        >
+            <div className="flex items-start space-x-4">
+                <div className="bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-medium text-gray-600">AU</span>
+                </div>
+                <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                        <span className="text-sm font-medium text-gray-500">Anonymous User</span>
+                        <span className="text-gray-300">•</span>
+                        <span className="text-sm text-gray-500">{timeAgo}</span>
+                    </div>
+
+                    {decryptedPost ? (
+                        <div className="text-gray-900 mb-4">
+                            {decryptedPost.content}
+                        </div>
+                    ) : (
+                        <div className="text-gray-400 text-sm mb-4">
+                            🔐 Encrypted on blockchain
+                        </div>
+                    )}
+
+                    {isExpanded && (
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                            <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r-lg mb-3">
+                                <div className="text-xs font-medium text-blue-900 mb-1">On-chain Data</div>
+                                <div className="text-xs text-blue-800 font-mono break-all">
+                                    {secret.encryptedData.slice(0, 80)}...
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between text-xs text-gray-500">
+                                <span>Secret #{secretId.toString()}</span>
+                                <a
+                                    href={`https://sepolia.basescan.org/address/0xAA095A42912333B4888269CCdE1286E02609493f`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:text-blue-800"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    View on BaseScan →
+                                </a>
+                            </div>
+                        </div>
+                    )}
+
+                    {!decryptedPost && (
+                        <div className="text-xs text-gray-400 mt-2">
+                            Unable to decrypt - key not found
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
     )
 }

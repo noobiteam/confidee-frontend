@@ -1,4 +1,4 @@
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { CONTRACT_CONFIG } from '@/config/contract';
 import ConfideeABI from '@/abi/Confidee.json';
 import { Address } from 'viem';
@@ -100,13 +100,16 @@ export function useConfideeContract() {
  * Hook untuk read secret by ID
  */
 export function useGetSecret(secretId: bigint | undefined) {
+  const { address: account } = useAccount();
+
   const { data, isError, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.address,
     abi: ConfideeABI,
     functionName: 'getSecret',
     args: secretId !== undefined ? [secretId] : undefined,
+    account: account,
     query: {
-      enabled: secretId !== undefined,
+      enabled: secretId !== undefined && !!account,
     },
   });
 
@@ -130,10 +133,16 @@ export function useGetSecret(secretId: bigint | undefined) {
  * Hook untuk get user's secrets
  */
 export function useGetMySecrets() {
+  const { address: account } = useAccount();
+
   const { data, isError, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.address,
     abi: ConfideeABI,
     functionName: 'getMySecrets',
+    account: account,
+    query: {
+      enabled: !!account,
+    },
   });
 
   return {
