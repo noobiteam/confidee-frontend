@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans } from 'next/font/google'
-import { WalletContextProvider } from '@/context/WalletContext'
+import { Web3Provider } from '@/providers/Web3Provider'
 import './globals.css'
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -21,9 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={plusJakarta.className}>
-        <WalletContextProvider>
+        <Web3Provider>
           {children}
-        </WalletContextProvider>
+        </Web3Provider>
       </body>
     </html>
   )
