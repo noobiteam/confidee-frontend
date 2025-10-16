@@ -20,10 +20,17 @@ export default function DashboardPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState('')
     const [success, setSuccess] = useState(false)
+    const [isInitialLoading, setIsInitialLoading] = useState(true)
 
     useEffect(() => {
         if (!address) {
             router.push('/')
+        } else {
+            // Show loading for smooth transition
+            const timer = setTimeout(() => {
+                setIsInitialLoading(false)
+            }, 800)
+            return () => clearTimeout(timer)
         }
     }, [address, router])
 
@@ -88,6 +95,25 @@ export default function DashboardPage() {
 
     if (!address) {
         return null
+    }
+
+    // Show loading screen during initial load
+    if (isInitialLoading) {
+        return (
+            <main className="min-h-screen bg-white flex items-center justify-center">
+                <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
+                <div className="relative text-center">
+                    <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mb-6"></div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back!</h2>
+                    <p className="text-gray-600">Loading your safe space...</p>
+                    <div className="mt-8 flex items-center justify-center space-x-2">
+                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                </div>
+            </main>
+        )
     }
 
     return (
