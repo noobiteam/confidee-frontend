@@ -64,7 +64,7 @@ export function CreateSecretForm() {
 
   if (!isConnected) {
     return (
-      <div className="p-6 bg-white rounded-lg shadow-md">
+      <div className="p-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
         <p className="text-gray-600 text-center">
           Please connect your wallet to create secrets
         </p>
@@ -73,11 +73,11 @@ export function CreateSecretForm() {
   }
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Create New Secret</h2>
+    <div className="p-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
+      <h2 className="text-2xl font-bold mb-4 text-gray-900">Create New Secret</h2>
 
       {success && (
-        <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
           <p className="font-semibold">Secret created successfully!</p>
           {generatedKey && (
             <div className="mt-2">
@@ -106,7 +106,7 @@ export function CreateSecretForm() {
       )}
 
       {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
           {error}
         </div>
       )}
@@ -119,7 +119,7 @@ export function CreateSecretForm() {
           <textarea
             value={secretText}
             onChange={(e) => setSecretText(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             rows={4}
             placeholder="Enter your secret message..."
             disabled={isWritePending || isConfirming}

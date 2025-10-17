@@ -63,14 +63,14 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }: CreatePos
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={!content.trim()}
-                                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-semibold transition-colors"
                             >
                                 Share
                             </button>

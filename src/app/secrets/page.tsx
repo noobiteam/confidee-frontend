@@ -16,16 +16,17 @@ export default function SecretsPage() {
 
   if (!isConnected) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
-          <h1 className="text-2xl font-bold mb-4">Welcome to Confidee</h1>
+      <main className="min-h-screen bg-white flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
+        <div className="relative max-w-md w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+          <h1 className="text-2xl font-bold mb-4 text-gray-900">Welcome to Confidee</h1>
           <p className="text-gray-600 mb-6">
             Please connect your wallet to access your secrets
           </p>
           <ConnectWallet />
           <button
             onClick={() => router.push('/')}
-            className="mt-4 text-blue-600 hover:text-blue-800 text-sm"
+            className="mt-4 text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
           >
             ← Back to Home
           </button>
@@ -35,9 +36,11 @@ export default function SecretsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-white flex flex-col">
+      <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
+      <div className="relative flex-1">
       {/* Header */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -56,30 +59,30 @@ export default function SecretsPage() {
       </nav>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 pt-24 sm:pt-32">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
             <h3 className="text-sm font-medium text-gray-600 mb-2">Total Secrets on Chain</h3>
             <p className="text-3xl font-bold text-blue-600">
               {isLoading ? '...' : total}
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
             <h3 className="text-sm font-medium text-gray-600 mb-2">Network</h3>
             <p className="text-lg font-semibold text-gray-900">Base Sepolia</p>
             <a
               href={CONTRACT_CONFIG.contractUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
             >
               View Contract →
             </a>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
             <h3 className="text-sm font-medium text-gray-600 mb-2">Contract Address</h3>
             <p className="text-xs font-mono text-gray-700 break-all">
               {CONTRACT_CONFIG.address}
@@ -98,7 +101,7 @@ export default function SecretsPage() {
         </div>
 
         {/* Info Box */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-2xl p-6">
           <h3 className="font-semibold text-blue-900 mb-2">🔐 How to use Confidee Secrets:</h3>
           <ul className="space-y-2 text-sm text-blue-800">
             <li>1. <strong>Create Secret:</strong> Enter your message and it will be encrypted before being stored on blockchain</li>
@@ -125,11 +128,12 @@ export default function SecretsPage() {
         <div className="mt-8 text-center">
           <Link
             href="/dashboard"
-            className="text-blue-600 hover:text-blue-800 font-medium"
+            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
           >
             ← Back to Dashboard
           </Link>
         </div>
+      </div>
       </div>
     </main>
   );

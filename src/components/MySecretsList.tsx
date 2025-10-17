@@ -15,7 +15,7 @@ export function MySecretsList() {
 
   if (!isConnected) {
     return (
-      <div className="p-6 bg-white rounded-lg shadow-md">
+      <div className="p-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
         <p className="text-gray-600 text-center">
           Connect your wallet to view your secrets
         </p>
@@ -25,7 +25,7 @@ export function MySecretsList() {
 
   if (isLoading) {
     return (
-      <div className="p-6 bg-white rounded-lg shadow-md">
+      <div className="p-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
         <p className="text-gray-600 text-center">Loading your secrets...</p>
       </div>
     );
@@ -33,7 +33,7 @@ export function MySecretsList() {
 
   if (secretIds.length === 0) {
     return (
-      <div className="p-6 bg-white rounded-lg shadow-md">
+      <div className="p-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
         <p className="text-gray-600 text-center">
           You don&apos;t have any secrets yet. Create your first one above!
         </p>
@@ -42,8 +42,8 @@ export function MySecretsList() {
   }
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">My Secrets ({secretIds.length})</h2>
+    <div className="p-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
+      <h2 className="text-2xl font-bold mb-4 text-gray-900">My Secrets ({secretIds.length})</h2>
 
       <div className="space-y-3">
         {secretIds.map((secretId) => (
