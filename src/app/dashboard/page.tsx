@@ -497,7 +497,7 @@ function PostCard({ secret, currentWallet }: {
                     {/* BaseScan link - Always visible at bottom */}
                     <div className="mt-4 pt-3 border-t border-gray-100">
                         <a
-                            href={`https://sepolia.basescan.org/address/0x296095F0c565704cBfdc09d258374dDB2283d909`}
+                            href={`https://sepolia.basescan.org/address/0x49BaCB0B84b261Ee998CC057bA6ad25cC0Ff626F`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-xs text-gray-500 hover:text-blue-600 transition-colors flex items-center space-x-1"
