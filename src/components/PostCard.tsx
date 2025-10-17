@@ -1,5 +1,7 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
+
 interface PostCardProps {
     id: string
     content: string
@@ -21,15 +23,20 @@ interface PostCardProps {
     }>
     onReply: (postId: string) => void
     onLike: (postId: string) => void
+    isDetailView?: boolean  // NEW: flag untuk detect if in detail page
 }
 
-export default function PostCard({ id, content, timestamp, wallet, likes, likeCount, totalTips, currentUserWallet, aiResponse, replies, onReply, onLike }: PostCardProps) {
+export default function PostCard({ id, content, timestamp, wallet, likes, likeCount, totalTips, currentUserWallet, aiResponse, replies, onReply, onLike, isDetailView = false }: PostCardProps) {
+    const router = useRouter()
     const shortWallet = `${wallet.slice(0, 4)}...${wallet.slice(-4)}`
     const timeAgo = new Date(timestamp).toLocaleString()
-    const hasUserLiked = likes.includes(currentUserWallet)
+    const hasUserLiked = likes ? likes.includes(currentUserWallet) : false
 
     const handleCardClick = () => {
-        onReply(id)
+        // Kalo bukan detail view, go to detail page
+        if (!isDetailView) {
+            router.push(`/post/${id}`)
+        }
     }
 
     const handleActionClick = (e: React.MouseEvent, action: () => void) => {
@@ -56,23 +63,29 @@ export default function PostCard({ id, content, timestamp, wallet, likes, likeCo
                         {content}
                     </div>
 
+                    {/* AI Response - Always show if available */}
                     {aiResponse && (
-                        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg mb-4">
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-4 rounded-r-xl mb-4 shadow-sm">
                             <div className="flex items-center space-x-2 mb-2">
-                                <span className="text-sm font-medium text-blue-900">AI Response</span>
+                                <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 9a1 1 0 112 0v4a1 1 0 11-2 0V9zm1-4a1 1 0 100 2 1 1 0 000-2z" />
+                                </svg>
+                                <span className="text-sm font-semibold text-blue-900">AI Support Response</span>
                                 <span className="text-blue-300">•</span>
-                                <span className="text-sm text-blue-700">{new Date(aiResponse.timestamp).toLocaleString()}</span>
+                                <span className="text-xs text-blue-700">{new Date(aiResponse.timestamp).toLocaleString()}</span>
                             </div>
-                            <div className="text-sm text-blue-800">
+                            <div className="text-sm text-blue-900 leading-relaxed">
                                 {aiResponse.content}
                             </div>
                         </div>
                     )}
 
-                    {replies.length > 0 && (
+                    {/* User Comments - Only show in detail view */}
+                    {isDetailView && replies && replies.length > 0 && (
                         <div className="space-y-3 mb-4">
+                            <div className="text-sm font-semibold text-gray-700 mb-2">Community Comments ({replies.length})</div>
                             {replies.map((reply) => (
-                                <div key={reply.id} className="bg-gray-50 p-3 rounded-lg ml-4">
+                                <div key={reply.id} className="bg-gray-50 p-3 rounded-lg ml-4 border border-gray-100">
                                     <div className="flex items-center space-x-2 mb-1">
                                         <span className="text-xs font-medium text-gray-500">Anonymous User</span>
                                         <span className="text-gray-300">•</span>
@@ -82,6 +95,22 @@ export default function PostCard({ id, content, timestamp, wallet, likes, likeCo
                                 </div>
                             ))}
                         </div>
+                    )}
+
+                    {/* Show "View Details" button in feed view if there are comments */}
+                    {!isDetailView && replies && replies.length > 0 && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                router.push(`/post/${id}`)
+                            }}
+                            className="text-sm text-blue-600 hover:text-blue-700 font-medium mb-4 flex items-center space-x-1"
+                        >
+                            <span>View {replies.length} {replies.length === 1 ? 'comment' : 'comments'}</span>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
                     )}
 
                     <div className="flex items-center justify-between text-sm text-gray-500">
@@ -108,7 +137,7 @@ export default function PostCard({ id, content, timestamp, wallet, likes, likeCo
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
-                                <span>{replies.length}</span>
+                                <span>{replies ? replies.length : 0}</span>
                             </button>
 
                             <div className="flex items-center space-x-1">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useAccount } from 'wagmi'
+import { useAccount, useBalance } from 'wagmi'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -282,6 +282,7 @@ function PostCard({ secret, currentWallet }: {
     },
     currentWallet: string
 }) {
+    const router = useRouter()
     const [isExpanded, setIsExpanded] = useState(false)
     const [showComments, setShowComments] = useState(false)
     const [commentText, setCommentText] = useState('')
@@ -289,7 +290,11 @@ function PostCard({ secret, currentWallet }: {
     const [showTipModal, setShowTipModal] = useState(false)
     const [tipAmount, setTipAmount] = useState('')
     const [isTipping, setIsTipping] = useState(false)
+    const [error, setError] = useState('')
 
+    const { data: balance } = useBalance({
+        address: currentWallet as `0x${string}`,
+    })
     const { likeSecret, unlikeSecret, createComment, tipPost } = useConfideeContract()
     const { likeCount, refetch: refetchLikes } = useGetLikeCount(secret.id)
     const { hasLiked, refetch: refetchHasLiked } = useHasUserLiked(secret.id, currentWallet as `0x${string}`)
@@ -300,10 +305,44 @@ function PostCard({ secret, currentWallet }: {
     const timeAgo = new Date(Number(secret.timestamp) * 1000).toLocaleString()
     const isOwnPost = secret.owner.toLowerCase() === currentWallet.toLowerCase()
 
+    // Helper function to parse user-friendly error messages
+    const getUserFriendlyError = (err: unknown): string => {
+        if (!(err instanceof Error)) return 'An unexpected error occurred'
+
+        const errorMessage = err.message.toLowerCase()
+
+        // User rejected transaction
+        if (errorMessage.includes('user rejected') ||
+            errorMessage.includes('user denied') ||
+            errorMessage.includes('user cancelled')) {
+            return 'Transaction cancelled. No worries, you can try again anytime! 😊'
+        }
+
+        // Insufficient funds
+        if (errorMessage.includes('insufficient funds') ||
+            errorMessage.includes('insufficient balance')) {
+            return 'Insufficient funds in your wallet. Please add more ETH and try again.'
+        }
+
+        // Network issues
+        if (errorMessage.includes('network') ||
+            errorMessage.includes('connection')) {
+            return 'Network error. Please check your connection and try again.'
+        }
+
+        // Generic fallback
+        return err.message
+    }
+
+    const handleCardClick = () => {
+        router.push(`/post/${secret.id}`)
+    }
+
     const handleLike = async (e: React.MouseEvent) => {
         e.stopPropagation()
+        setError('')
         try {
-            if (hasLiked) {
+            if (hasLiked === true) {
                 await unlikeSecret(secret.id)
             } else {
                 await likeSecret(secret.id)
@@ -315,6 +354,10 @@ function PostCard({ secret, currentWallet }: {
             }, 2000)
         } catch (error) {
             console.error('Error toggling like:', error)
+            const errorMsg = getUserFriendlyError(error)
+            setError(errorMsg)
+            // Auto-dismiss error after 5 seconds
+            setTimeout(() => setError(''), 5000)
         }
     }
 
@@ -323,6 +366,7 @@ function PostCard({ secret, currentWallet }: {
         if (!commentText.trim()) return
 
         setIsCommenting(true)
+        setError('')
         try {
             await createComment(secret.id, commentText)
             setCommentText('')
@@ -333,6 +377,7 @@ function PostCard({ secret, currentWallet }: {
             }, 2000)
         } catch (error) {
             console.error('Error creating comment:', error)
+            setError(getUserFriendlyError(error))
         } finally {
             setIsCommenting(false)
         }
@@ -343,6 +388,7 @@ function PostCard({ secret, currentWallet }: {
         if (!tipAmount || parseFloat(tipAmount) <= 0) return
 
         setIsTipping(true)
+        setError('')
         try {
             await tipPost(secret.id, tipAmount)
             setTipAmount('')
@@ -353,6 +399,7 @@ function PostCard({ secret, currentWallet }: {
             }, 2000)
         } catch (error) {
             console.error('Error tipping post:', error)
+            setError(getUserFriendlyError(error))
         } finally {
             setIsTipping(false)
         }
@@ -360,7 +407,8 @@ function PostCard({ secret, currentWallet }: {
 
     return (
         <div
-            className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all"
+            onClick={handleCardClick}
+            className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer"
         >
             <div className="flex items-start space-x-4">
                 <div className={`${isOwnPost ? 'bg-blue-100' : 'bg-gray-100'} w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0`}>
@@ -381,19 +429,35 @@ function PostCard({ secret, currentWallet }: {
                         {secret.content}
                     </div>
 
-                    {/* AI Reply */}
+                    {/* AI Reply - Highlighted in Feed */}
                     {secret.aiReply && secret.aiReply.length > 0 && (
-                        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg mb-4">
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-4 rounded-r-xl mb-4 shadow-sm">
                             <div className="flex items-center space-x-2 mb-2">
-                                <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 9a1 1 0 112 0v4a1 1 0 11-2 0V9zm1-4a1 1 0 100 2 1 1 0 000-2z" />
                                 </svg>
-                                <span className="text-sm font-medium text-blue-900">AI Support</span>
+                                <span className="text-sm font-semibold text-blue-900">AI Support Response</span>
                             </div>
-                            <div className="text-sm text-blue-800">
+                            <div className="text-sm text-blue-900 leading-relaxed">
                                 {secret.aiReply}
                             </div>
                         </div>
+                    )}
+
+                    {/* View Details Button if there are comments */}
+                    {(commentCount || 0) > 0 && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                router.push(`/post/${secret.id}`)
+                            }}
+                            className="text-sm text-blue-600 hover:text-blue-700 font-medium mb-4 flex items-center space-x-1"
+                        >
+                            <span>View {commentCount || 0} {(commentCount || 0) === 1 ? 'comment' : 'comments'}</span>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
                     )}
 
                     {/* Like, Comment, and Tip buttons */}
@@ -402,27 +466,21 @@ function PostCard({ secret, currentWallet }: {
                             <button
                                 onClick={handleLike}
                                 className={`flex items-center space-x-1 hover:scale-105 transition-all ${
-                                    hasLiked ? 'text-red-600 hover:text-red-700' : 'text-gray-500 hover:text-red-600'
+                                    hasLiked === true ? 'text-red-600 hover:text-red-700' : 'text-gray-500 hover:text-red-600'
                                 }`}
                             >
-                                <svg className="w-5 h-5" fill={hasLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5" fill={hasLiked === true ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
-                                <span className="text-sm font-medium">{likeCount}</span>
+                                <span className="text-sm font-medium">{likeCount || 0}</span>
                             </button>
 
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setShowComments(!showComments)
-                                }}
-                                className="flex items-center space-x-1 text-gray-500 hover:text-blue-600 hover:scale-105 transition-all"
-                            >
+                            <div className="flex items-center space-x-1 text-gray-500">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
-                                <span className="text-sm font-medium">{commentCount}</span>
-                            </button>
+                                <span className="text-sm font-medium">{commentCount || 0}</span>
+                            </div>
 
                             {!isOwnPost && (
                                 <button
@@ -440,62 +498,25 @@ function PostCard({ secret, currentWallet }: {
                             )}
                         </div>
 
-                        {totalTips > 0 && (
+                        {(totalTips || 0) > 0 && (
                             <div className="flex items-center space-x-1 text-green-600">
                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
                                 </svg>
-                                <span className="text-sm font-medium">{totalTips.toFixed(4)} ETH</span>
+                                <span className="text-sm font-medium">{(totalTips || 0).toFixed(4)} ETH</span>
                             </div>
                         )}
                     </div>
 
-                    {/* Comments section */}
-                    {showComments && (
-                        <div className="mt-4 pt-4 border-t border-gray-200">
-                            {/* Comment form */}
-                            <form onSubmit={handleComment} className="mb-4">
-                                <div className="flex space-x-2">
-                                    <input
-                                        type="text"
-                                        value={commentText}
-                                        onChange={(e) => setCommentText(e.target.value)}
-                                        placeholder="Add a comment..."
-                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        maxLength={500}
-                                        disabled={isCommenting}
-                                    />
-                                    <button
-                                        type="submit"
-                                        disabled={isCommenting || !commentText.trim()}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:bg-gray-400"
-                                    >
-                                        {isCommenting ? 'Posting...' : 'Post'}
-                                    </button>
-                                </div>
-                            </form>
-
-                            {/* Comments list */}
-                            {comments.length > 0 ? (
-                                <div className="space-y-3">
-                                    {comments.map((comment) => (
-                                        <div key={comment.id.toString()} className="bg-gray-50 p-3 rounded-lg">
-                                            <div className="flex items-center space-x-2 mb-1">
-                                                <span className="text-xs font-medium text-gray-500">
-                                                    {comment.author.toLowerCase() === currentWallet.toLowerCase() ? 'You' : 'Anonymous User'}
-                                                </span>
-                                                <span className="text-gray-300">•</span>
-                                                <span className="text-xs text-gray-500">
-                                                    {new Date(Number(comment.timestamp) * 1000).toLocaleString()}
-                                                </span>
-                                            </div>
-                                            <div className="text-sm text-gray-800">{comment.content}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-sm text-gray-500 text-center py-4">No comments yet. Be the first!</p>
-                            )}
+                    {/* Error Notification */}
+                    {error && (
+                        <div className="mt-4 bg-red-50 border-l-4 border-red-500 p-3 rounded-r-lg" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-start">
+                                <svg className="w-4 h-4 text-red-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p className="text-xs text-red-800">{error}</p>
+                            </div>
                         </div>
                     )}
 
@@ -545,6 +566,23 @@ function PostCard({ secret, currentWallet }: {
                         </p>
 
                         <form onSubmit={handleTip}>
+                            {/* Balance Display */}
+                            {balance && (
+                                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-2">
+                                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                            </svg>
+                                            <span className="text-sm font-medium text-blue-900">Your Balance</span>
+                                        </div>
+                                        <span className="text-lg font-bold text-blue-900">
+                                            {parseFloat(balance.formatted).toFixed(4)} {balance.symbol}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Amount (ETH)
@@ -559,6 +597,18 @@ function PostCard({ secret, currentWallet }: {
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     disabled={isTipping}
                                 />
+
+                                {/* Insufficient Balance Warning */}
+                                {tipAmount && balance && parseFloat(tipAmount) > parseFloat(balance.formatted) && (
+                                    <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-2">
+                                        <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <p className="text-sm text-red-700">
+                                            Insufficient balance! You only have {parseFloat(balance.formatted).toFixed(4)} ETH
+                                        </p>
+                                    </div>
+                                )}
                             </div>
 
                             {tipAmount && parseFloat(tipAmount) > 0 && (
@@ -589,8 +639,13 @@ function PostCard({ secret, currentWallet }: {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={isTipping || !tipAmount || parseFloat(tipAmount) <= 0}
-                                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400"
+                                    disabled={
+                                        isTipping ||
+                                        !tipAmount ||
+                                        parseFloat(tipAmount) <= 0 ||
+                                        (balance && parseFloat(tipAmount) > parseFloat(balance.formatted))
+                                    }
+                                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                                 >
                                     {isTipping ? 'Sending...' : 'Send Tip'}
                                 </button>
