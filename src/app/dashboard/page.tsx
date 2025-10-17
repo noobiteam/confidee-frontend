@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import WalletButton from '@/components/WalletButton'
 import Footer from '@/components/Footer'
-import { useConfideeContract, useGetLatestSecrets, useGetLikeCount, useHasUserLiked, useGetCommentCount, useGetSecretComments, useGetTotalTips, useGetTotalSecrets } from '@/hooks/useConfideeContract'
+import { useConfideeContract, useGetLatestSecrets, useGetLikeCount, useHasUserLiked, useGetCommentCount, useGetTotalTips, useGetTotalSecrets } from '@/hooks/useConfideeContract'
 import { formatDate } from '@/utils/dateFormatter'
 
 export default function DashboardPage() {

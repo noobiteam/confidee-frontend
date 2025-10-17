@@ -19,7 +19,7 @@ export default function PostDetailPage() {
     const postId = params.id as string
 
     const { secrets, isLoading: secretsLoading } = useGetLatestSecrets(50)
-    const { likeSecret, unlikeSecret, commentOnSecret, tipPost } = useConfideeContract()
+    const { likeSecret, unlikeSecret, createComment, tipPost } = useConfideeContract()
 
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
     const [isTipModalOpen, setIsTipModalOpen] = useState(false)
@@ -127,7 +127,7 @@ export default function PostDetailPage() {
         setError('')
 
         try {
-            await commentOnSecret(post.id, commentContent)
+            await createComment(post.id, commentContent)
             setCommentContent('')
             setIsCommentModalOpen(false)
             setTimeout(() => refetchComments(), 1000)
