@@ -18,7 +18,7 @@ export default function PostDetailPage() {
     const params = useParams()
     const postId = params.id as string
 
-    const { secrets, isLoading: secretsLoading, refetch } = useGetLatestSecrets(50)
+    const { secrets, isLoading: secretsLoading } = useGetLatestSecrets(50)
     const { likeSecret, unlikeSecret, commentOnSecret, tipPost } = useConfideeContract()
 
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
@@ -212,9 +212,9 @@ export default function PostDetailPage() {
                             likeCount={likeCount || 0}
                             totalTips={Number(totalTips || BigInt(0))}
                             currentUserWallet={address || ''}
-                            aiResponse={(post as any).aiReply ? {
-                                content: (post as any).aiReply,
-                                timestamp: new Date(Number((post as any).aiReplyTimestamp || 0) * 1000)
+                            aiResponse={(post as unknown as { aiReply?: string; aiReplyTimestamp?: bigint }).aiReply ? {
+                                content: (post as unknown as { aiReply: string }).aiReply,
+                                timestamp: new Date(Number((post as unknown as { aiReplyTimestamp?: bigint }).aiReplyTimestamp || 0) * 1000)
                             } : undefined}
                             replies={(comments || []).map(comment => ({
                                 id: comment.id.toString(),

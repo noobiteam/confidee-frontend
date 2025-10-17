@@ -284,10 +284,6 @@ function PostCard({ secret, currentWallet }: {
     currentWallet: string
 }) {
     const router = useRouter()
-    const [isExpanded, setIsExpanded] = useState(false)
-    const [showComments, setShowComments] = useState(false)
-    const [commentText, setCommentText] = useState('')
-    const [isCommenting, setIsCommenting] = useState(false)
     const [showTipModal, setShowTipModal] = useState(false)
     const [tipAmount, setTipAmount] = useState('')
     const [isTipping, setIsTipping] = useState(false)
@@ -296,11 +292,10 @@ function PostCard({ secret, currentWallet }: {
     const { data: balance } = useBalance({
         address: currentWallet as `0x${string}`,
     })
-    const { likeSecret, unlikeSecret, createComment, tipPost } = useConfideeContract()
+    const { likeSecret, unlikeSecret, tipPost } = useConfideeContract()
     const { likeCount, refetch: refetchLikes } = useGetLikeCount(secret.id)
     const { hasLiked, refetch: refetchHasLiked } = useHasUserLiked(secret.id, currentWallet as `0x${string}`)
-    const { commentCount, refetch: refetchCommentCount } = useGetCommentCount(secret.id)
-    const { comments, refetch: refetchComments } = useGetSecretComments(secret.id)
+    const { commentCount } = useGetCommentCount(secret.id)
     const { totalTips, refetch: refetchTips } = useGetTotalTips(secret.id)
 
     const timeAgo = formatDate(new Date(Number(secret.timestamp) * 1000))
@@ -359,28 +354,6 @@ function PostCard({ secret, currentWallet }: {
             setError(errorMsg)
             // Auto-dismiss error after 5 seconds
             setTimeout(() => setError(''), 5000)
-        }
-    }
-
-    const handleComment = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!commentText.trim()) return
-
-        setIsCommenting(true)
-        setError('')
-        try {
-            await createComment(secret.id, commentText)
-            setCommentText('')
-            // Refetch comments after transaction
-            setTimeout(() => {
-                refetchComments()
-                refetchCommentCount()
-            }, 2000)
-        } catch (error) {
-            console.error('Error creating comment:', error)
-            setError(getUserFriendlyError(error))
-        } finally {
-            setIsCommenting(false)
         }
     }
 
