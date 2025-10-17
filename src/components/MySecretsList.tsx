@@ -103,7 +103,7 @@ function SecretItem({
     }
 
     try {
-      const decrypted = decryptData(secret.encryptedData, decryptionKey);
+      const decrypted = decryptData(secret.content, decryptionKey);
       setDecryptedText(decrypted);
     } catch {
       setError('Failed to decrypt. Wrong key or corrupted data.');
@@ -143,7 +143,7 @@ function SecretItem({
           <div className="mb-3">
             <p className="text-xs text-gray-600 mb-1">Encrypted Data (on blockchain):</p>
             <p className="text-xs bg-gray-100 p-2 rounded break-all font-mono">
-              {secret.encryptedData}
+              {secret.content}
             </p>
           </div>
 
