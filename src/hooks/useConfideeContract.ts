@@ -84,11 +84,107 @@ export function useConfideeContract() {
     }
   };
 
+  /**
+   * Like a secret/post
+   */
+  const likeSecret = async (secretId: bigint) => {
+    try {
+      const hash = await writeContractAsync({
+        address: CONTRACT_CONFIG.address,
+        abi: ConfideeABI,
+        functionName: 'likeSecret',
+        args: [secretId],
+      });
+      return hash;
+    } catch (error) {
+      console.error('Like secret error:', error);
+      throw error;
+    }
+  };
+
+  /**
+   * Unlike a secret/post
+   */
+  const unlikeSecret = async (secretId: bigint) => {
+    try {
+      const hash = await writeContractAsync({
+        address: CONTRACT_CONFIG.address,
+        abi: ConfideeABI,
+        functionName: 'unlikeSecret',
+        args: [secretId],
+      });
+      return hash;
+    } catch (error) {
+      console.error('Unlike secret error:', error);
+      throw error;
+    }
+  };
+
+  /**
+   * Create a comment
+   */
+  const createComment = async (secretId: bigint, content: string) => {
+    try {
+      const hash = await writeContractAsync({
+        address: CONTRACT_CONFIG.address,
+        abi: ConfideeABI,
+        functionName: 'createComment',
+        args: [secretId, content],
+      });
+      return hash;
+    } catch (error) {
+      console.error('Create comment error:', error);
+      throw error;
+    }
+  };
+
+  /**
+   * Delete a comment
+   */
+  const deleteComment = async (commentId: bigint) => {
+    try {
+      const hash = await writeContractAsync({
+        address: CONTRACT_CONFIG.address,
+        abi: ConfideeABI,
+        functionName: 'deleteComment',
+        args: [commentId],
+      });
+      return hash;
+    } catch (error) {
+      console.error('Delete comment error:', error);
+      throw error;
+    }
+  };
+
+  /**
+   * Tip a post
+   */
+  const tipPost = async (secretId: bigint, amountInEth: string) => {
+    try {
+      const hash = await writeContractAsync({
+        address: CONTRACT_CONFIG.address,
+        abi: ConfideeABI,
+        functionName: 'tipPost',
+        args: [secretId],
+        value: BigInt(Math.floor(parseFloat(amountInEth) * 1e18)), // Convert ETH to Wei
+      });
+      return hash;
+    } catch (error) {
+      console.error('Tip post error:', error);
+      throw error;
+    }
+  };
+
   return {
     createSecret,
     shareSecret,
     revokeAccess,
     deleteSecret,
+    likeSecret,
+    unlikeSecret,
+    createComment,
+    deleteComment,
+    tipPost,
     isWritePending,
     isConfirming,
     isConfirmed,
@@ -258,6 +354,148 @@ export function useGetAllSecrets(offset: number = 0, limit: number = 20) {
 
   return {
     secrets: (data as SecretType[]) || [],
+    isError,
+    isLoading,
+    refetch,
+  };
+}
+
+/**
+ * Hook untuk get like count
+ */
+export function useGetLikeCount(secretId: bigint | undefined) {
+  const { data, isError, isLoading, refetch } = useReadContract({
+    address: CONTRACT_CONFIG.address,
+    abi: ConfideeABI,
+    functionName: 'getLikeCount',
+    args: secretId !== undefined ? [secretId] : undefined,
+    query: {
+      enabled: secretId !== undefined,
+    },
+  });
+
+  return {
+    likeCount: data ? Number(data) : 0,
+    isError,
+    isLoading,
+    refetch,
+  };
+}
+
+/**
+ * Hook untuk check if user liked
+ */
+export function useHasUserLiked(secretId: bigint | undefined, userAddress: Address | undefined) {
+  const { data, isError, isLoading, refetch } = useReadContract({
+    address: CONTRACT_CONFIG.address,
+    abi: ConfideeABI,
+    functionName: 'hasUserLiked',
+    args: secretId !== undefined && userAddress ? [secretId, userAddress] : undefined,
+    query: {
+      enabled: secretId !== undefined && !!userAddress,
+    },
+  });
+
+  return {
+    hasLiked: data as boolean || false,
+    isError,
+    isLoading,
+    refetch,
+  };
+}
+
+/**
+ * Hook untuk get secret likes (list of addresses)
+ */
+export function useGetSecretLikes(secretId: bigint | undefined) {
+  const { data, isError, isLoading, refetch } = useReadContract({
+    address: CONTRACT_CONFIG.address,
+    abi: ConfideeABI,
+    functionName: 'getSecretLikes',
+    args: secretId !== undefined ? [secretId] : undefined,
+    query: {
+      enabled: secretId !== undefined,
+    },
+  });
+
+  return {
+    likes: (data as Address[]) || [],
+    isError,
+    isLoading,
+    refetch,
+  };
+}
+
+/**
+ * Hook untuk get comments for a secret
+ */
+export function useGetSecretComments(secretId: bigint | undefined) {
+  const { data, isError, isLoading, refetch } = useReadContract({
+    address: CONTRACT_CONFIG.address,
+    abi: ConfideeABI,
+    functionName: 'getSecretComments',
+    args: secretId !== undefined ? [secretId] : undefined,
+    query: {
+      enabled: secretId !== undefined,
+    },
+  });
+
+  type CommentType = {
+    id: bigint;
+    secretId: bigint;
+    author: Address;
+    content: string;
+    timestamp: bigint;
+    isActive: boolean;
+  };
+
+  return {
+    comments: (data as CommentType[]) || [],
+    isError,
+    isLoading,
+    refetch,
+  };
+}
+
+/**
+ * Hook untuk get comment count
+ */
+export function useGetCommentCount(secretId: bigint | undefined) {
+  const { data, isError, isLoading, refetch } = useReadContract({
+    address: CONTRACT_CONFIG.address,
+    abi: ConfideeABI,
+    functionName: 'getCommentCount',
+    args: secretId !== undefined ? [secretId] : undefined,
+    query: {
+      enabled: secretId !== undefined,
+    },
+  });
+
+  return {
+    commentCount: data ? Number(data) : 0,
+    isError,
+    isLoading,
+    refetch,
+  };
+}
+
+/**
+ * Hook untuk get total tips for a post
+ */
+export function useGetTotalTips(secretId: bigint | undefined) {
+  const { data, isError, isLoading, refetch } = useReadContract({
+    address: CONTRACT_CONFIG.address,
+    abi: ConfideeABI,
+    functionName: 'getTotalTips',
+    args: secretId !== undefined ? [secretId] : undefined,
+    query: {
+      enabled: secretId !== undefined,
+    },
+  });
+
+  return {
+    totalTips: data ? Number(data) / 1e18 : 0, // Convert from Wei to ETH
+    totalTipsWei: data ? data : BigInt(0),
     isError,
     isLoading,
     refetch,

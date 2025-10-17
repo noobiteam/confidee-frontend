@@ -4,8 +4,8 @@
  */
 
 export const CONTRACT_CONFIG = {
-  // Contract address di Base Sepolia (New Global Feed Version)
-  address: "0xcbc7049A98736d05dB5a927966F9E3ab3a393e90" as `0x${string}`,
+  // Contract address di Base Sepolia (Final Version with Tip System & AI Reply)
+  address: "0x296095F0c565704cBfdc09d258374dDB2283d909" as `0x${string}`,
 
   // Network details
   chainId: 84532, // Base Sepolia
@@ -17,7 +17,7 @@ export const CONTRACT_CONFIG = {
   explorerName: "BaseScan",
 
   // Contract URL
-  contractUrl: "https://sepolia.basescan.org/address/0xcbc7049A98736d05dB5a927966F9E3ab3a393e90",
+  contractUrl: "https://sepolia.basescan.org/address/0x296095F0c565704cBfdc09d258374dDB2283d909",
 
   // Deployer info
   deployer: "0xD9D4F8cE84fB1253a4f2906ED2f67f4702F13f86",

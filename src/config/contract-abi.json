@@ -1,41 +1,5 @@
 [
   {
-    "type": "constructor",
-    "inputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "FEE_PERCENTAGE",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "addAIReply",
-    "inputs": [
-      {
-        "name": "_secretId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_aiReply",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
     "type": "function",
     "name": "comments",
     "inputs": [
@@ -193,21 +157,6 @@
             "name": "isActive",
             "type": "bool",
             "internalType": "bool"
-          },
-          {
-            "name": "aiReply",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "aiReplyTimestamp",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "totalTips",
-            "type": "uint256",
-            "internalType": "uint256"
           }
         ]
       }
@@ -273,21 +222,6 @@
             "name": "isActive",
             "type": "bool",
             "internalType": "bool"
-          },
-          {
-            "name": "aiReply",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "aiReplyTimestamp",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "totalTips",
-            "type": "uint256",
-            "internalType": "uint256"
           }
         ]
       }
@@ -322,19 +256,6 @@
         "name": "",
         "type": "uint256[]",
         "internalType": "uint256[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getOwner",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
       }
     ],
     "stateMutability": "view"
@@ -379,21 +300,6 @@
             "name": "isActive",
             "type": "bool",
             "internalType": "bool"
-          },
-          {
-            "name": "aiReply",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "aiReplyTimestamp",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "totalTips",
-            "type": "uint256",
-            "internalType": "uint256"
           }
         ]
       }
@@ -517,25 +423,6 @@
   },
   {
     "type": "function",
-    "name": "getTotalTips",
-    "inputs": [
-      {
-        "name": "_secretId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
     "name": "hasUserLiked",
     "inputs": [
       {
@@ -570,19 +457,6 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "owner",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -637,21 +511,6 @@
         "name": "isActive",
         "type": "bool",
         "internalType": "bool"
-      },
-      {
-        "name": "aiReply",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "aiReplyTimestamp",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "totalTips",
-        "type": "uint256",
-        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
@@ -676,19 +535,6 @@
   },
   {
     "type": "function",
-    "name": "tipPost",
-    "inputs": [
-      {
-        "name": "_secretId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
     "name": "unlikeSecret",
     "inputs": [
       {
@@ -699,31 +545,6 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
-  },
-  {
-    "type": "event",
-    "name": "AIReplyAdded",
-    "inputs": [
-      {
-        "name": "secretId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "reply",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      },
-      {
-        "name": "timestamp",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
   },
   {
     "type": "event",
@@ -780,25 +601,6 @@
       },
       {
         "name": "timestamp",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "FeeCollected",
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
@@ -961,43 +763,6 @@
       },
       {
         "name": "timestamp",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "TipSent",
-    "inputs": [
-      {
-        "name": "secretId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "tipper",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "postOwner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "fee",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
