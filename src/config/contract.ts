@@ -4,8 +4,8 @@
  */
 
 export const CONTRACT_CONFIG = {
-  // Contract address di Base Sepolia
-  address: "0xAA095A42912333B4888269CCdE1286E02609493f" as `0x${string}`,
+  // Contract address di Base Sepolia (New Global Feed Version)
+  address: "0xcbc7049A98736d05dB5a927966F9E3ab3a393e90" as `0x${string}`,
 
   // Network details
   chainId: 84532, // Base Sepolia
@@ -17,11 +17,11 @@ export const CONTRACT_CONFIG = {
   explorerName: "BaseScan",
 
   // Contract URL
-  contractUrl: "https://sepolia.basescan.org/address/0xaa095a42912333b4888269ccde1286e02609493f",
+  contractUrl: "https://sepolia.basescan.org/address/0xcbc7049A98736d05dB5a927966F9E3ab3a393e90",
 
   // Deployer info
   deployer: "0xD9D4F8cE84fB1253a4f2906ED2f67f4702F13f86",
-  deployedAt: new Date("2025-10-16"), // Deployment date
+  deployedAt: new Date("2025-10-17"), // Deployment date
 } as const;
 
 // Base Sepolia network config untuk wagmi/viem

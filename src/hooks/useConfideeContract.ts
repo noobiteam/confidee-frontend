@@ -116,7 +116,7 @@ export function useGetSecret(secretId: bigint | undefined) {
   type SecretType = {
     id: bigint;
     owner: Address;
-    encryptedData: string;
+    content: string;
     timestamp: bigint;
     isActive: boolean;
   };
@@ -204,6 +204,60 @@ export function useGetSharedWith(secretId: bigint | undefined) {
 
   return {
     addresses: (data as Address[]) || [],
+    isError,
+    isLoading,
+    refetch,
+  };
+}
+
+/**
+ * Hook untuk get latest secrets (Global Feed)
+ */
+export function useGetLatestSecrets(limit: number = 20) {
+  const { data, isError, isLoading, refetch } = useReadContract({
+    address: CONTRACT_CONFIG.address,
+    abi: ConfideeABI,
+    functionName: 'getLatestSecrets',
+    args: [BigInt(limit)],
+  });
+
+  type SecretType = {
+    id: bigint;
+    owner: Address;
+    content: string;
+    timestamp: bigint;
+    isActive: boolean;
+  };
+
+  return {
+    secrets: (data as SecretType[]) || [],
+    isError,
+    isLoading,
+    refetch,
+  };
+}
+
+/**
+ * Hook untuk get all secrets dengan pagination
+ */
+export function useGetAllSecrets(offset: number = 0, limit: number = 20) {
+  const { data, isError, isLoading, refetch } = useReadContract({
+    address: CONTRACT_CONFIG.address,
+    abi: ConfideeABI,
+    functionName: 'getAllSecrets',
+    args: [BigInt(offset), BigInt(limit)],
+  });
+
+  type SecretType = {
+    id: bigint;
+    owner: Address;
+    content: string;
+    timestamp: bigint;
+    isActive: boolean;
+  };
+
+  return {
+    secrets: (data as SecretType[]) || [],
     isError,
     isLoading,
     refetch,

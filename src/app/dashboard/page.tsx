@@ -6,14 +6,13 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import WalletButton from '@/components/WalletButton'
 import Footer from '@/components/Footer'
-import { useConfideeContract, useGetMySecrets, useGetSecret } from '@/hooks/useConfideeContract'
-import { encryptData, decryptData, generateEncryptionKey } from '@/utils/encryption'
+import { useConfideeContract, useGetLatestSecrets } from '@/hooks/useConfideeContract'
 
 export default function DashboardPage() {
     const { address } = useAccount()
     const router = useRouter()
     const { createSecret, isWritePending, isConfirming, isConfirmed } = useConfideeContract()
-    const { secretIds, isLoading: secretsLoading, refetch } = useGetMySecrets()
+    const { secrets, isLoading: secretsLoading, refetch } = useGetLatestSecrets(50)
 
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
     const [postContent, setPostContent] = useState('')
@@ -53,27 +52,15 @@ export default function DashboardPage() {
             return
         }
 
+        if (postContent.length > 1000) {
+            setError('Post is too long (max 1000 characters)')
+            setIsSubmitting(false)
+            return
+        }
+
         try {
-            // Generate encryption key (stored in localStorage for this demo)
-            const encryptionKey = generateEncryptionKey()
-
-            // Create post object with metadata
-            const postData = {
-                content: postContent,
-                timestamp: new Date().toISOString(),
-                wallet: address,
-            }
-
-            // Encrypt the entire post
-            const encryptedData = encryptData(JSON.stringify(postData), encryptionKey)
-
-            // Save to blockchain
-            await createSecret(encryptedData)
-
-            // Store encryption key in localStorage (in production, use better key management)
-            const keys = JSON.parse(localStorage.getItem('confidee_keys') || '{}')
-            keys[`secret_${Date.now()}`] = encryptionKey
-            localStorage.setItem('confidee_keys', JSON.stringify(keys))
+            // Save to blockchain (plain text, no encryption)
+            await createSecret(postContent)
 
             setSuccess(true)
             setPostContent('')
@@ -134,10 +121,10 @@ export default function DashboardPage() {
                 <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6">
                     <div className="max-w-4xl mx-auto text-center">
                         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
-                            Welcome to your safe space
+                            Global Anonymous Feed
                         </h1>
                         <p className="text-base sm:text-lg text-gray-600 mb-8 sm:mb-10">
-                            Share whatever&apos;s on your heart, stored securely on blockchain
+                            Share your thoughts anonymously, visible to everyone on-chain
                         </p>
 
                         <button
@@ -145,7 +132,7 @@ export default function DashboardPage() {
                             disabled={isWritePending || isConfirming}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors disabled:bg-gray-400"
                         >
-                            {isWritePending || isConfirming ? 'Posting...' : 'Ready to share?'}
+                            {isWritePending || isConfirming ? 'Posting...' : 'Share Your Thoughts'}
                         </button>
 
                         {success && (
@@ -166,30 +153,26 @@ export default function DashboardPage() {
                     <div className="mx-auto">
                         {secretsLoading ? (
                             <div className="text-center py-12">
-                                <p className="text-gray-600">Loading your posts from blockchain...</p>
+                                <p className="text-gray-600">Loading posts from blockchain...</p>
                             </div>
-                        ) : secretIds.length > 0 ? (
+                        ) : secrets.length > 0 ? (
                             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                                {secretIds.map((secretId) => (
-                                    <div
-                                        key={secretId.toString()}
-                                        className={secretIds.length === 1 ? 'md:col-start-2' : ''}
-                                    >
-                                        <PostCardBlockchain
-                                            secretId={secretId}
-                                            currentWallet={address || ''}
-                                        />
-                                    </div>
+                                {secrets.map((secret) => (
+                                    <PostCard
+                                        key={secret.id.toString()}
+                                        secret={secret}
+                                        currentWallet={address || ''}
+                                    />
                                 ))}
                             </div>
                         ) : (
                             <div className="text-center py-12">
                                 <div className="rounded-2xl p-8 sm:p-12">
                                     <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                                        Your space is ready for your first thought
+                                        No posts yet
                                     </h3>
                                     <p className="text-gray-600">
-                                        This is where your story begins
+                                        Be the first to share your thoughts!
                                     </p>
                                 </div>
                             </div>
@@ -200,7 +183,7 @@ export default function DashboardPage() {
 
             <Footer />
 
-            {/* Create Post Modal - Matching original design */}
+            {/* Create Post Modal */}
             {isPostModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -218,17 +201,22 @@ export default function DashboardPage() {
                             <textarea
                                 value={postContent}
                                 onChange={(e) => setPostContent(e.target.value)}
-                                placeholder="What's on your mind? Your post will be encrypted and stored on blockchain..."
+                                placeholder="What's on your mind? This will be visible to everyone on the blockchain..."
                                 className="w-full h-48 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-gray-900"
                                 disabled={isSubmitting}
+                                maxLength={1000}
                             />
 
+                            <div className="mt-2 text-right text-sm text-gray-500">
+                                {postContent.length}/1000 characters
+                            </div>
+
                             <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-gray-600">
-                                <p className="font-semibold mb-1">🔐 Blockchain powered</p>
+                                <p className="font-semibold mb-1">🌐 Public & On-Chain</p>
                                 <ul className="list-disc list-inside space-y-1 text-xs">
-                                    <li>Encrypted before storing on Base Sepolia</li>
-                                    <li>Permanent and censorship-resistant</li>
-                                    <li>Only you can decrypt and view</li>
+                                    <li>Stored permanently on Base Sepolia blockchain</li>
+                                    <li>Visible to everyone (anonymous by wallet)</li>
+                                    <li>Cannot be edited or deleted once posted</li>
                                 </ul>
                             </div>
 
@@ -257,53 +245,21 @@ export default function DashboardPage() {
     )
 }
 
-// Component untuk render individual post - matching PostCard design
-function PostCardBlockchain({ secretId, currentWallet }: { secretId: bigint, currentWallet: string }) {
-    const { secret, isLoading } = useGetSecret(secretId)
-    const [decryptedPost, setDecryptedPost] = useState<{ content: string; timestamp: string; wallet: string } | null>(null)
+// Component untuk render individual post
+function PostCard({ secret, currentWallet }: {
+    secret: {
+        id: bigint;
+        owner: string;
+        content: string;
+        timestamp: bigint;
+        isActive: boolean
+    },
+    currentWallet: string
+}) {
     const [isExpanded, setIsExpanded] = useState(false)
 
-    useEffect(() => {
-        if (secret && !decryptedPost) {
-            try {
-                const keys = JSON.parse(localStorage.getItem('confidee_keys') || '{}')
-                const keyArray = Object.values(keys)
-
-                if (keyArray.length === 0) {
-                    // No keys available
-                    return
-                }
-
-                for (const key of keyArray) {
-                    try {
-                        const decrypted = decryptData(secret.encryptedData, key as string)
-                        const postData = JSON.parse(decrypted)
-                        setDecryptedPost(postData)
-                        break
-                    } catch (decryptErr) {
-                        // Silently continue to next key
-                        continue
-                    }
-                }
-            } catch (err) {
-                // Silent fail - post will show as encrypted
-                console.warn('Unable to decrypt secret:', secretId.toString())
-            }
-        }
-    }, [secret, decryptedPost, secretId])
-
-    if (isLoading) {
-        return (
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-        )
-    }
-
-    if (!secret) return null
-
     const timeAgo = new Date(Number(secret.timestamp) * 1000).toLocaleString()
+    const isOwnPost = secret.owner.toLowerCase() === currentWallet.toLowerCase()
 
     return (
         <div
@@ -311,39 +267,37 @@ function PostCardBlockchain({ secretId, currentWallet }: { secretId: bigint, cur
             onClick={() => setIsExpanded(!isExpanded)}
         >
             <div className="flex items-start space-x-4">
-                <div className="bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-medium text-gray-600">AU</span>
+                <div className={`${isOwnPost ? 'bg-blue-100' : 'bg-gray-100'} w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0`}>
+                    <span className={`text-sm font-medium ${isOwnPost ? 'text-blue-600' : 'text-gray-600'}`}>
+                        {isOwnPost ? 'YOU' : 'AU'}
+                    </span>
                 </div>
                 <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
-                        <span className="text-sm font-medium text-gray-500">Anonymous User</span>
+                        <span className={`text-sm font-medium ${isOwnPost ? 'text-blue-600' : 'text-gray-500'}`}>
+                            {isOwnPost ? 'You' : 'Anonymous User'}
+                        </span>
                         <span className="text-gray-300">•</span>
                         <span className="text-sm text-gray-500">{timeAgo}</span>
                     </div>
 
-                    {decryptedPost ? (
-                        <div className="text-gray-900 mb-4">
-                            {decryptedPost.content}
-                        </div>
-                    ) : (
-                        <div className="text-gray-400 text-sm mb-4">
-                            🔐 Encrypted on blockchain
-                        </div>
-                    )}
+                    <div className="text-gray-900 mb-4 whitespace-pre-wrap">
+                        {secret.content}
+                    </div>
 
                     {isExpanded && (
                         <div className="mt-4 pt-4 border-t border-gray-200">
                             <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r-lg mb-3">
-                                <div className="text-xs font-medium text-blue-900 mb-1">On-chain Data</div>
-                                <div className="text-xs text-blue-800 font-mono break-all">
-                                    {secret.encryptedData.slice(0, 80)}...
+                                <div className="text-xs font-medium text-blue-900 mb-1">Blockchain Info</div>
+                                <div className="text-xs text-blue-800 space-y-1">
+                                    <div>Post ID: #{secret.id.toString()}</div>
+                                    <div className="font-mono break-all">Owner: {secret.owner.slice(0, 6)}...{secret.owner.slice(-4)}</div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between text-xs text-gray-500">
-                                <span>Secret #{secretId.toString()}</span>
+                            <div className="flex items-center justify-end text-xs">
                                 <a
-                                    href={`https://sepolia.basescan.org/address/0xAA095A42912333B4888269CCdE1286E02609493f`}
+                                    href={`https://sepolia.basescan.org/address/0xcbc7049A98736d05dB5a927966F9E3ab3a393e90`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-blue-600 hover:text-blue-800"
@@ -352,12 +306,6 @@ function PostCardBlockchain({ secretId, currentWallet }: { secretId: bigint, cur
                                     View on BaseScan →
                                 </a>
                             </div>
-                        </div>
-                    )}
-
-                    {!decryptedPost && (
-                        <div className="text-xs text-gray-400 mt-2">
-                            Unable to decrypt - key not found
                         </div>
                     )}
                 </div>
