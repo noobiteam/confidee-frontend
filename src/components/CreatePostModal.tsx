@@ -32,9 +32,9 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }: CreatePos
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
 
-            <div className="relative bg-white rounded-2xl p-6 sm:p-8 mx-4 w-full max-w-2xl shadow-xl">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-semibold text-gray-900">Share your thoughts</h2>
+            <div className="relative bg-white rounded-2xl p-4 sm:p-6 md:p-8 mx-4 w-full max-w-2xl shadow-xl">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Share your thoughts</h2>
                     <button
                         onClick={onClose}
                         className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -50,12 +50,12 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }: CreatePos
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="What's on your mind? Share your thoughts anonymously..."
-                        className="w-full h-32 p-4 border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full h-32 p-3 sm:p-4 text-sm sm:text-base border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         maxLength={500}
                     />
 
-                    <div className="flex items-center justify-between mt-4">
-                        <span className="text-sm text-gray-500">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
+                        <span className="text-xs sm:text-sm text-gray-500">
                             {content.length}/500 characters
                         </span>
 
@@ -63,14 +63,14 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }: CreatePos
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-700 hover:bg-gray-50 transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={!content.trim()}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base font-semibold transition-colors"
                             >
                                 Share
                             </button>

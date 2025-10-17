@@ -257,9 +257,9 @@ export default function PostDetailPage() {
             {/* Comment Modal */}
             {isCommentModalOpen && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+                    <div className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-xl font-bold text-gray-900">Add Comment</h3>
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900">Add Comment</h3>
                             <button
                                 onClick={() => setIsCommentModalOpen(false)}
                                 className="text-gray-400 hover:text-gray-600"
@@ -275,14 +275,14 @@ export default function PostDetailPage() {
                                 value={commentContent}
                                 onChange={(e) => setCommentContent(e.target.value)}
                                 placeholder="Share your supportive thoughts..."
-                                className="w-full border border-gray-300 rounded-lg p-4 text-gray-900 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full border border-gray-300 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-gray-900 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 rows={4}
                                 maxLength={500}
                             />
-                            <div className="text-sm text-gray-500 mb-4">{commentContent.length}/500</div>
+                            <div className="text-xs sm:text-sm text-gray-500 mb-4">{commentContent.length}/500</div>
 
                             {error && (
-                                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs sm:text-sm">
                                     {error}
                                 </div>
                             )}
@@ -291,14 +291,14 @@ export default function PostDetailPage() {
                                 <button
                                     type="button"
                                     onClick={() => setIsCommentModalOpen(false)}
-                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-700 hover:bg-gray-50 transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={!commentContent.trim() || isSubmitting}
-                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold disabled:bg-gray-400 transition-colors"
+                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold disabled:bg-gray-400 transition-colors"
                                 >
                                     {isSubmitting ? 'Posting...' : 'Post Comment'}
                                 </button>
@@ -311,9 +311,9 @@ export default function PostDetailPage() {
             {/* Tip Modal */}
             {isTipModalOpen && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+                    <div className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-xl font-bold text-gray-900">Send Tip</h3>
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900">Send Tip</h3>
                             <button
                                 onClick={() => setIsTipModalOpen(false)}
                                 className="text-gray-400 hover:text-gray-600"
@@ -327,15 +327,15 @@ export default function PostDetailPage() {
                         <form onSubmit={handleTip}>
                             {/* Balance Display */}
                             {balance && (
-                                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                    <div className="flex items-center justify-between">
+                                <div className="mb-4 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                         <div className="flex items-center space-x-2">
-                                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                             </svg>
-                                            <span className="text-sm font-medium text-blue-900">Your Balance</span>
+                                            <span className="text-xs sm:text-sm font-medium text-blue-900">Your Balance</span>
                                         </div>
-                                        <span className="text-lg font-bold text-blue-900">
+                                        <span className="text-base sm:text-lg font-bold text-blue-900">
                                             {parseFloat(balance.formatted).toFixed(4)} {balance.symbol}
                                         </span>
                                     </div>
@@ -343,7 +343,7 @@ export default function PostDetailPage() {
                             )}
 
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Amount (ETH)</label>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Amount (ETH)</label>
                                 <input
                                     type="number"
                                     step="0.0001"
@@ -351,23 +351,23 @@ export default function PostDetailPage() {
                                     value={tipAmount}
                                     onChange={(e) => setTipAmount(e.target.value)}
                                     placeholder="0.001"
-                                    className="w-full border border-gray-300 rounded-lg p-4 text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    className="w-full border border-gray-300 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 />
 
                                 {/* Insufficient Balance Warning */}
                                 {tipAmount && balance && parseFloat(tipAmount) > parseFloat(balance.formatted) && (
                                     <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-2">
-                                        <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                         </svg>
-                                        <p className="text-sm text-red-700">
+                                        <p className="text-xs sm:text-sm text-red-700">
                                             Insufficient balance! You only have {parseFloat(balance.formatted).toFixed(4)} ETH
                                         </p>
                                     </div>
                                 )}
                                 {tipAmount && parseFloat(tipAmount) > 0 && (
-                                    <div className="mt-3 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
-                                        <div className="text-sm text-gray-700 space-y-2">
+                                    <div className="mt-3 p-3 sm:p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                                        <div className="text-xs sm:text-sm text-gray-700 space-y-2">
                                             <div className="flex justify-between">
                                                 <span>Amount:</span>
                                                 <span className="font-semibold">{tipAmount} ETH</span>
@@ -388,7 +388,7 @@ export default function PostDetailPage() {
                             </div>
 
                             {error && (
-                                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs sm:text-sm">
                                     {error}
                                 </div>
                             )}
@@ -397,7 +397,7 @@ export default function PostDetailPage() {
                                 <button
                                     type="button"
                                     onClick={() => setIsTipModalOpen(false)}
-                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-700 hover:bg-gray-50 transition-colors"
                                 >
                                     Cancel
                                 </button>
@@ -409,7 +409,7 @@ export default function PostDetailPage() {
                                         isSubmitting ||
                                         (balance && parseFloat(tipAmount) > parseFloat(balance.formatted))
                                     }
-                                    className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                                    className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                                 >
                                     {isSubmitting ? 'Sending...' : 'Send Tip'}
                                 </button>

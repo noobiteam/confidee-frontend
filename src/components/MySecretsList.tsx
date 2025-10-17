@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useGetMySecrets, useGetSecret } from '@/hooks/useConfideeContract';
 import { decryptData } from '@/utils/encryption';
+import { formatDate } from '@/utils/dateFormatter';
 
 export function MySecretsList() {
   const { isConnected } = useAccount();
@@ -135,7 +136,7 @@ function SecretItem({
       </div>
 
       <p className="text-xs text-gray-500 mb-2">
-        Created: {new Date(Number(secret.timestamp) * 1000).toLocaleString()}
+        Created: {formatDate(new Date(Number(secret.timestamp) * 1000))}
       </p>
 
       {isSelected && (

@@ -7,6 +7,7 @@ import Link from 'next/link'
 import WalletButton from '@/components/WalletButton'
 import Footer from '@/components/Footer'
 import { useConfideeContract, useGetLatestSecrets, useGetLikeCount, useHasUserLiked, useGetCommentCount, useGetSecretComments, useGetTotalTips, useGetTotalSecrets } from '@/hooks/useConfideeContract'
+import { formatDate } from '@/utils/dateFormatter'
 
 export default function DashboardPage() {
     const { address } = useAccount()
@@ -172,8 +173,8 @@ export default function DashboardPage() {
                     </div>
                 </section>
 
-                <section className="pb-12 sm:pb-20 px-20">
-                    <div className="mx-auto">
+                <section className="pb-12 sm:pb-20 px-4 sm:px-6 md:px-8 lg:px-20">
+                    <div className="mx-auto max-w-7xl">
                         {secretsLoading ? (
                             <div className="text-center py-12">
                                 <p className="text-gray-600">Loading posts from blockchain...</p>
@@ -302,7 +303,7 @@ function PostCard({ secret, currentWallet }: {
     const { comments, refetch: refetchComments } = useGetSecretComments(secret.id)
     const { totalTips, refetch: refetchTips } = useGetTotalTips(secret.id)
 
-    const timeAgo = new Date(Number(secret.timestamp) * 1000).toLocaleString()
+    const timeAgo = formatDate(new Date(Number(secret.timestamp) * 1000))
     const isOwnPost = secret.owner.toLowerCase() === currentWallet.toLowerCase()
 
     // Helper function to parse user-friendly error messages
@@ -408,30 +409,30 @@ function PostCard({ secret, currentWallet }: {
     return (
         <div
             onClick={handleCardClick}
-            className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer"
+            className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer"
         >
-            <div className="flex items-start space-x-4">
-                <div className={`${isOwnPost ? 'bg-blue-100' : 'bg-gray-100'} w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0`}>
-                    <span className={`text-sm font-medium ${isOwnPost ? 'text-blue-600' : 'text-gray-600'}`}>
+            <div className="flex items-start space-x-3 sm:space-x-4">
+                <div className={`${isOwnPost ? 'bg-blue-100' : 'bg-gray-100'} w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0`}>
+                    <span className={`text-xs sm:text-sm font-medium ${isOwnPost ? 'text-blue-600' : 'text-gray-600'}`}>
                         {isOwnPost ? 'YOU' : 'AU'}
                     </span>
                 </div>
-                <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                        <span className={`text-sm font-medium ${isOwnPost ? 'text-blue-600' : 'text-gray-500'}`}>
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2 mb-2 flex-wrap">
+                        <span className={`text-xs sm:text-sm font-medium ${isOwnPost ? 'text-blue-600' : 'text-gray-500'}`}>
                             {isOwnPost ? 'You' : 'Anonymous User'}
                         </span>
                         <span className="text-gray-300">•</span>
-                        <span className="text-sm text-gray-500">{timeAgo}</span>
+                        <span className="text-xs sm:text-sm text-gray-500 truncate">{timeAgo}</span>
                     </div>
 
-                    <div className="text-gray-900 mb-4 whitespace-pre-wrap">
+                    <div className="text-sm sm:text-base text-gray-900 mb-4 whitespace-pre-wrap break-words">
                         {secret.content}
                     </div>
 
                     {/* AI Reply - Highlighted in Feed */}
                     {secret.aiReply && secret.aiReply.length > 0 && (
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-4 rounded-r-xl mb-4 shadow-sm">
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-3 sm:p-4 rounded-r-xl mb-4 shadow-sm">
                             <div className="flex items-center space-x-2 mb-2">
                                 <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 9a1 1 0 112 0v4a1 1 0 11-2 0V9zm1-4a1 1 0 100 2 1 1 0 000-2z" />
@@ -461,25 +462,25 @@ function PostCard({ secret, currentWallet }: {
                     )}
 
                     {/* Like, Comment, and Tip buttons */}
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center space-x-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
                             <button
                                 onClick={handleLike}
                                 className={`flex items-center space-x-1 hover:scale-105 transition-all ${
                                     hasLiked === true ? 'text-red-600 hover:text-red-700' : 'text-gray-500 hover:text-red-600'
                                 }`}
                             >
-                                <svg className="w-5 h-5" fill={hasLiked === true ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill={hasLiked === true ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
-                                <span className="text-sm font-medium">{likeCount || 0}</span>
+                                <span className="text-xs sm:text-sm font-medium">{likeCount || 0}</span>
                             </button>
 
                             <div className="flex items-center space-x-1 text-gray-500">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
-                                <span className="text-sm font-medium">{commentCount || 0}</span>
+                                <span className="text-xs sm:text-sm font-medium">{commentCount || 0}</span>
                             </div>
 
                             {!isOwnPost && (
@@ -490,10 +491,10 @@ function PostCard({ secret, currentWallet }: {
                                     }}
                                     className="flex items-center space-x-1 text-gray-500 hover:text-green-600 hover:scale-105 transition-all"
                                 >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                     </svg>
-                                    <span className="text-sm font-medium">Tip</span>
+                                    <span className="text-xs sm:text-sm font-medium">Tip</span>
                                 </button>
                             )}
                         </div>
@@ -503,7 +504,7 @@ function PostCard({ secret, currentWallet }: {
                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
                                 </svg>
-                                <span className="text-sm font-medium">{(totalTips || 0).toFixed(4)} ETH</span>
+                                <span className="text-xs sm:text-sm font-medium">{(totalTips || 0).toFixed(4)} ETH</span>
                             </div>
                         )}
                     </div>
