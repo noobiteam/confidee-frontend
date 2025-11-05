@@ -9,6 +9,7 @@ interface BaseModalProps {
     title: string
     children: React.ReactNode
     maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+    preventClose?: boolean // Prevent closing while submitting
 }
 
 const maxWidthClasses = {
@@ -24,7 +25,8 @@ export default function BaseModal({
     onClose,
     title,
     children,
-    maxWidth = 'lg'
+    maxWidth = 'lg',
+    preventClose = false
 }: BaseModalProps) {
     const [mounted, setMounted] = useState(false)
 
@@ -48,14 +50,14 @@ export default function BaseModal({
     // Handle ESC key
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && isOpen) {
+            if (e.key === 'Escape' && isOpen && !preventClose) {
                 onClose()
             }
         }
 
         window.addEventListener('keydown', handleEsc)
         return () => window.removeEventListener('keydown', handleEsc)
-    }, [isOpen, onClose])
+    }, [isOpen, onClose, preventClose])
 
     if (!mounted || !isOpen) return null
 
@@ -64,7 +66,7 @@ export default function BaseModal({
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-modal-fade-in"
-                onClick={onClose}
+                onClick={preventClose ? undefined : onClose}
                 aria-hidden="true"
             />
 
@@ -85,7 +87,8 @@ export default function BaseModal({
                     </h2>
                     <button
                         onClick={onClose}
-                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                        disabled={preventClose}
+                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         aria-label="Close modal"
                     >
                         <svg

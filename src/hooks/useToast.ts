@@ -5,16 +5,18 @@ interface ToastState {
     message: string
     type: ToastType
     id: number
+    duration?: number
 }
 
 export function useToast() {
     const [toast, setToast] = useState<ToastState | null>(null)
 
-    const showToast = useCallback((message: string, type: ToastType = 'info') => {
+    const showToast = useCallback((message: string, type: ToastType = 'info', duration?: number) => {
         setToast({
             message,
             type,
-            id: Date.now()
+            id: Date.now(),
+            duration
         })
     }, [])
 
@@ -22,11 +24,16 @@ export function useToast() {
         setToast(null)
     }, [])
 
-    // Convenience methods
-    const success = useCallback((message: string) => showToast(message, 'success'), [showToast])
-    const error = useCallback((message: string) => showToast(message, 'error'), [showToast])
-    const warning = useCallback((message: string) => showToast(message, 'warning'), [showToast])
-    const info = useCallback((message: string) => showToast(message, 'info'), [showToast])
+    // Convenience methods with configurable duration
+    // Blockchain operations get longer durations (8 seconds)
+    const success = useCallback((message: string, duration?: number) =>
+        showToast(message, 'success', duration ?? 5000), [showToast])
+    const error = useCallback((message: string, duration?: number) =>
+        showToast(message, 'error', duration ?? 8000), [showToast]) // Longer for errors
+    const warning = useCallback((message: string, duration?: number) =>
+        showToast(message, 'warning', duration ?? 6000), [showToast])
+    const info = useCallback((message: string, duration?: number) =>
+        showToast(message, 'info', duration ?? 5000), [showToast])
 
     return {
         toast,

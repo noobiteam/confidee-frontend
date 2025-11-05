@@ -210,6 +210,7 @@ export default function DashboardPage() {
                     message={toast.message}
                     type={toast.type}
                     onClose={hideToast}
+                    duration={toast.duration}
                 />
             )}
 
@@ -224,6 +225,9 @@ export default function DashboardPage() {
                 maxWidth="2xl"
             >
                 <form onSubmit={handlePostSubmit}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Your Thoughts <span className="text-gray-400">({postContent.length}/{CONTENT_LIMITS.POST_MAX_LENGTH})</span>
+                    </label>
                     <textarea
                         value={postContent}
                         onChange={(e) => setPostContent(e.target.value)}
@@ -233,14 +237,18 @@ export default function DashboardPage() {
                         maxLength={CONTENT_LIMITS.POST_MAX_LENGTH}
                     />
 
-                    <div className={`mt-2 text-right text-sm font-medium ${
+                    <div className={`mt-1 text-right text-xs font-medium ${
                         postContent.length >= CONTENT_LIMITS.POST_MAX_LENGTH * CONTENT_LIMITS.DANGER_THRESHOLD
                             ? 'text-red-600'
                             : postContent.length >= CONTENT_LIMITS.POST_MAX_LENGTH * CONTENT_LIMITS.WARNING_THRESHOLD
                             ? 'text-yellow-600'
-                            : 'text-gray-500'
+                            : 'text-gray-400'
                     }`}>
-                        {postContent.length}/{CONTENT_LIMITS.POST_MAX_LENGTH} characters
+                        {postContent.length >= CONTENT_LIMITS.POST_MAX_LENGTH * CONTENT_LIMITS.WARNING_THRESHOLD && (
+                            postContent.length >= CONTENT_LIMITS.POST_MAX_LENGTH * CONTENT_LIMITS.DANGER_THRESHOLD
+                                ? '⚠️ Nearly at limit!'
+                                : '⚠️ Approaching limit'
+                        )}
                     </div>
 
                     <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-gray-600">
@@ -484,6 +492,7 @@ function PostCard({ secret, currentWallet }: {
                     message={cardToast.message}
                     type={cardToast.type}
                     onClose={hideCardToast}
+                    duration={cardToast.duration}
                 />
             )}
 

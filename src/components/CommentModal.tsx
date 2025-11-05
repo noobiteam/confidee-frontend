@@ -1,132 +1,161 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import BaseModal from './BaseModal'
-import { CONTENT_LIMITS } from '@/constants/app'
-import { getUserFriendlyError } from '@/utils/errorMessages'
+import { useState } from "react";
+import BaseModal from "./BaseModal";
+import { CONTENT_LIMITS } from "@/constants/app";
+import { getUserFriendlyError } from "@/utils/errorMessages";
 
 interface CommentModalProps {
-    isOpen: boolean
-    onClose: () => void
-    onSubmit: (content: string) => Promise<void>
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (content: string) => Promise<void>;
 }
 
-export default function CommentModal({ isOpen, onClose, onSubmit }: CommentModalProps) {
-    const [content, setContent] = useState('')
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [error, setError] = useState('')
+export default function CommentModal({
+  isOpen,
+  onClose,
+  onSubmit,
+}: CommentModalProps) {
+  const [content, setContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!content.trim()) return
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!content.trim()) return;
 
-        setIsSubmitting(true)
-        setError('')
+    setIsSubmitting(true);
+    setError("");
 
-        try {
-            await onSubmit(content.trim())
-            setContent('')
-            onClose()
-        } catch (err) {
-            console.error('Error commenting:', err)
-            setError(getUserFriendlyError(err))
-        } finally {
-            setIsSubmitting(false)
-        }
+    try {
+      await onSubmit(content.trim());
+      setContent("");
+      onClose();
+    } catch (err) {
+      console.error("Error commenting:", err);
+      setError(getUserFriendlyError(err));
+    } finally {
+      setIsSubmitting(false);
     }
+  };
 
-    const resetAndClose = () => {
-        setContent('')
-        setError('')
-        onClose()
-    }
+  const resetAndClose = () => {
+    setContent("");
+    setError("");
+    onClose();
+  };
 
-    const characterCount = content.length
-    const maxLength = CONTENT_LIMITS.COMMENT_MAX_LENGTH
-    const warningThreshold = maxLength * CONTENT_LIMITS.WARNING_THRESHOLD
-    const dangerThreshold = maxLength * CONTENT_LIMITS.DANGER_THRESHOLD
+  const characterCount = content.length;
+  const maxLength = CONTENT_LIMITS.COMMENT_MAX_LENGTH;
+  const warningThreshold = maxLength * CONTENT_LIMITS.WARNING_THRESHOLD;
+  const dangerThreshold = maxLength * CONTENT_LIMITS.DANGER_THRESHOLD;
 
-    // Determine character counter color
-    const getCounterColor = () => {
-        if (characterCount >= dangerThreshold) return 'text-red-600'
-        if (characterCount >= warningThreshold) return 'text-yellow-600'
-        return 'text-gray-500'
-    }
+  // Determine character counter color
+  const getCounterColor = () => {
+    if (characterCount >= dangerThreshold) return "text-red-600";
+    if (characterCount >= warningThreshold) return "text-yellow-600";
+    return "text-gray-500";
+  };
 
-    return (
-        <BaseModal
-            isOpen={isOpen}
-            onClose={resetAndClose}
-            title="Add Comment"
-            maxWidth="lg"
+  return (
+    <BaseModal
+      isOpen={isOpen}
+      onClose={resetAndClose}
+      title="Add Comment"
+      maxWidth="lg"
+      preventClose={isSubmitting}
+    >
+      <form onSubmit={handleSubmit}>
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Share your supportive thoughts..."
+          className="w-full outline-none border border-gray-300 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-gray-900 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          rows={4}
+          maxLength={maxLength}
+          disabled={isSubmitting}
+        />
+
+        {/* Character Counter */}
+        <div
+          className={`text-xs sm:text-sm mb-4 text-right font-medium ${getCounterColor()}`}
         >
-            <form onSubmit={handleSubmit}>
-                <textarea
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Share your supportive thoughts..."
-                    className="w-full border border-gray-300 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-gray-900 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={4}
-                    maxLength={maxLength}
-                    disabled={isSubmitting}
-                />
+          {characterCount}/{maxLength}
+        </div>
 
-                {/* Character Counter */}
-                <div className={`text-xs sm:text-sm mb-4 text-right font-medium ${getCounterColor()}`}>
-                    {characterCount}/{maxLength}
-                </div>
+        {/* Transaction Time Estimate */}
+        {isSubmitting && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start space-x-2">
+            <svg
+              className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 flex-shrink-0 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <p className="text-xs sm:text-sm text-blue-700">
+              Blockchain transactions usually take 10-30 seconds. Please wait...
+            </p>
+          </div>
+        )}
 
-                {/* Error Message */}
-                {error && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs sm:text-sm">
-                        {error}
-                    </div>
-                )}
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs sm:text-sm">
+            {error}
+          </div>
+        )}
 
-                {/* Action Buttons */}
-                <div className="flex space-x-3">
-                    <button
-                        type="button"
-                        onClick={resetAndClose}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-                        disabled={isSubmitting}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={!content.trim() || isSubmitting}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    >
-                        {isSubmitting ? (
-                            <>
-                                <svg
-                                    className="animate-spin h-4 w-4 mr-2"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle
-                                        className="opacity-25"
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                        stroke="currentColor"
-                                        strokeWidth="4"
-                                    />
-                                    <path
-                                        className="opacity-75"
-                                        fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                    />
-                                </svg>
-                                Posting...
-                            </>
-                        ) : (
-                            'Post Comment'
-                        )}
-                    </button>
-                </div>
-            </form>
-        </BaseModal>
-    )
+        {/* Action Buttons */}
+        <div className="flex space-x-3">
+          <button
+            type="button"
+            onClick={resetAndClose}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+            disabled={isSubmitting}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={!content.trim() || isSubmitting}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            {isSubmitting ? (
+              <>
+                <svg
+                  className="animate-spin h-4 w-4 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Posting...
+              </>
+            ) : (
+              "Post Comment"
+            )}
+          </button>
+        </div>
+      </form>
+    </BaseModal>
+  );
 }

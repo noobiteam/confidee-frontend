@@ -84,6 +84,7 @@ export default function TipModal({
       onClose={resetAndClose}
       title="Send Tip"
       maxWidth="lg"
+      preventClose={isSubmitting}
     >
       <form onSubmit={handleSubmit}>
         {/* Balance Display */}
@@ -228,6 +229,18 @@ export default function TipModal({
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Transaction Time Estimate */}
+        {isSubmitting && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start space-x-2">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-xs sm:text-sm text-blue-700">
+              Blockchain transactions usually take 10-30 seconds. Please wait...
+            </p>
           </div>
         )}
 
