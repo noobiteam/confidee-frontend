@@ -8,8 +8,12 @@ import WalletButton from '@/components/WalletButton'
 import Footer from '@/components/Footer'
 import BaseModal from '@/components/BaseModal'
 import TipModal from '@/components/TipModal'
+import Toast from '@/components/Toast'
+import PostCardSkeleton from '@/components/PostCardSkeleton'
 import { useConfideeContract, useGetLatestSecrets, useGetLikeCount, useHasUserLiked, useGetCommentCount, useGetTotalTips } from '@/hooks/useConfideeContract'
 import { usePostForm } from '@/hooks/usePostForm'
+import { useToast } from '@/hooks/useToast'
+import { useOptimisticLike } from '@/hooks/useOptimisticLike'
 import { formatDate } from '@/utils/dateFormatter'
 import { getUserFriendlyError } from '@/utils/errorMessages'
 import { DATA_FETCH, CONTENT_LIMITS, UI_TIMEOUTS, BLOCKCHAIN } from '@/constants/app'
@@ -19,6 +23,7 @@ export default function DashboardPage() {
     const router = useRouter()
     const { isWritePending, isConfirming, isConfirmed } = useConfideeContract()
     const { secrets, isLoading: secretsLoading, refetch } = useGetLatestSecrets(DATA_FETCH.LATEST_SECRETS_LIMIT)
+    const { toast, success: showSuccess, error: showError, hideToast } = useToast()
 
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
     const [isInitialLoading, setIsInitialLoading] = useState(true)
@@ -49,8 +54,15 @@ export default function DashboardPage() {
         if (isConfirmed && success) {
             refetch()
             setSuccess(false)
+            showSuccess('Post successfully added to blockchain! 🎉')
         }
-    }, [isConfirmed, success, refetch, setSuccess])
+    }, [isConfirmed, success, refetch, setSuccess, showSuccess])
+
+    useEffect(() => {
+        if (error) {
+            showError(error)
+        }
+    }, [error, showError])
 
     const handlePostSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -136,25 +148,16 @@ export default function DashboardPage() {
                             {isWritePending || isConfirming ? 'Posting...' : 'Share Your Thoughts'}
                         </button>
 
-                        {success && (
-                            <div className="mt-4 p-4 bg-green-100 text-green-700 rounded-lg">
-                                Post successfully added to blockchain! 🎉
-                            </div>
-                        )}
-
-                        {error && (
-                            <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
-                                {error}
-                            </div>
-                        )}
                     </div>
                 </section>
 
                 <section className="pb-12 sm:pb-20 px-4 sm:px-6 md:px-8 lg:px-20">
                     <div className="mx-auto max-w-7xl">
                         {secretsLoading ? (
-                            <div className="text-center py-12">
-                                <p className="text-gray-600">Loading posts from blockchain...</p>
+                            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+                                {[...Array(6)].map((_, i) => (
+                                    <PostCardSkeleton key={i} />
+                                ))}
                             </div>
                         ) : secrets.length > 0 ? (
                             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
@@ -184,6 +187,15 @@ export default function DashboardPage() {
 
             <Footer />
 
+            {/* Toast Notifications */}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={hideToast}
+                />
+            )}
+
             {/* Create Post Modal */}
             <BaseModal
                 isOpen={isPostModalOpen}
@@ -204,7 +216,13 @@ export default function DashboardPage() {
                         maxLength={CONTENT_LIMITS.POST_MAX_LENGTH}
                     />
 
-                    <div className="mt-2 text-right text-sm text-gray-500">
+                    <div className={`mt-2 text-right text-sm font-medium ${
+                        postContent.length >= CONTENT_LIMITS.POST_MAX_LENGTH * CONTENT_LIMITS.DANGER_THRESHOLD
+                            ? 'text-red-600'
+                            : postContent.length >= CONTENT_LIMITS.POST_MAX_LENGTH * CONTENT_LIMITS.WARNING_THRESHOLD
+                            ? 'text-yellow-600'
+                            : 'text-gray-500'
+                    }`}>
                         {postContent.length}/{CONTENT_LIMITS.POST_MAX_LENGTH} characters
                     </div>
 
@@ -259,13 +277,29 @@ function PostCard({ secret, currentWallet }: {
 }) {
     const router = useRouter()
     const [showTipModal, setShowTipModal] = useState(false)
-    const [error, setError] = useState('')
+    const { toast: cardToast, error: showCardError, hideToast: hideCardToast } = useToast()
 
     const { likeSecret, unlikeSecret, tipPost } = useConfideeContract()
-    const { likeCount, refetch: refetchLikes } = useGetLikeCount(secret.id)
-    const { hasLiked, refetch: refetchHasLiked } = useHasUserLiked(secret.id, currentWallet as `0x${string}`)
+    const { likeCount: initialLikeCount, refetch: refetchLikes } = useGetLikeCount(secret.id)
+    const { hasLiked: initialHasLiked, refetch: refetchHasLiked } = useHasUserLiked(secret.id, currentWallet as `0x${string}`)
     const { commentCount } = useGetCommentCount(secret.id)
     const { totalTips, refetch: refetchTips } = useGetTotalTips(secret.id)
+
+    // Optimistic likes
+    const {
+        isLiked,
+        likeCount,
+        toggleLike,
+    } = useOptimisticLike({
+        initialLiked: initialHasLiked === true,
+        initialCount: initialLikeCount || 0,
+        onLike: async () => {
+            await likeSecret(secret.id)
+        },
+        onUnlike: async () => {
+            await unlikeSecret(secret.id)
+        },
+    })
 
     const timeAgo = formatDate(new Date(Number(secret.timestamp) * 1000))
     const isOwnPost = secret.owner.toLowerCase() === currentWallet.toLowerCase()
@@ -276,13 +310,9 @@ function PostCard({ secret, currentWallet }: {
 
     const handleLike = async (e: React.MouseEvent) => {
         e.stopPropagation()
-        setError('')
         try {
-            if (hasLiked === true) {
-                await unlikeSecret(secret.id)
-            } else {
-                await likeSecret(secret.id)
-            }
+            await toggleLike()
+            // Refetch in background to sync with blockchain
             setTimeout(() => {
                 refetchLikes()
                 refetchHasLiked()
@@ -290,8 +320,7 @@ function PostCard({ secret, currentWallet }: {
         } catch (error) {
             console.error('Error toggling like:', error)
             const errorMsg = getUserFriendlyError(error)
-            setError(errorMsg)
-            setTimeout(() => setError(''), UI_TIMEOUTS.ERROR_MESSAGE)
+            showCardError(errorMsg)
         }
     }
 
@@ -361,13 +390,13 @@ function PostCard({ secret, currentWallet }: {
                                 <button
                                     onClick={handleLike}
                                     className={`flex items-center space-x-1 hover:scale-105 transition-all ${
-                                        hasLiked === true ? 'text-red-600 hover:text-red-700' : 'text-gray-500 hover:text-red-600'
+                                        isLiked ? 'text-red-600 hover:text-red-700' : 'text-gray-500 hover:text-red-600'
                                     }`}
                                 >
-                                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill={hasLiked === true ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                     </svg>
-                                    <span className="text-xs sm:text-sm font-medium">{likeCount || 0}</span>
+                                    <span className="text-xs sm:text-sm font-medium">{likeCount}</span>
                                 </button>
 
                                 <div className="flex items-center space-x-1 text-gray-500">
@@ -403,17 +432,6 @@ function PostCard({ secret, currentWallet }: {
                             )}
                         </div>
 
-                        {error && (
-                            <div className="mt-4 bg-red-50 border-l-4 border-red-500 p-3 rounded-r-lg" onClick={(e) => e.stopPropagation()}>
-                                <div className="flex items-start">
-                                    <svg className="w-4 h-4 text-red-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <p className="text-xs text-red-800">{error}</p>
-                                </div>
-                            </div>
-                        )}
-
                         <div className="mt-4 pt-3 border-t border-gray-100">
                             <a
                                 href={BLOCKCHAIN.getContractUrl()}
@@ -431,6 +449,15 @@ function PostCard({ secret, currentWallet }: {
                     </div>
                 </div>
             </div>
+
+            {/* Toast for PostCard errors */}
+            {cardToast && (
+                <Toast
+                    message={cardToast.message}
+                    type={cardToast.type}
+                    onClose={hideCardToast}
+                />
+            )}
 
             {/* Tip Modal */}
             <TipModal
