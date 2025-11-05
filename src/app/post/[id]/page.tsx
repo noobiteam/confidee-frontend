@@ -9,16 +9,15 @@ import PostCard from '@/components/PostCard'
 import Footer from '@/components/Footer'
 import CommentModal from '@/components/CommentModal'
 import TipModal from '@/components/TipModal'
-import { useConfideeContract, useGetLatestSecrets, useGetSecretComments, useGetLikeCount, useHasUserLiked, useGetTotalTips } from '@/hooks/useConfideeContract'
+import { useConfideeContract, useGetSecret, useGetSecretComments, useGetLikeCount, useHasUserLiked, useGetTotalTips } from '@/hooks/useConfideeContract'
 import { DATA_FETCH, UI_TIMEOUTS, ROUTES } from '@/constants/app'
 
 export default function PostDetailPage() {
     const { address } = useAccount()
     const router = useRouter()
     const params = useParams()
-    const postId = params.id as string
+    const postId = BigInt(params.id as string)
 
-    const { secrets, isLoading: secretsLoading } = useGetLatestSecrets(DATA_FETCH.LATEST_SECRETS_LIMIT)
     const { likeSecret, unlikeSecret, createComment, tipPost } = useConfideeContract()
 
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
@@ -31,16 +30,16 @@ export default function PostDetailPage() {
         }
     }, [address, router])
 
-    // Find the specific post
-    const post = secrets.find(s => s.id.toString() === postId)
+    // Fetch the specific post directly by ID
+    const { secret: post, isLoading: postLoading } = useGetSecret(postId)
 
     // Fetch additional data for this specific post
-    const { comments, refetch: refetchComments } = useGetSecretComments(post?.id || BigInt(0))
-    const { likeCount, refetch: refetchLikes } = useGetLikeCount(post?.id || BigInt(0))
-    const { hasLiked, refetch: refetchHasLiked } = useHasUserLiked(post?.id || BigInt(0), address as `0x${string}`)
-    const { totalTips, refetch: refetchTips } = useGetTotalTips(post?.id || BigInt(0))
+    const { comments, refetch: refetchComments } = useGetSecretComments(postId)
+    const { likeCount, refetch: refetchLikes } = useGetLikeCount(postId)
+    const { hasLiked, refetch: refetchHasLiked } = useHasUserLiked(postId, address as `0x${string}`)
+    const { totalTips, refetch: refetchTips } = useGetTotalTips(postId)
 
-    if (secretsLoading) {
+    if (postLoading) {
         return (
             <main className="min-h-screen bg-white flex items-center justify-center">
                 <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
