@@ -170,14 +170,31 @@ export default function DashboardPage() {
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-12">
-                                <div className="rounded-2xl p-8 sm:p-12">
-                                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                            <div className="text-center py-16 sm:py-24 animate-fade-in">
+                                <div className="rounded-2xl p-8 sm:p-12 max-w-md mx-auto">
+                                    {/* Empty state icon */}
+                                    <div className="mb-6 flex justify-center">
+                                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center animate-scale-up">
+                                            <svg className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
                                         No posts yet
                                     </h3>
-                                    <p className="text-gray-600">
-                                        Be the first to share your thoughts!
+                                    <p className="text-gray-600 mb-6 text-sm sm:text-base">
+                                        Be the first to share your thoughts anonymously on the blockchain!
                                     </p>
+                                    <button
+                                        onClick={() => setIsPostModalOpen(true)}
+                                        className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:scale-105"
+                                    >
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        Create First Post
+                                    </button>
                                 </div>
                             </div>
                         )}
@@ -277,6 +294,7 @@ function PostCard({ secret, currentWallet }: {
 }) {
     const router = useRouter()
     const [showTipModal, setShowTipModal] = useState(false)
+    const [showHeartPop, setShowHeartPop] = useState(false)
     const { toast: cardToast, error: showCardError, hideToast: hideCardToast } = useToast()
 
     const { likeSecret, unlikeSecret, tipPost } = useConfideeContract()
@@ -310,6 +328,11 @@ function PostCard({ secret, currentWallet }: {
 
     const handleLike = async (e: React.MouseEvent) => {
         e.stopPropagation()
+
+        // Trigger heart animation
+        setShowHeartPop(true)
+        setTimeout(() => setShowHeartPop(false), 300)
+
         try {
             await toggleLike()
             // Refetch in background to sync with blockchain
@@ -335,7 +358,7 @@ function PostCard({ secret, currentWallet }: {
         <>
             <div
                 onClick={handleCardClick}
-                className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer"
+                className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-xl hover:scale-[1.02] hover:border-blue-200 transition-all duration-200 cursor-pointer"
             >
                 <div className="flex items-start space-x-3 sm:space-x-4">
                     <div className={`${isOwnPost ? 'bg-blue-100' : 'bg-gray-100'} w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0`}>
@@ -393,7 +416,12 @@ function PostCard({ secret, currentWallet }: {
                                         isLiked ? 'text-red-600 hover:text-red-700' : 'text-gray-500 hover:text-red-600'
                                     }`}
                                 >
-                                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg
+                                        className={`w-4 h-4 sm:w-5 sm:h-5 ${showHeartPop ? 'animate-heart-pop' : ''}`}
+                                        fill={isLiked ? "currentColor" : "none"}
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                     </svg>
                                     <span className="text-xs sm:text-sm font-medium">{likeCount}</span>
