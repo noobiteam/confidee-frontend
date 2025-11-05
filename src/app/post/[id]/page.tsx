@@ -1,36 +1,33 @@
 'use client'
 
-import { useAccount, useBalance } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import WalletButton from '@/components/WalletButton'
 import PostCard from '@/components/PostCard'
 import Footer from '@/components/Footer'
+import CommentModal from '@/components/CommentModal'
+import TipModal from '@/components/TipModal'
 import { useConfideeContract, useGetLatestSecrets, useGetSecretComments, useGetLikeCount, useHasUserLiked, useGetTotalTips } from '@/hooks/useConfideeContract'
+import { DATA_FETCH, UI_TIMEOUTS, ROUTES } from '@/constants/app'
 
 export default function PostDetailPage() {
     const { address } = useAccount()
-    const { data: balance } = useBalance({
-        address: address,
-    })
     const router = useRouter()
     const params = useParams()
     const postId = params.id as string
 
-    const { secrets, isLoading: secretsLoading } = useGetLatestSecrets(50)
+    const { secrets, isLoading: secretsLoading } = useGetLatestSecrets(DATA_FETCH.LATEST_SECRETS_LIMIT)
     const { likeSecret, unlikeSecret, createComment, tipPost } = useConfideeContract()
 
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
     const [isTipModalOpen, setIsTipModalOpen] = useState(false)
-    const [commentContent, setCommentContent] = useState('')
-    const [tipAmount, setTipAmount] = useState('')
-    const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState('')
 
     useEffect(() => {
         if (!address) {
-            router.push('/')
+            router.push(ROUTES.HOME)
         }
     }, [address, router])
 
@@ -61,41 +58,12 @@ export default function PostDetailPage() {
                 <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
                 <div className="relative text-center">
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">Post not found</h2>
-                    <Link href="/dashboard" className="text-blue-600 hover:text-blue-700 font-medium">
+                    <Link href={ROUTES.DASHBOARD} className="text-blue-600 hover:text-blue-700 font-medium">
                         ← Back to Feed
                     </Link>
                 </div>
             </main>
         )
-    }
-
-    // Helper function to parse user-friendly error messages
-    const getUserFriendlyError = (err: unknown): string => {
-        if (!(err instanceof Error)) return 'An unexpected error occurred'
-
-        const errorMessage = err.message.toLowerCase()
-
-        // User rejected transaction
-        if (errorMessage.includes('user rejected') ||
-            errorMessage.includes('user denied') ||
-            errorMessage.includes('user cancelled')) {
-            return 'Transaction cancelled. No worries, you can try again anytime! 😊'
-        }
-
-        // Insufficient funds
-        if (errorMessage.includes('insufficient funds') ||
-            errorMessage.includes('insufficient balance')) {
-            return 'Insufficient funds in your wallet. Please add more ETH and try again.'
-        }
-
-        // Network issues
-        if (errorMessage.includes('network') ||
-            errorMessage.includes('connection')) {
-            return 'Network error. Please check your connection and try again.'
-        }
-
-        // Generic fallback
-        return err.message
     }
 
     const handleLike = async () => {
@@ -109,54 +77,22 @@ export default function PostDetailPage() {
             setTimeout(() => {
                 refetchLikes()
                 refetchHasLiked()
-            }, 1000)
+            }, DATA_FETCH.TX_POLL_INTERVAL)
         } catch (err) {
             console.error('Error liking post:', err)
-            const errorMsg = getUserFriendlyError(err)
-            setError(errorMsg)
-            // Auto-dismiss error after 5 seconds
-            setTimeout(() => setError(''), 5000)
+            setError(err instanceof Error ? err.message : 'Failed to like post')
+            setTimeout(() => setError(''), UI_TIMEOUTS.ERROR_MESSAGE)
         }
     }
 
-    const handleComment = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!commentContent.trim()) return
-
-        setIsSubmitting(true)
-        setError('')
-
-        try {
-            await createComment(post.id, commentContent)
-            setCommentContent('')
-            setIsCommentModalOpen(false)
-            setTimeout(() => refetchComments(), 1000)
-        } catch (err) {
-            console.error('Error commenting:', err)
-            setError(getUserFriendlyError(err))
-        } finally {
-            setIsSubmitting(false)
-        }
+    const handleCommentSubmit = async (content: string) => {
+        await createComment(post.id, content)
+        setTimeout(() => refetchComments(), DATA_FETCH.TX_POLL_INTERVAL)
     }
 
-    const handleTip = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!tipAmount || parseFloat(tipAmount) <= 0) return
-
-        setIsSubmitting(true)
-        setError('')
-
-        try {
-            await tipPost(post.id, tipAmount)
-            setTipAmount('')
-            setIsTipModalOpen(false)
-            setTimeout(() => refetchTips(), 1000)
-        } catch (err) {
-            console.error('Error tipping:', err)
-            setError(getUserFriendlyError(err))
-        } finally {
-            setIsSubmitting(false)
-        }
+    const handleTipSubmit = async (amount: string) => {
+        await tipPost(post.id, amount)
+        setTimeout(() => refetchTips(), DATA_FETCH.TX_POLL_INTERVAL)
     }
 
     return (
@@ -166,7 +102,7 @@ export default function PostDetailPage() {
                 <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
                     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
                         <div className="flex items-center justify-between">
-                            <Link href="/dashboard" className="text-blue-600 hover:text-blue-700 flex items-center space-x-2">
+                            <Link href={ROUTES.DASHBOARD} className="text-blue-600 hover:text-blue-700 flex items-center space-x-2">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                 </svg>
@@ -255,169 +191,19 @@ export default function PostDetailPage() {
             </div>
 
             {/* Comment Modal */}
-            {isCommentModalOpen && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg sm:text-xl font-bold text-gray-900">Add Comment</h3>
-                            <button
-                                onClick={() => setIsCommentModalOpen(false)}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleComment}>
-                            <textarea
-                                value={commentContent}
-                                onChange={(e) => setCommentContent(e.target.value)}
-                                placeholder="Share your supportive thoughts..."
-                                className="w-full border border-gray-300 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-gray-900 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                rows={4}
-                                maxLength={500}
-                            />
-                            <div className="text-xs sm:text-sm text-gray-500 mb-4">{commentContent.length}/500</div>
-
-                            {error && (
-                                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs sm:text-sm">
-                                    {error}
-                                </div>
-                            )}
-
-                            <div className="flex space-x-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsCommentModalOpen(false)}
-                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-700 hover:bg-gray-50 transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={!commentContent.trim() || isSubmitting}
-                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold disabled:bg-gray-400 transition-colors"
-                                >
-                                    {isSubmitting ? 'Posting...' : 'Post Comment'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            <CommentModal
+                isOpen={isCommentModalOpen}
+                onClose={() => setIsCommentModalOpen(false)}
+                onSubmit={handleCommentSubmit}
+            />
 
             {/* Tip Modal */}
-            {isTipModalOpen && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg sm:text-xl font-bold text-gray-900">Send Tip</h3>
-                            <button
-                                onClick={() => setIsTipModalOpen(false)}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleTip}>
-                            {/* Balance Display */}
-                            {balance && (
-                                <div className="mb-4 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                        <div className="flex items-center space-x-2">
-                                            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                            </svg>
-                                            <span className="text-xs sm:text-sm font-medium text-blue-900">Your Balance</span>
-                                        </div>
-                                        <span className="text-base sm:text-lg font-bold text-blue-900">
-                                            {parseFloat(balance.formatted).toFixed(4)} {balance.symbol}
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="mb-4">
-                                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Amount (ETH)</label>
-                                <input
-                                    type="number"
-                                    step="0.0001"
-                                    min="0"
-                                    value={tipAmount}
-                                    onChange={(e) => setTipAmount(e.target.value)}
-                                    placeholder="0.001"
-                                    className="w-full border border-gray-300 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                />
-
-                                {/* Insufficient Balance Warning */}
-                                {tipAmount && balance && parseFloat(tipAmount) > parseFloat(balance.formatted) && (
-                                    <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-2">
-                                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                        </svg>
-                                        <p className="text-xs sm:text-sm text-red-700">
-                                            Insufficient balance! You only have {parseFloat(balance.formatted).toFixed(4)} ETH
-                                        </p>
-                                    </div>
-                                )}
-                                {tipAmount && parseFloat(tipAmount) > 0 && (
-                                    <div className="mt-3 p-3 sm:p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
-                                        <div className="text-xs sm:text-sm text-gray-700 space-y-2">
-                                            <div className="flex justify-between">
-                                                <span>Amount:</span>
-                                                <span className="font-semibold">{tipAmount} ETH</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span>Platform Fee (5%):</span>
-                                                <span className="text-gray-600">{(parseFloat(tipAmount) * 0.05).toFixed(6)} ETH</span>
-                                            </div>
-                                            <div className="flex justify-between border-t border-green-200 pt-2 mt-2">
-                                                <span className="font-semibold">Recipient Gets:</span>
-                                                <span className="font-bold text-green-700">
-                                                    {(parseFloat(tipAmount) * 0.95).toFixed(6)} ETH
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {error && (
-                                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs sm:text-sm">
-                                    {error}
-                                </div>
-                            )}
-
-                            <div className="flex space-x-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsTipModalOpen(false)}
-                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-700 hover:bg-gray-50 transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={
-                                        !tipAmount ||
-                                        parseFloat(tipAmount) <= 0 ||
-                                        isSubmitting ||
-                                        (balance && parseFloat(tipAmount) > parseFloat(balance.formatted))
-                                    }
-                                    className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    {isSubmitting ? 'Sending...' : 'Send Tip'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            <TipModal
+                isOpen={isTipModalOpen}
+                onClose={() => setIsTipModalOpen(false)}
+                onSubmit={handleTipSubmit}
+                currentWallet={address || ''}
+            />
         </main>
     )
 }
