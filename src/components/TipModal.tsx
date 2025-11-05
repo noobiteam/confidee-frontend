@@ -120,7 +120,7 @@ export default function TipModal({
           <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
             Quick Select
           </label>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {TIP_PRESETS.AMOUNTS.map((amount) => {
               const usdValue = formatUSD(amount.toString());
               return (
@@ -128,7 +128,7 @@ export default function TipModal({
                   key={amount}
                   type="button"
                   onClick={() => handlePresetClick(amount)}
-                  className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg border-2 transition-all ${
+                  className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-lg border-2 transition-all focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                     tipAmount === amount.toString()
                       ? "border-green-600 bg-green-50 text-green-700"
                       : "border-gray-200 bg-white text-gray-700 hover:border-green-300"
@@ -243,7 +243,7 @@ export default function TipModal({
           <button
             type="button"
             onClick={resetAndClose}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
             disabled={isSubmitting}
           >
             Cancel
@@ -256,9 +256,34 @@ export default function TipModal({
               isSubmitting ||
               !!insufficientBalance
             }
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           >
-            {isSubmitting ? "Sending..." : "Send Tip"}
+            {isSubmitting ? (
+              <>
+                <svg
+                  className="animate-spin h-4 w-4 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Sending...
+              </>
+            ) : (
+              "Send Tip"
+            )}
           </button>
         </div>
       </form>

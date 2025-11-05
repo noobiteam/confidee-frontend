@@ -62,7 +62,12 @@ export default function Toast({ message, type, onClose, duration = 5000 }: Toast
     const styles = getToastStyles()
 
     return createPortal(
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[100] max-w-md w-full mx-4 animate-slide-down">
+        <div
+            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[100] max-w-md w-full mx-4 animate-slide-down"
+            role="alert"
+            aria-live="polite"
+            aria-atomic="true"
+        >
             <div className={`${styles.bg} border-l-4 ${styles.border} p-4 rounded-r-xl shadow-lg`}>
                 <div className="flex items-start">
                     <svg
