@@ -51,7 +51,7 @@ export const TIP_PRESETS = {
   AMOUNTS: [0.001, 0.005, 0.01, 0.05] as const,
 
   /** Platform fee percentage */
-  PLATFORM_FEE: 0.05, // 5%
+  PLATFORM_FEE: 0.025, // 2.5%
 
   /** Minimum tip amount */
   MIN_AMOUNT: 0.0001,
