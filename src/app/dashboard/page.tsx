@@ -28,7 +28,6 @@ export default function DashboardPage() {
         setPostContent,
         isSubmitting,
         error,
-        setError,
         success,
         setSuccess,
         handleSubmit: submitPost,

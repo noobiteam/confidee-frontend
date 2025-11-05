@@ -177,7 +177,7 @@ export default function TipModal({ isOpen, onClose, onSubmit, currentWallet }: T
                             !tipAmount ||
                             parseFloat(tipAmount) <= 0 ||
                             isSubmitting ||
-                            insufficientBalance
+                            !!insufficientBalance
                         }
                         className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                     >

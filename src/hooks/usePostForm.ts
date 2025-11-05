@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useConfideeContract, useGetTotalSecrets } from './useConfideeContract'
-import { CONTENT_LIMITS, DATA_FETCH } from '@/constants/app'
+import { CONTENT_LIMITS } from '@/constants/app'
 import { getUserFriendlyError } from '@/utils/errorMessages'
 
 export function usePostForm() {
