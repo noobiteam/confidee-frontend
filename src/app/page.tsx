@@ -136,7 +136,20 @@ export default function HomePage() {
         <section className="py-12 sm:py-20 px-4 sm:px-6">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-              <div className="bg-blue-50 p-6 sm:p-8 rounded-2xl">
+              <motion.div
+                className="bg-blue-50 p-6 sm:p-8 rounded-2xl"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                whileHover={{
+                  scale: 1.02,
+                  rotateX: 5,
+                  rotateY: 5,
+                  transition: { duration: 0.3 }
+                }}
+                style={{ transformStyle: "preserve-3d" }}
+              >
                 <div className="bg-blue-100 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6">
                   <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -146,9 +159,22 @@ export default function HomePage() {
                 <p className="text-gray-600 text-sm leading-relaxed">
                   Only your wallet address is visible. Share your deepest thoughts without fear of judgment or exposure.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="bg-purple-50 p-6 sm:p-8 rounded-2xl">
+              <motion.div
+                className="bg-purple-50 p-6 sm:p-8 rounded-2xl"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                whileHover={{
+                  scale: 1.02,
+                  rotateX: 5,
+                  rotateY: 5,
+                  transition: { duration: 0.3 }
+                }}
+                style={{ transformStyle: "preserve-3d" }}
+              >
                 <div className="bg-purple-100 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6">
                   <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -158,9 +184,22 @@ export default function HomePage() {
                 <p className="text-gray-600 text-sm leading-relaxed">
                   Replies adapt to your tone: serious, casual, or even playful. Get support that actually understands you.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="bg-green-50 p-6 sm:p-8 rounded-2xl sm:col-span-2 md:col-span-1">
+              <motion.div
+                className="bg-green-50 p-6 sm:p-8 rounded-2xl sm:col-span-2 md:col-span-1"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                whileHover={{
+                  scale: 1.02,
+                  rotateX: 5,
+                  rotateY: 5,
+                  transition: { duration: 0.3 }
+                }}
+                style={{ transformStyle: "preserve-3d" }}
+              >
                 <div className="bg-green-100 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6">
                   <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -170,7 +209,7 @@ export default function HomePage() {
                 <p className="text-gray-600 text-sm leading-relaxed">
                   Join channels by topic or country, connect with the world, and earn ETH for supporting others in meaningful ways.
                 </p>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>
