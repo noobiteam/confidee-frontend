@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 interface UseOptimisticLikeProps {
     initialLiked: boolean
@@ -16,6 +16,15 @@ export function useOptimisticLike({
     const [isLiked, setIsLiked] = useState(initialLiked)
     const [likeCount, setLikeCount] = useState(initialCount)
     const [isLoading, setIsLoading] = useState(false)
+
+    // Sync with initial values when they change (e.g., after blockchain fetch)
+    // But don't sync if user is actively interacting (isLoading = true)
+    useEffect(() => {
+        if (!isLoading) {
+            setIsLiked(initialLiked)
+            setLikeCount(initialCount)
+        }
+    }, [initialLiked, initialCount, isLoading])
 
     const toggleLike = useCallback(async () => {
         // Optimistic update - immediately update UI
