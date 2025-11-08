@@ -101,12 +101,10 @@ export default function HomePage() {
 
             <motion.button
               onClick={handleMainButtonClick}
-              className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+              className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
             >
               {address ? 'Go to Dashboard' : 'Connect Wallet to Start'}
             </motion.button>
@@ -239,7 +237,7 @@ export default function HomePage() {
               </p>
               <button
                 onClick={handleMainButtonClick}
-                className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+                className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
               >
                 {address ? 'Enter your safe space' : 'Connect Wallet to Start'}
               </button>
