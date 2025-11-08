@@ -4,6 +4,7 @@ import { useAccount } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import WalletButton from '@/components/WalletButton'
 import Footer from '@/components/Footer'
 import { useStats } from '@/hooks/useStats'
@@ -64,28 +65,58 @@ export default function HomePage() {
         </nav>
 
         <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-block bg-purple-100 text-purple-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-6 sm:mb-8">
+          <motion.div
+            className="max-w-4xl mx-auto text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <motion.div
+              className="inline-block bg-purple-100 text-purple-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-6 sm:mb-8"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
               Your safe space. Your voice. Your value.
-            </div>
+            </motion.div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2 sm:px-0">
+            <motion.h1
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2 sm:px-0"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
               The world&apos;s first anonymous
               <span className="text-blue-600"> Web3 safe space</span> where your feelings matter
-            </h1>
+            </motion.h1>
 
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed px-2 sm:px-0">
+            <motion.p
+              className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed px-2 sm:px-0"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
               Share your thoughts without fear, receive AI-powered emotional support, and earn rewards for helping others. Your care has real value.
-            </p>
+            </motion.p>
 
-            <button
+            <motion.button
               onClick={handleMainButtonClick}
               className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               {address ? 'Go to Dashboard' : 'Connect Wallet to Start'}
-            </button>
+            </motion.button>
 
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-gray-500 max-w-md sm:max-w-none mx-auto mt-10">
+            <motion.div
+              className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-gray-500 max-w-md sm:max-w-none mx-auto mt-10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+            >
               <div className="flex items-center space-x-2">
                 <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                 <span>Complete anonymity</span>
@@ -98,8 +129,8 @@ export default function HomePage() {
                 <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                 <span>Helping others literally pays</span>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </section>
 
         <section className="py-12 sm:py-20 px-4 sm:px-6">
