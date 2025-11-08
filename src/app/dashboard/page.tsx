@@ -342,7 +342,7 @@ function PostCard({ secret, currentWallet }: {
 
     const handleCardClick = () => {
         // Pass post data via router state for instant display
-        router.push(`/post/${secret.id}`, {
+        const routerOptions = {
             state: {
                 secret,
                 likeCount: initialLikeCount,
@@ -350,7 +350,8 @@ function PostCard({ secret, currentWallet }: {
                 commentCount,
                 totalTips
             }
-        } as any)
+        }
+        router.push(`/post/${secret.id}`, routerOptions as unknown as URL)
     }
 
     const handleLike = async (e: React.MouseEvent) => {

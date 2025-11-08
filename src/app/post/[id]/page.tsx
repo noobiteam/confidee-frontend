@@ -26,12 +26,30 @@ export default function PostDetailPage() {
     const [error, setError] = useState('')
 
     // Get cached data from router state if available
-    const [cachedData, setCachedData] = useState<any>(null)
+    type CachedPostData = {
+        secret?: {
+            id: bigint;
+            owner: string;
+            content: string;
+            timestamp: bigint;
+            isActive: boolean;
+            aiReply?: string;
+            aiReplyTimestamp?: bigint;
+        };
+        likeCount?: number;
+        hasLiked?: boolean;
+        commentCount?: number;
+        totalTips?: bigint;
+    }
+    const [cachedData, setCachedData] = useState<CachedPostData | null>(null)
 
     useEffect(() => {
         // Access router state from window history
-        if (typeof window !== 'undefined' && (window.history.state as any)?.state) {
-            setCachedData((window.history.state as any).state)
+        if (typeof window !== 'undefined') {
+            const historyState = window.history.state as { state?: CachedPostData } | null
+            if (historyState?.state) {
+                setCachedData(historyState.state)
+            }
         }
     }, [])
 
