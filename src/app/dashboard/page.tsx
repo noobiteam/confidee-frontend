@@ -43,10 +43,20 @@ export default function DashboardPage() {
         if (!address) {
             router.push('/')
         } else {
-            const timer = setTimeout(() => {
+            // Check if user has visited dashboard before in this session
+            const hasVisitedBefore = typeof window !== 'undefined' && sessionStorage.getItem('dashboardVisited')
+
+            if (hasVisitedBefore) {
+                // Skip loading screen for returning users
                 setIsInitialLoading(false)
-            }, UI_TIMEOUTS.LOADING_DELAY)
-            return () => clearTimeout(timer)
+            } else {
+                // Show loading screen only on first visit
+                sessionStorage.setItem('dashboardVisited', 'true')
+                const timer = setTimeout(() => {
+                    setIsInitialLoading(false)
+                }, UI_TIMEOUTS.LOADING_DELAY)
+                return () => clearTimeout(timer)
+            }
         }
     }, [address, router])
 
@@ -331,7 +341,16 @@ function PostCard({ secret, currentWallet }: {
     const isOwnPost = secret.owner.toLowerCase() === currentWallet.toLowerCase()
 
     const handleCardClick = () => {
-        router.push(`/post/${secret.id}`)
+        // Pass post data via router state for instant display
+        router.push(`/post/${secret.id}`, {
+            state: {
+                secret,
+                likeCount: initialLikeCount,
+                hasLiked: initialHasLiked,
+                commentCount,
+                totalTips
+            }
+        } as any)
     }
 
     const handleLike = async (e: React.MouseEvent) => {

@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import WalletButton from '@/components/WalletButton'
 import PostCard from '@/components/PostCard'
+import PostDetailSkeleton from '@/components/PostDetailSkeleton'
 import Footer from '@/components/Footer'
 import CommentModal from '@/components/CommentModal'
 import TipModal from '@/components/TipModal'
@@ -24,6 +25,16 @@ export default function PostDetailPage() {
     const [isTipModalOpen, setIsTipModalOpen] = useState(false)
     const [error, setError] = useState('')
 
+    // Get cached data from router state if available
+    const [cachedData, setCachedData] = useState<any>(null)
+
+    useEffect(() => {
+        // Access router state from window history
+        if (typeof window !== 'undefined' && (window.history.state as any)?.state) {
+            setCachedData((window.history.state as any).state)
+        }
+    }, [])
+
     useEffect(() => {
         if (!address) {
             router.push(ROUTES.HOME)
@@ -31,39 +42,21 @@ export default function PostDetailPage() {
     }, [address, router])
 
     // Fetch the specific post directly by ID
-    const { secret: post, isLoading: postLoading } = useGetSecret(postId)
+    const { secret: fetchedPost, isLoading: postLoading } = useGetSecret(postId)
+
+    // Use cached data first if available, otherwise use fetched data
+    const post = cachedData?.secret || fetchedPost
 
     // Fetch additional data for this specific post
     const { comments, refetch: refetchComments } = useGetSecretComments(postId)
-    const { likeCount, refetch: refetchLikes } = useGetLikeCount(postId)
-    const { hasLiked, refetch: refetchHasLiked } = useHasUserLiked(postId, address as `0x${string}`)
-    const { totalTips, refetch: refetchTips } = useGetTotalTips(postId)
+    const { likeCount: fetchedLikeCount, refetch: refetchLikes } = useGetLikeCount(postId)
+    const { hasLiked: fetchedHasLiked, refetch: refetchHasLiked } = useHasUserLiked(postId, address as `0x${string}`)
+    const { totalTips: fetchedTotalTips, refetch: refetchTips } = useGetTotalTips(postId)
 
-    if (postLoading) {
-        return (
-            <main className="min-h-screen bg-white flex items-center justify-center">
-                <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
-                <div className="relative text-center">
-                    <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mb-6"></div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Loading post...</h2>
-                </div>
-            </main>
-        )
-    }
-
-    if (!post) {
-        return (
-            <main className="min-h-screen bg-white flex items-center justify-center">
-                <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
-                <div className="relative text-center">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Post not found</h2>
-                    <Link href={ROUTES.DASHBOARD} className="text-blue-600 hover:text-blue-700 font-medium">
-                        ← Back to Feed
-                    </Link>
-                </div>
-            </main>
-        )
-    }
+    // Use cached data for immediate display, then replace with fresh data
+    const likeCount = fetchedLikeCount !== undefined ? fetchedLikeCount : cachedData?.likeCount
+    const hasLiked = fetchedHasLiked !== undefined ? fetchedHasLiked : cachedData?.hasLiked
+    const totalTips = fetchedTotalTips !== undefined ? fetchedTotalTips : cachedData?.totalTips
 
     const handleLike = async () => {
         setError('')
@@ -138,7 +131,21 @@ export default function PostDetailPage() {
 
                 <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6">
                     <div className="max-w-3xl mx-auto">
-                        <PostCard
+                        {(postLoading && !cachedData) || !post ? (
+                            <>
+                                <PostDetailSkeleton />
+                                {!postLoading && !post && (
+                                    <div className="text-center py-8">
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-4">Post not found</h2>
+                                        <Link href={ROUTES.DASHBOARD} className="text-blue-600 hover:text-blue-700 font-medium">
+                                            ← Back to Feed
+                                        </Link>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <>
+                                <PostCard
                             id={post.id.toString()}
                             content={post.content}
                             timestamp={new Date(Number(post.timestamp) * 1000)}
@@ -162,27 +169,29 @@ export default function PostDetailPage() {
                             isDetailView={true}
                         />
 
-                        {/* Action Buttons */}
-                        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <button
-                                onClick={() => setIsCommentModalOpen(true)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:shadow-lg flex items-center justify-center space-x-2"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                <span>Add Comment</span>
-                            </button>
-                            <button
-                                onClick={() => setIsTipModalOpen(true)}
-                                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:shadow-lg flex items-center justify-center space-x-2"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span>Send Tip</span>
-                            </button>
-                        </div>
+                                {/* Action Buttons */}
+                                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <button
+                                        onClick={() => setIsCommentModalOpen(true)}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:shadow-lg flex items-center justify-center space-x-2"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                        </svg>
+                                        <span>Add Comment</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setIsTipModalOpen(true)}
+                                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:shadow-lg flex items-center justify-center space-x-2"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>Send Tip</span>
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </section>
 
