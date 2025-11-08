@@ -94,6 +94,8 @@ export default function PostDetailPage() {
     const totalTips = fetchedTotalTips !== undefined ? fetchedTotalTips : (cachedData?.totalTips ? BigInt(cachedData.totalTips) : undefined)
 
     const handleLike = async () => {
+        if (!post) return
+
         setError('')
         try {
             if (hasLiked) {
@@ -113,11 +115,13 @@ export default function PostDetailPage() {
     }
 
     const handleCommentSubmit = async (content: string) => {
+        if (!post) return
         await createComment(post.id, content)
         setTimeout(() => refetchComments(), DATA_FETCH.TX_POLL_INTERVAL)
     }
 
     const handleTipSubmit = async (amount: string) => {
+        if (!post) return
         await tipPost(post.id, amount)
         setTimeout(() => refetchTips(), DATA_FETCH.TX_POLL_INTERVAL)
     }
