@@ -137,18 +137,11 @@ export default function HomePage() {
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               <motion.div
-                className="bg-blue-50 p-6 sm:p-8 rounded-2xl"
+                className="bg-blue-50 p-6 sm:p-8 rounded-2xl border border-blue-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-200"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
-                whileHover={{
-                  scale: 1.02,
-                  rotateX: 5,
-                  rotateY: 5,
-                  transition: { duration: 0.3 }
-                }}
-                style={{ transformStyle: "preserve-3d" }}
               >
                 <div className="bg-blue-100 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6">
                   <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,18 +155,11 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div
-                className="bg-purple-50 p-6 sm:p-8 rounded-2xl"
+                className="bg-purple-50 p-6 sm:p-8 rounded-2xl border border-purple-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-200"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                whileHover={{
-                  scale: 1.02,
-                  rotateX: 5,
-                  rotateY: 5,
-                  transition: { duration: 0.3 }
-                }}
-                style={{ transformStyle: "preserve-3d" }}
               >
                 <div className="bg-purple-100 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6">
                   <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,18 +173,11 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div
-                className="bg-green-50 p-6 sm:p-8 rounded-2xl sm:col-span-2 md:col-span-1"
+                className="bg-green-50 p-6 sm:p-8 rounded-2xl sm:col-span-2 md:col-span-1 border border-green-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-200"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                whileHover={{
-                  scale: 1.02,
-                  rotateX: 5,
-                  rotateY: 5,
-                  transition: { duration: 0.3 }
-                }}
-                style={{ transformStyle: "preserve-3d" }}
               >
                 <div className="bg-green-100 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6">
                   <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
