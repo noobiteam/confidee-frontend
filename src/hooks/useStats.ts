@@ -11,6 +11,11 @@ interface Stats {
   isLoading: boolean
 }
 
+interface Post {
+  owner: string
+  totalTips: bigint
+}
+
 export function useStats(): Stats {
   const [ethPrice, setEthPrice] = useState<number>(0)
   const [uniqueUsers, setUniqueUsers] = useState<Set<string>>(new Set())
@@ -27,7 +32,7 @@ export function useStats(): Stats {
     address: CONTRACT_CONFIG.address,
     abi: ConfideeABI,
     functionName: 'getLatestSecrets',
-    args: [50n], // Get latest 50 posts
+    args: [BigInt(50)], // Get latest 50 posts
   })
 
   // Fetch ETH price
@@ -52,7 +57,7 @@ export function useStats(): Stats {
   useEffect(() => {
     if (allPosts && Array.isArray(allPosts)) {
       const users = new Set<string>()
-      allPosts.forEach((post: any) => {
+      allPosts.forEach((post: Post) => {
         if (post.owner) {
           users.add(post.owner.toLowerCase())
         }
@@ -63,10 +68,10 @@ export function useStats(): Stats {
 
   // Calculate total tips from all posts
   const totalTipsWei = allPosts && Array.isArray(allPosts)
-    ? allPosts.reduce((acc: bigint, post: any) => {
-        return acc + (post.totalTips || 0n)
-      }, 0n)
-    : 0n
+    ? allPosts.reduce((acc: bigint, post: Post) => {
+        return acc + (post.totalTips || BigInt(0))
+      }, BigInt(0))
+    : BigInt(0)
 
   // Convert to ETH
   const totalValueETH = Number(totalTipsWei) / 1e18

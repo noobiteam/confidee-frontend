@@ -7,14 +7,12 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import WalletButton from '@/components/WalletButton'
 import Footer from '@/components/Footer'
-import { useStats } from '@/hooks/useStats'
 
 export default function HomePage() {
   const { address } = useAccount()
   const router = useRouter()
   const { openConnectModal } = useConnectModal()
   const [isNavigating, setIsNavigating] = useState(false)
-  const stats = useStats()
 
   // Auto-navigate to dashboard when wallet connects
   useEffect(() => {
