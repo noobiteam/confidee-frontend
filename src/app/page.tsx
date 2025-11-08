@@ -3,7 +3,6 @@
 import { useAccount } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import WalletButton from '@/components/WalletButton'
 import Footer from '@/components/Footer'
@@ -12,24 +11,10 @@ export default function HomePage() {
   const { address } = useAccount()
   const router = useRouter()
   const { openConnectModal } = useConnectModal()
-  const [isNavigating, setIsNavigating] = useState(false)
-
-  // Auto-navigate to dashboard when wallet connects
-  useEffect(() => {
-    if (address && !isNavigating) {
-      setIsNavigating(true)
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 500)
-    }
-  }, [address, router, isNavigating])
 
   const handleMainButtonClick = () => {
     if (address) {
-      setIsNavigating(true)
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 300)
+      router.push('/dashboard')
     } else if (openConnectModal) {
       openConnectModal()
     }
@@ -38,17 +23,6 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-white">
       <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
-
-      {/* Loading Overlay */}
-      {isNavigating && (
-        <div className="fixed inset-0 bg-white/90 backdrop-blur-sm z-[100] flex items-center justify-center transition-opacity duration-300">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-            <p className="text-gray-900 font-medium text-lg">Taking you to your safe space...</p>
-            <p className="text-gray-500 text-sm mt-2">Preparing your dashboard</p>
-          </div>
-        </div>
-      )}
 
       <div className="relative">
         <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
