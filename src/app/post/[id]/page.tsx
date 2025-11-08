@@ -25,33 +25,39 @@ export default function PostDetailPage() {
     const [isTipModalOpen, setIsTipModalOpen] = useState(false)
     const [error, setError] = useState('')
 
-    // Get cached data from router state if available
+    // Get cached data from sessionStorage if available
     type CachedPostData = {
         secret?: {
-            id: bigint;
+            id: string;
             owner: string;
             content: string;
-            timestamp: bigint;
+            timestamp: string;
             isActive: boolean;
             aiReply?: string;
-            aiReplyTimestamp?: bigint;
+            aiReplyTimestamp?: string;
         };
         likeCount?: number;
         hasLiked?: boolean;
         commentCount?: number;
-        totalTips?: bigint;
+        totalTips?: string;
     }
     const [cachedData, setCachedData] = useState<CachedPostData | null>(null)
 
     useEffect(() => {
-        // Access router state from window history
+        // Read cached data from sessionStorage
         if (typeof window !== 'undefined') {
-            const historyState = window.history.state as { state?: CachedPostData } | null
-            if (historyState?.state) {
-                setCachedData(historyState.state)
+            const cached = sessionStorage.getItem(`post_${postId}`)
+            if (cached) {
+                try {
+                    setCachedData(JSON.parse(cached))
+                    // Clear cache after reading to prevent stale data
+                    sessionStorage.removeItem(`post_${postId}`)
+                } catch (e) {
+                    console.error('Failed to parse cached post data', e)
+                }
             }
         }
-    }, [])
+    }, [postId])
 
     useEffect(() => {
         if (!address) {
@@ -62,8 +68,19 @@ export default function PostDetailPage() {
     // Fetch the specific post directly by ID
     const { secret: fetchedPost, isLoading: postLoading } = useGetSecret(postId)
 
+    // Convert cached data to proper format if available
+    const cachedSecret = cachedData?.secret ? {
+        id: BigInt(cachedData.secret.id),
+        owner: cachedData.secret.owner,
+        content: cachedData.secret.content,
+        timestamp: BigInt(cachedData.secret.timestamp),
+        isActive: cachedData.secret.isActive,
+        aiReply: cachedData.secret.aiReply,
+        aiReplyTimestamp: cachedData.secret.aiReplyTimestamp ? BigInt(cachedData.secret.aiReplyTimestamp) : undefined
+    } : null
+
     // Use cached data first if available, otherwise use fetched data
-    const post = cachedData?.secret || fetchedPost
+    const post = cachedSecret || fetchedPost
 
     // Fetch additional data for this specific post
     const { comments, refetch: refetchComments } = useGetSecretComments(postId)
@@ -74,7 +91,7 @@ export default function PostDetailPage() {
     // Use cached data for immediate display, then replace with fresh data
     const likeCount = fetchedLikeCount !== undefined ? fetchedLikeCount : cachedData?.likeCount
     const hasLiked = fetchedHasLiked !== undefined ? fetchedHasLiked : cachedData?.hasLiked
-    const totalTips = fetchedTotalTips !== undefined ? fetchedTotalTips : cachedData?.totalTips
+    const totalTips = fetchedTotalTips !== undefined ? fetchedTotalTips : (cachedData?.totalTips ? BigInt(cachedData.totalTips) : undefined)
 
     const handleLike = async () => {
         setError('')

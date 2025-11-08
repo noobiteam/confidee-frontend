@@ -341,17 +341,25 @@ function PostCard({ secret, currentWallet }: {
     const isOwnPost = secret.owner.toLowerCase() === currentWallet.toLowerCase()
 
     const handleCardClick = () => {
-        // Pass post data via router state for instant display
-        const routerOptions = {
-            state: {
-                secret,
+        // Cache post data in sessionStorage for instant display
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem(`post_${secret.id}`, JSON.stringify({
+                secret: {
+                    id: secret.id.toString(),
+                    owner: secret.owner,
+                    content: secret.content,
+                    timestamp: secret.timestamp.toString(),
+                    isActive: secret.isActive,
+                    aiReply: secret.aiReply,
+                    aiReplyTimestamp: secret.aiReplyTimestamp?.toString()
+                },
                 likeCount: initialLikeCount,
                 hasLiked: initialHasLiked,
                 commentCount,
-                totalTips
-            }
+                totalTips: totalTips?.toString()
+            }))
         }
-        router.push(`/post/${secret.id}`, routerOptions as unknown as URL)
+        router.push(`/post/${secret.id}`)
     }
 
     const handleLike = async (e: React.MouseEvent) => {
