@@ -13,7 +13,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       queries: {
         refetchOnWindowFocus: false,
         retry: false,
-        // Prevent queries from running during SSR
         staleTime: 60 * 1000,
       },
     },

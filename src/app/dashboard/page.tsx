@@ -39,45 +39,24 @@ export default function DashboardPage() {
         resetForm
     } = usePostForm()
 
-    // Handle client-side mounting
     useEffect(() => {
         setIsMounted(true)
     }, [])
 
-    // Authentication and redirect logic with debounce
     useEffect(() => {
-        // Only run auth check after component is mounted on client
         if (!isMounted) return
 
-        console.log('[Dashboard] Auth Check:', {
-            status,
-            address: address?.slice(0, 10),
-            isMounted
-        })
-
-        // IMPORTANT: Wait until wagmi has finished reconnecting
-        // Status can be: 'connecting' | 'reconnecting' | 'connected' | 'disconnected'
-        // We must wait for reconnecting to finish before making auth decisions
         const isStillReconnecting = status === 'connecting' || status === 'reconnecting'
 
         if (isStillReconnecting) {
-            console.log('[Dashboard] Wagmi still reconnecting, waiting...')
             return
         }
 
-        // Add a small delay to ensure wagmi state is fully settled
-        // This prevents race conditions during hydration
         const checkAuthTimeout = setTimeout(() => {
-            // Wagmi is ready (either connected or disconnected)
             if (!address) {
-                // No wallet connected after reconnection attempt finished, redirect to landing
-                console.log('[Dashboard] No wallet found, redirecting to home')
                 router.push('/')
-            } else {
-                // Wallet is connected, dashboard is ready
-                console.log('[Dashboard] Wallet connected, dashboard ready')
             }
-        }, 100) // Small delay to ensure state is stable
+        }, 100)
 
         return () => clearTimeout(checkAuthTimeout)
     }, [address, router, status, isMounted])
@@ -104,7 +83,7 @@ export default function DashboardPage() {
 
             setTimeout(async () => {
                 try {
-                    const response = await fetch('/api/ai-reply', {
+                    await fetch('/api/ai-reply', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -112,12 +91,8 @@ export default function DashboardPage() {
                             secretId: newSecretId
                         })
                     })
-
-                    if (response.ok) {
-                        console.log('✅ AI reply generated & added to blockchain!')
-                    }
                 } catch (error) {
-                    console.error('AI reply error (non-blocking):', error)
+                    console.error('AI reply error:', error)
                 }
 
                 setTimeout(() => refetch(), DATA_FETCH.REFETCH_DELAY)
@@ -125,7 +100,6 @@ export default function DashboardPage() {
         })
     }
 
-    // Show loading ONLY while mounting or reconnecting (very brief)
     if (!isMounted || status === 'connecting' || status === 'reconnecting') {
         return (
             <main className="min-h-screen bg-white flex items-center justify-center">
@@ -137,7 +111,6 @@ export default function DashboardPage() {
         )
     }
 
-    // No wallet connected - don't render anything (will redirect)
     if (!address) {
         return null
     }
