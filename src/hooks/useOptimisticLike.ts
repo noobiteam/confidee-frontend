@@ -16,38 +16,34 @@ export function useOptimisticLike({
     const [isLiked, setIsLiked] = useState(initialLiked)
     const [likeCount, setLikeCount] = useState(initialCount)
     const [isLoading, setIsLoading] = useState(false)
+    const [hasUserInteracted, setHasUserInteracted] = useState(false)
 
-    // Sync with initial values when they change (e.g., after blockchain fetch)
-    // But don't sync if user is actively interacting (isLoading = true)
     useEffect(() => {
-        if (!isLoading) {
+        if (!isLoading && !hasUserInteracted) {
             setIsLiked(initialLiked)
             setLikeCount(initialCount)
         }
-    }, [initialLiked, initialCount, isLoading])
+    }, [initialLiked, initialCount, isLoading, hasUserInteracted])
 
     const toggleLike = useCallback(async () => {
-        // Optimistic update - immediately update UI
         const previousLiked = isLiked
         const previousCount = likeCount
 
         setIsLiked(!isLiked)
         setLikeCount(isLiked ? likeCount - 1 : likeCount + 1)
         setIsLoading(true)
+        setHasUserInteracted(true)
 
         try {
-            // Perform actual blockchain transaction
             if (isLiked) {
                 await onUnlike()
             } else {
                 await onLike()
             }
-            // Success - optimistic update was correct
         } catch (error) {
-            // Revert optimistic update on error
             setIsLiked(previousLiked)
             setLikeCount(previousCount)
-            throw error // Re-throw to let caller handle error
+            throw error
         } finally {
             setIsLoading(false)
         }
