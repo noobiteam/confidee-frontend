@@ -7,13 +7,20 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { config } from '@/config/wagmi';
 import { ReactNode } from 'react';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
 
 export function Web3Provider({ children }: { children: ReactNode }) {
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={config} reconnectOnMount={true}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
+        <RainbowKitProvider modalSize="compact">
           {children}
         </RainbowKitProvider>
       </QueryClientProvider>

@@ -19,7 +19,7 @@ import { getUserFriendlyError } from '@/utils/errorMessages'
 import { DATA_FETCH, CONTENT_LIMITS, UI_TIMEOUTS, BLOCKCHAIN } from '@/constants/app'
 
 export default function DashboardPage() {
-    const { address } = useAccount()
+    const { address, status } = useAccount()
     const router = useRouter()
     const { isWritePending, isConfirming, isConfirmed } = useConfideeContract()
     const { secrets, isLoading: secretsLoading, refetch } = useGetLatestSecrets(DATA_FETCH.LATEST_SECRETS_LIMIT)
@@ -27,6 +27,8 @@ export default function DashboardPage() {
 
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
     const [isInitialLoading, setIsInitialLoading] = useState(true)
+    const [isMounted, setIsMounted] = useState(false)
+    const [hasCheckedAuth, setHasCheckedAuth] = useState(false)
 
     const {
         postContent,
@@ -39,23 +41,45 @@ export default function DashboardPage() {
         resetForm
     } = usePostForm()
 
+    // Handle client-side mounting
     useEffect(() => {
-        if (!address) {
-            router.push('/')
-        } else {
-            const hasVisitedBefore = typeof window !== 'undefined' && sessionStorage.getItem('dashboardVisited')
+        setIsMounted(true)
+    }, [])
 
-            if (hasVisitedBefore) {
-                setIsInitialLoading(false)
+    useEffect(() => {
+        // Only run auth check after component is mounted on client
+        if (!isMounted) return
+
+        console.log('[Dashboard] Auth Check:', { status, address: address?.slice(0, 10), hasCheckedAuth })
+
+        // Wait until wagmi has finished reconnecting (status is 'connected' or 'disconnected')
+        // This prevents redirect during the initial hydration/reconnection phase
+        const isWagmiReady = status === 'connected' || status === 'disconnected'
+
+        if (isWagmiReady && !hasCheckedAuth) {
+            setHasCheckedAuth(true)
+
+            if (!address) {
+                // No wallet connected, redirect to landing
+                console.log('[Dashboard] No wallet, redirecting to home')
+                router.push('/')
             } else {
-                sessionStorage.setItem('dashboardVisited', 'true')
-                const timer = setTimeout(() => {
+                // Wallet is connected, setup dashboard
+                console.log('[Dashboard] Wallet connected, setting up dashboard')
+                const hasVisitedBefore = typeof window !== 'undefined' && sessionStorage.getItem('dashboardVisited')
+
+                if (hasVisitedBefore) {
                     setIsInitialLoading(false)
-                }, UI_TIMEOUTS.LOADING_DELAY)
-                return () => clearTimeout(timer)
+                } else {
+                    sessionStorage.setItem('dashboardVisited', 'true')
+                    const timer = setTimeout(() => {
+                        setIsInitialLoading(false)
+                    }, UI_TIMEOUTS.LOADING_DELAY)
+                    return () => clearTimeout(timer)
+                }
             }
         }
-    }, [address, router])
+    }, [address, router, status, isMounted, hasCheckedAuth])
 
     useEffect(() => {
         if (isConfirmed && success) {
