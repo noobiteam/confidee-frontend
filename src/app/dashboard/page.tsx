@@ -173,7 +173,7 @@ export default function DashboardPage() {
                         <button
                             onClick={() => setIsPostModalOpen(true)}
                             disabled={isWritePending || isConfirming}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors disabled:bg-gray-400"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-lg cursor-pointer"
                         >
                             {isWritePending || isConfirming ? 'Posting...' : 'Share Your Thoughts'}
                         </button>
