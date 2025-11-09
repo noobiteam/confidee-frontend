@@ -19,14 +19,14 @@ import { getUserFriendlyError } from '@/utils/errorMessages'
 import { DATA_FETCH, CONTENT_LIMITS, UI_TIMEOUTS, BLOCKCHAIN } from '@/constants/app'
 
 export default function DashboardPage() {
-    const { address } = useAccount()
+    const { address, status } = useAccount()
     const router = useRouter()
     const { isWritePending, isConfirming, isConfirmed } = useConfideeContract()
     const { secrets, isLoading: secretsLoading, refetch } = useGetLatestSecrets(DATA_FETCH.LATEST_SECRETS_LIMIT)
     const { toast, success: showSuccess, error: showError, hideToast } = useToast()
 
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
-    const [isInitialLoading, setIsInitialLoading] = useState(true)
+    const [isMounted, setIsMounted] = useState(false)
 
     const {
         postContent,
@@ -40,22 +40,26 @@ export default function DashboardPage() {
     } = usePostForm()
 
     useEffect(() => {
-        if (!address) {
-            router.push('/')
-        } else {
-            const hasVisitedBefore = typeof window !== 'undefined' && sessionStorage.getItem('dashboardVisited')
+        setIsMounted(true)
+    }, [])
 
-            if (hasVisitedBefore) {
-                setIsInitialLoading(false)
-            } else {
-                sessionStorage.setItem('dashboardVisited', 'true')
-                const timer = setTimeout(() => {
-                    setIsInitialLoading(false)
-                }, UI_TIMEOUTS.LOADING_DELAY)
-                return () => clearTimeout(timer)
-            }
+    useEffect(() => {
+        if (!isMounted) return
+
+        const isStillReconnecting = status === 'connecting' || status === 'reconnecting'
+
+        if (isStillReconnecting) {
+            return
         }
-    }, [address, router])
+
+        const checkAuthTimeout = setTimeout(() => {
+            if (!address) {
+                router.push('/')
+            }
+        }, 100)
+
+        return () => clearTimeout(checkAuthTimeout)
+    }, [address, router, status, isMounted])
 
     useEffect(() => {
         if (isConfirmed && success) {
@@ -79,7 +83,7 @@ export default function DashboardPage() {
 
             setTimeout(async () => {
                 try {
-                    const response = await fetch('/api/ai-reply', {
+                    await fetch('/api/ai-reply', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -87,12 +91,8 @@ export default function DashboardPage() {
                             secretId: newSecretId
                         })
                     })
-
-                    if (response.ok) {
-                        console.log('✅ AI reply generated & added to blockchain!')
-                    }
                 } catch (error) {
-                    console.error('AI reply error (non-blocking):', error)
+                    console.error('AI reply error:', error)
                 }
 
                 setTimeout(() => refetch(), DATA_FETCH.REFETCH_DELAY)
@@ -100,26 +100,19 @@ export default function DashboardPage() {
         })
     }
 
-    if (!address) {
-        return null
-    }
-
-    if (isInitialLoading) {
+    if (!isMounted || status === 'connecting' || status === 'reconnecting') {
         return (
             <main className="min-h-screen bg-white flex items-center justify-center">
                 <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
                 <div className="relative text-center">
-                    <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mb-6"></div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back!</h2>
-                    <p className="text-gray-600">Loading your safe space...</p>
-                    <div className="mt-8 flex items-center justify-center space-x-2">
-                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                    </div>
+                    <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent"></div>
                 </div>
             </main>
         )
+    }
+
+    if (!address) {
+        return null
     }
 
     return (
@@ -149,7 +142,7 @@ export default function DashboardPage() {
                         <button
                             onClick={() => setIsPostModalOpen(true)}
                             disabled={isWritePending || isConfirming}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-colors disabled:bg-gray-400"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-lg cursor-pointer"
                         >
                             {isWritePending || isConfirming ? 'Posting...' : 'Share Your Thoughts'}
                         </button>

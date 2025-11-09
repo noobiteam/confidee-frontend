@@ -3,18 +3,12 @@ import { CONTRACT_CONFIG } from '@/config/contract';
 import ConfideeABI from '@/abi/Confidee.json';
 import { Address } from 'viem';
 
-/**
- * Hook untuk interact dengan Confidee smart contract
- */
 export function useConfideeContract() {
   const { writeContractAsync, data: hash, isPending: isWritePending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
   });
 
-  /**
-   * Create new secret
-   */
   const createSecret = async (encryptedData: string) => {
     try {
       const hash = await writeContractAsync({
@@ -30,9 +24,6 @@ export function useConfideeContract() {
     }
   };
 
-  /**
-   * Share secret dengan address lain
-   */
   const shareSecret = async (secretId: bigint, sharedWith: Address) => {
     try {
       const hash = await writeContractAsync({
@@ -48,9 +39,6 @@ export function useConfideeContract() {
     }
   };
 
-  /**
-   * Revoke access dari address
-   */
   const revokeAccess = async (secretId: bigint, revokeFrom: Address) => {
     try {
       const hash = await writeContractAsync({
@@ -66,9 +54,6 @@ export function useConfideeContract() {
     }
   };
 
-  /**
-   * Delete secret
-   */
   const deleteSecret = async (secretId: bigint) => {
     try {
       const hash = await writeContractAsync({
@@ -84,9 +69,6 @@ export function useConfideeContract() {
     }
   };
 
-  /**
-   * Like a secret/post
-   */
   const likeSecret = async (secretId: bigint) => {
     try {
       const hash = await writeContractAsync({
@@ -102,9 +84,6 @@ export function useConfideeContract() {
     }
   };
 
-  /**
-   * Unlike a secret/post
-   */
   const unlikeSecret = async (secretId: bigint) => {
     try {
       const hash = await writeContractAsync({
@@ -120,9 +99,6 @@ export function useConfideeContract() {
     }
   };
 
-  /**
-   * Create a comment
-   */
   const createComment = async (secretId: bigint, content: string) => {
     try {
       const hash = await writeContractAsync({
@@ -138,9 +114,6 @@ export function useConfideeContract() {
     }
   };
 
-  /**
-   * Delete a comment
-   */
   const deleteComment = async (commentId: bigint) => {
     try {
       const hash = await writeContractAsync({
@@ -156,9 +129,6 @@ export function useConfideeContract() {
     }
   };
 
-  /**
-   * Tip a post
-   */
   const tipPost = async (secretId: bigint, amountInEth: string) => {
     try {
       const hash = await writeContractAsync({
@@ -166,7 +136,7 @@ export function useConfideeContract() {
         abi: ConfideeABI,
         functionName: 'tipPost',
         args: [secretId],
-        value: BigInt(Math.floor(parseFloat(amountInEth) * 1e18)), // Convert ETH to Wei
+        value: BigInt(Math.floor(parseFloat(amountInEth) * 1e18)),
       });
       return hash;
     } catch (error) {
@@ -192,9 +162,6 @@ export function useConfideeContract() {
   };
 }
 
-/**
- * Hook untuk read secret by ID
- */
 export function useGetSecret(secretId: bigint | undefined) {
   const { address: account } = useAccount();
 
@@ -225,9 +192,6 @@ export function useGetSecret(secretId: bigint | undefined) {
   };
 }
 
-/**
- * Hook untuk get user's secrets
- */
 export function useGetMySecrets() {
   const { address: account } = useAccount();
 
@@ -249,9 +213,6 @@ export function useGetMySecrets() {
   };
 }
 
-/**
- * Hook untuk get secrets yang di-share ke user
- */
 export function useGetSharedSecrets() {
   const { data, isError, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.address,
@@ -267,9 +228,6 @@ export function useGetSharedSecrets() {
   };
 }
 
-/**
- * Hook untuk get total secrets
- */
 export function useGetTotalSecrets() {
   const { data, isError, isLoading } = useReadContract({
     address: CONTRACT_CONFIG.address,
@@ -284,9 +242,6 @@ export function useGetTotalSecrets() {
   };
 }
 
-/**
- * Hook untuk get list address yang punya akses ke secret
- */
 export function useGetSharedWith(secretId: bigint | undefined) {
   const { data, isError, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.address,
@@ -306,9 +261,6 @@ export function useGetSharedWith(secretId: bigint | undefined) {
   };
 }
 
-/**
- * Hook untuk get latest secrets (Global Feed)
- */
 export function useGetLatestSecrets(limit: number = 20) {
   const { data, isError, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.address,
@@ -333,9 +285,6 @@ export function useGetLatestSecrets(limit: number = 20) {
   };
 }
 
-/**
- * Hook untuk get all secrets dengan pagination
- */
 export function useGetAllSecrets(offset: number = 0, limit: number = 20) {
   const { data, isError, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.address,
@@ -360,9 +309,6 @@ export function useGetAllSecrets(offset: number = 0, limit: number = 20) {
   };
 }
 
-/**
- * Hook untuk get like count
- */
 export function useGetLikeCount(secretId: bigint | undefined) {
   const { data, isError, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.address,
@@ -382,9 +328,6 @@ export function useGetLikeCount(secretId: bigint | undefined) {
   };
 }
 
-/**
- * Hook untuk check if user liked
- */
 export function useHasUserLiked(secretId: bigint | undefined, userAddress: Address | undefined) {
   const { data, isError, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.address,
@@ -404,9 +347,6 @@ export function useHasUserLiked(secretId: bigint | undefined, userAddress: Addre
   };
 }
 
-/**
- * Hook untuk get secret likes (list of addresses)
- */
 export function useGetSecretLikes(secretId: bigint | undefined) {
   const { data, isError, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.address,
@@ -426,9 +366,6 @@ export function useGetSecretLikes(secretId: bigint | undefined) {
   };
 }
 
-/**
- * Hook untuk get comments for a secret
- */
 export function useGetSecretComments(secretId: bigint | undefined) {
   const { data, isError, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.address,
@@ -457,9 +394,6 @@ export function useGetSecretComments(secretId: bigint | undefined) {
   };
 }
 
-/**
- * Hook untuk get comment count
- */
 export function useGetCommentCount(secretId: bigint | undefined) {
   const { data, isError, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.address,
@@ -479,9 +413,6 @@ export function useGetCommentCount(secretId: bigint | undefined) {
   };
 }
 
-/**
- * Hook untuk get total tips for a post
- */
 export function useGetTotalTips(secretId: bigint | undefined) {
   const { data, isError, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.address,
@@ -494,7 +425,7 @@ export function useGetTotalTips(secretId: bigint | undefined) {
   });
 
   return {
-    totalTips: data ? Number(data) / 1e18 : 0, // Convert from Wei to ETH
+    totalTips: data ? Number(data) / 1e18 : 0,
     totalTipsWei: data ? data : BigInt(0),
     isError,
     isLoading,
