@@ -25,7 +25,6 @@ export default function PostDetailPage() {
     const [isTipModalOpen, setIsTipModalOpen] = useState(false)
     const [error, setError] = useState('')
 
-    // Get cached data from sessionStorage if available
     type CachedPostData = {
         secret?: {
             id: string;
@@ -44,13 +43,11 @@ export default function PostDetailPage() {
     const [cachedData, setCachedData] = useState<CachedPostData | null>(null)
 
     useEffect(() => {
-        // Read cached data from sessionStorage
         if (typeof window !== 'undefined') {
             const cached = sessionStorage.getItem(`post_${postId}`)
             if (cached) {
                 try {
                     setCachedData(JSON.parse(cached))
-                    // Clear cache after reading to prevent stale data
                     sessionStorage.removeItem(`post_${postId}`)
                 } catch (e) {
                     console.error('Failed to parse cached post data', e)
@@ -65,10 +62,8 @@ export default function PostDetailPage() {
         }
     }, [address, router])
 
-    // Fetch the specific post directly by ID
     const { secret: fetchedPost, isLoading: postLoading } = useGetSecret(postId)
 
-    // Convert cached data to proper format if available
     const cachedSecret = cachedData?.secret ? {
         id: BigInt(cachedData.secret.id),
         owner: cachedData.secret.owner,
@@ -79,16 +74,13 @@ export default function PostDetailPage() {
         aiReplyTimestamp: cachedData.secret.aiReplyTimestamp ? BigInt(cachedData.secret.aiReplyTimestamp) : undefined
     } : null
 
-    // Use cached data first if available, otherwise use fetched data
     const post = cachedSecret || fetchedPost
 
-    // Fetch additional data for this specific post
     const { comments, refetch: refetchComments } = useGetSecretComments(postId)
     const { likeCount: fetchedLikeCount, refetch: refetchLikes } = useGetLikeCount(postId)
     const { hasLiked: fetchedHasLiked, refetch: refetchHasLiked } = useHasUserLiked(postId, address as `0x${string}`)
     const { totalTips: fetchedTotalTips, refetch: refetchTips } = useGetTotalTips(postId)
 
-    // Use cached data for immediate display, then replace with fresh data
     const likeCount = fetchedLikeCount !== undefined ? fetchedLikeCount : cachedData?.likeCount
     const hasLiked = fetchedHasLiked !== undefined ? fetchedHasLiked : cachedData?.hasLiked
     const totalTips = fetchedTotalTips !== undefined ? fetchedTotalTips : (cachedData?.totalTips ? BigInt(cachedData.totalTips) : undefined)
@@ -144,7 +136,6 @@ export default function PostDetailPage() {
                     </div>
                 </nav>
 
-                {/* Toast Error Notification */}
                 {error && (
                     <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full mx-4 animate-fade-in">
                         <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl shadow-lg">
@@ -208,7 +199,6 @@ export default function PostDetailPage() {
                             isDetailView={true}
                         />
 
-                                {/* Action Buttons */}
                                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <button
                                         onClick={() => setIsCommentModalOpen(true)}
@@ -237,14 +227,12 @@ export default function PostDetailPage() {
                 <Footer />
             </div>
 
-            {/* Comment Modal */}
             <CommentModal
                 isOpen={isCommentModalOpen}
                 onClose={() => setIsCommentModalOpen(false)}
                 onSubmit={handleCommentSubmit}
             />
 
-            {/* Tip Modal */}
             <TipModal
                 isOpen={isTipModalOpen}
                 onClose={() => setIsTipModalOpen(false)}

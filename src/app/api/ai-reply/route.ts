@@ -2,10 +2,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 
-// Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-// Contract config (BRAND NEW Fresh Deploy - October 18, 2025)
 const CONTRACT_ADDRESS = "0x49BaCB0B84b261Ee998CC057bA6ad25cC0Ff626F";
 const CONTRACT_ABI = [
   "function addAIReply(uint256 _secretId, string memory _aiReply) external"

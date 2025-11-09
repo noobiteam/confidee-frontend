@@ -9,19 +9,19 @@ Confidee is a decentralized platform that combines emotional wellness with block
 ## Key Features
 
 - **AI Adaptive Responses** - Intelligent AI replies that adapt to emotional context and tone
-- **Solana Integration** - Wallet-based interactions with smart contract powered tipping system
+- **Base Integration** - Wallet-based interactions with smart contract powered tipping system
 - **Anonymous Support** - Complete privacy with wallet-based identity only
 - **Channel Structure** - Organized discussions by country, topic, and support categories
-- **Tip Economy** - Direct SOL donations to support community members
+- **Tip Economy** - Direct ETH donations to support community members
 - **Decentralized Care** - First tokenized emotional support ecosystem
 
 ## Tech Stack
 
 - **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS v4
-- **Blockchain**: Solana Network
-- **AI**: Fine-tuned LLM for emotional context
-- **Smart Contracts**: Rust/Anchor Framework
-- **Authentication**: Solana Wallet Integration
+- **Blockchain**: Base (Ethereum L2)
+- **AI**: Gemini AI for emotional context
+- **Smart Contracts**: Solidity/Foundry Framework
+- **Authentication**: Ethereum Wallet Integration
 
 ## Getting Started
 
@@ -29,7 +29,7 @@ Confidee is a decentralized platform that combines emotional wellness with block
 
 - Node.js 18+
 - npm/yarn/pnpm
-- Solana wallet (Phantom, Solflare, etc.)
+- Ethereum wallet (MetaMask, Coinbase Wallet, etc.)
 
 ### Installation
 

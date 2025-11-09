@@ -43,14 +43,11 @@ export default function DashboardPage() {
         if (!address) {
             router.push('/')
         } else {
-            // Check if user has visited dashboard before in this session
             const hasVisitedBefore = typeof window !== 'undefined' && sessionStorage.getItem('dashboardVisited')
 
             if (hasVisitedBefore) {
-                // Skip loading screen for returning users
                 setIsInitialLoading(false)
             } else {
-                // Show loading screen only on first visit
                 sessionStorage.setItem('dashboardVisited', 'true')
                 const timer = setTimeout(() => {
                     setIsInitialLoading(false)
@@ -80,7 +77,6 @@ export default function DashboardPage() {
         await submitPost((newSecretId, savedContent) => {
             setIsPostModalOpen(false)
 
-            // Trigger AI reply in background
             setTimeout(async () => {
                 try {
                     const response = await fetch('/api/ai-reply', {
@@ -182,7 +178,6 @@ export default function DashboardPage() {
                         ) : (
                             <div className="text-center py-16 sm:py-24 animate-fade-in">
                                 <div className="rounded-2xl p-8 sm:p-12 max-w-md mx-auto">
-                                    {/* Empty state icon */}
                                     <div className="mb-6 flex justify-center">
                                         <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center animate-scale-up">
                                             <svg className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,7 +209,6 @@ export default function DashboardPage() {
 
             <Footer />
 
-            {/* Toast Notifications */}
             {toast && (
                 <Toast
                     message={toast.message}
@@ -224,7 +218,6 @@ export default function DashboardPage() {
                 />
             )}
 
-            {/* Create Post Modal */}
             <BaseModal
                 isOpen={isPostModalOpen}
                 onClose={() => {
@@ -296,7 +289,6 @@ export default function DashboardPage() {
     )
 }
 
-// Component untuk render individual post
 function PostCard({ secret, currentWallet }: {
     secret: {
         id: bigint;
@@ -321,7 +313,6 @@ function PostCard({ secret, currentWallet }: {
     const { commentCount } = useGetCommentCount(secret.id)
     const { totalTips, refetch: refetchTips } = useGetTotalTips(secret.id)
 
-    // Optimistic likes
     const {
         isLiked,
         likeCount,
@@ -341,7 +332,6 @@ function PostCard({ secret, currentWallet }: {
     const isOwnPost = secret.owner.toLowerCase() === currentWallet.toLowerCase()
 
     const handleCardClick = () => {
-        // Cache post data in sessionStorage for instant display
         if (typeof window !== 'undefined') {
             sessionStorage.setItem(`post_${secret.id}`, JSON.stringify({
                 secret: {
@@ -365,13 +355,11 @@ function PostCard({ secret, currentWallet }: {
     const handleLike = async (e: React.MouseEvent) => {
         e.stopPropagation()
 
-        // Trigger heart animation
         setShowHeartPop(true)
         setTimeout(() => setShowHeartPop(false), 300)
 
         try {
             await toggleLike()
-            // Refetch in background to sync with blockchain
             setTimeout(() => {
                 refetchLikes()
                 refetchHasLiked()
@@ -514,7 +502,6 @@ function PostCard({ secret, currentWallet }: {
                 </div>
             </div>
 
-            {/* Toast for PostCard errors */}
             {cardToast && (
                 <Toast
                     message={cardToast.message}
@@ -524,7 +511,6 @@ function PostCard({ secret, currentWallet }: {
                 />
             )}
 
-            {/* Tip Modal */}
             <TipModal
                 isOpen={showTipModal}
                 onClose={() => setShowTipModal(false)}
