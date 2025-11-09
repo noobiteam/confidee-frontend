@@ -17,9 +17,10 @@
     "ethers": "^6.15.0",
     "framer-motion": "^12.23.24",
     "next": "15.4.6",
+    "permissionless": "^0.2.57",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "viem": "^2.21.54",
+    "viem": "^2.38.6",
     "wagmi": "^2.13.4"
   },
   "devDependencies": {

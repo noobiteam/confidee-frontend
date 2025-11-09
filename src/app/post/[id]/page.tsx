@@ -11,6 +11,8 @@ import Footer from '@/components/Footer'
 import CommentModal from '@/components/CommentModal'
 import TipModal from '@/components/TipModal'
 import { useConfideeContract, useGetSecret, useGetSecretComments, useGetLikeCount, useHasUserLiked, useGetTotalTips } from '@/hooks/useConfideeContract'
+import { useGaslessAction } from '@/hooks/useGaslessAction'
+import { getUserFriendlyError } from '@/utils/errorMessages'
 import { DATA_FETCH, UI_TIMEOUTS, ROUTES } from '@/constants/app'
 
 export default function PostDetailPage() {
@@ -19,7 +21,8 @@ export default function PostDetailPage() {
     const params = useParams()
     const postId = BigInt(params.id as string)
 
-    const { likeSecret, unlikeSecret, createComment, tipPost } = useConfideeContract()
+    const { tipPost } = useConfideeContract()
+    const { executeGaslessAction, isPending: isGaslessPending } = useGaslessAction()
 
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
     const [isTipModalOpen, setIsTipModalOpen] = useState(false)
@@ -90,26 +93,44 @@ export default function PostDetailPage() {
 
         setError('')
         try {
-            if (hasLiked) {
-                await unlikeSecret(post.id)
-            } else {
-                await likeSecret(post.id)
+            const action = hasLiked ? 'unlike' : 'like'
+            const result = await executeGaslessAction(action, { secretId: post.id })
+
+            if (result.success) {
+                setTimeout(() => {
+                    refetchLikes()
+                    refetchHasLiked()
+                }, DATA_FETCH.REFETCH_DELAY)
             }
-            setTimeout(() => {
-                refetchLikes()
-                refetchHasLiked()
-            }, DATA_FETCH.TX_POLL_INTERVAL)
         } catch (err) {
             console.error('Error liking post:', err)
-            setError(err instanceof Error ? err.message : 'Failed to like post')
+            const errorMsg = getUserFriendlyError(err)
+            setError(errorMsg)
             setTimeout(() => setError(''), UI_TIMEOUTS.ERROR_MESSAGE)
         }
     }
 
     const handleCommentSubmit = async (content: string) => {
         if (!post) return
-        await createComment(post.id, content)
-        setTimeout(() => refetchComments(), DATA_FETCH.TX_POLL_INTERVAL)
+
+        setError('')
+        try {
+            const result = await executeGaslessAction('comment', {
+                secretId: post.id,
+                content
+            })
+
+            if (result.success) {
+                setIsCommentModalOpen(false)
+                setTimeout(() => refetchComments(), DATA_FETCH.REFETCH_DELAY)
+            }
+        } catch (err) {
+            console.error('Error creating comment:', err)
+            const errorMsg = getUserFriendlyError(err)
+            setError(errorMsg)
+            setTimeout(() => setError(''), UI_TIMEOUTS.ERROR_MESSAGE)
+            throw err
+        }
     }
 
     const handleTipSubmit = async (amount: string) => {

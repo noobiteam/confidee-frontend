@@ -10,10 +10,11 @@ import BaseModal from '@/components/BaseModal'
 import TipModal from '@/components/TipModal'
 import Toast from '@/components/Toast'
 import PostCardSkeleton from '@/components/PostCardSkeleton'
+import SessionModal from '@/components/SessionModal'
 import { useConfideeContract, useGetLatestSecrets, useGetLikeCount, useHasUserLiked, useGetCommentCount, useGetTotalTips } from '@/hooks/useConfideeContract'
-import { usePostForm } from '@/hooks/usePostForm'
 import { useToast } from '@/hooks/useToast'
-import { useOptimisticLike } from '@/hooks/useOptimisticLike'
+import { useGaslessAction } from '@/hooks/useGaslessAction'
+import { useSession } from '@/hooks/useSession'
 import { formatDate } from '@/utils/dateFormatter'
 import { getUserFriendlyError } from '@/utils/errorMessages'
 import { DATA_FETCH, CONTENT_LIMITS, UI_TIMEOUTS, BLOCKCHAIN } from '@/constants/app'
@@ -24,20 +25,14 @@ export default function DashboardPage() {
     const { isWritePending, isConfirming, isConfirmed } = useConfideeContract()
     const { secrets, isLoading: secretsLoading, refetch } = useGetLatestSecrets(DATA_FETCH.LATEST_SECRETS_LIMIT)
     const { toast, success: showSuccess, error: showError, hideToast } = useToast()
+    const { executeGaslessAction, isPending: isGaslessPending } = useGaslessAction()
+    const { session, isCreatingSession, createSession, needsSession, setHasPrompted } = useSession()
 
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
+    const [isSessionModalOpen, setIsSessionModalOpen] = useState(false)
     const [isMounted, setIsMounted] = useState(false)
-
-    const {
-        postContent,
-        setPostContent,
-        isSubmitting,
-        error,
-        success,
-        setSuccess,
-        handleSubmit: submitPost,
-        resetForm
-    } = usePostForm()
+    const [postContent, setPostContent] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     useEffect(() => {
         setIsMounted(true)
@@ -62,42 +57,63 @@ export default function DashboardPage() {
     }, [address, router, status, isMounted])
 
     useEffect(() => {
-        if (isConfirmed && success) {
-            refetch()
-            setSuccess(false)
-            showSuccess('Post successfully added to blockchain! 🎉')
+        if (needsSession && isMounted) {
+            setTimeout(() => {
+                setIsSessionModalOpen(true)
+            }, 500)
         }
-    }, [isConfirmed, success, refetch, setSuccess, showSuccess])
+    }, [needsSession, isMounted])
 
-    useEffect(() => {
-        if (error) {
-            showError(error)
+    const handleCreateSession = async () => {
+        try {
+            await createSession()
+            setIsSessionModalOpen(false)
+            showSuccess('Session created! You can now use gasless transactions 🎉')
+        } catch (error) {
+            console.error('Failed to create session:', error)
+            showError('Failed to create session. Please try again.')
         }
-    }, [error, showError])
+    }
+
+    const handleSkipSession = () => {
+        setIsSessionModalOpen(false)
+        setHasPrompted(true)
+    }
 
     const handlePostSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        await submitPost((newSecretId, savedContent) => {
-            setIsPostModalOpen(false)
+        if (!postContent.trim()) {
+            showError('Please write something to share')
+            return
+        }
 
-            setTimeout(async () => {
-                try {
-                    await fetch('/api/ai-reply', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            postContent: savedContent,
-                            secretId: newSecretId
-                        })
-                    })
-                } catch (error) {
-                    console.error('AI reply error:', error)
-                }
+        if (postContent.length > CONTENT_LIMITS.POST_MAX_LENGTH) {
+            showError(`Post is too long (max ${CONTENT_LIMITS.POST_MAX_LENGTH} characters)`)
+            return
+        }
 
-                setTimeout(() => refetch(), DATA_FETCH.REFETCH_DELAY)
-            }, DATA_FETCH.AI_REPLY_DELAY)
-        })
+        setIsSubmitting(true)
+
+        try {
+            const result = await executeGaslessAction('post', { content: postContent })
+
+            if (result.success) {
+                showSuccess('Post successfully added to blockchain! 🎉')
+                setPostContent('')
+                setIsPostModalOpen(false)
+
+                setTimeout(async () => {
+                    await refetch()
+                }, DATA_FETCH.REFETCH_DELAY)
+            }
+        } catch (error) {
+            console.error('Error creating post:', error)
+            const errorMsg = getUserFriendlyError(error)
+            showError(errorMsg)
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     if (!isMounted || status === 'connecting' || status === 'reconnecting') {
@@ -141,10 +157,10 @@ export default function DashboardPage() {
 
                         <button
                             onClick={() => setIsPostModalOpen(true)}
-                            disabled={isWritePending || isConfirming}
+                            disabled={isSubmitting || isGaslessPending}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-lg cursor-pointer"
                         >
-                            {isWritePending || isConfirming ? 'Posting...' : 'Share Your Thoughts'}
+                            {isSubmitting || isGaslessPending ? 'Posting...' : 'Share Your Thoughts'}
                         </button>
 
                     </div>
@@ -261,7 +277,7 @@ export default function DashboardPage() {
                             type="button"
                             onClick={() => {
                                 setIsPostModalOpen(false)
-                                resetForm()
+                                setPostContent('')
                             }}
                             className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                             disabled={isSubmitting}
@@ -273,11 +289,18 @@ export default function DashboardPage() {
                             disabled={isSubmitting || !postContent.trim()}
                             className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
-                            {isSubmitting ? 'Posting to Blockchain...' : 'Post'}
+                            {isSubmitting ? 'Signing...' : 'Post'}
                         </button>
                     </div>
                 </form>
             </BaseModal>
+
+            <SessionModal
+                isOpen={isSessionModalOpen}
+                onClose={handleSkipSession}
+                onCreateSession={handleCreateSession}
+                isCreating={isCreatingSession}
+            />
         </main>
     )
 }
@@ -300,26 +323,23 @@ function PostCard({ secret, currentWallet }: {
     const [showHeartPop, setShowHeartPop] = useState(false)
     const { toast: cardToast, error: showCardError, hideToast: hideCardToast } = useToast()
 
-    const { likeSecret, unlikeSecret, tipPost } = useConfideeContract()
+    const { tipPost } = useConfideeContract()
+    const { executeGaslessAction, isPending: isGaslessPending } = useGaslessAction()
     const { likeCount: initialLikeCount, refetch: refetchLikes } = useGetLikeCount(secret.id)
     const { hasLiked: initialHasLiked, refetch: refetchHasLiked } = useHasUserLiked(secret.id, currentWallet as `0x${string}`)
     const { commentCount } = useGetCommentCount(secret.id)
     const { totalTips, refetch: refetchTips } = useGetTotalTips(secret.id)
 
-    const {
-        isLiked,
-        likeCount,
-        toggleLike,
-    } = useOptimisticLike({
-        initialLiked: initialHasLiked === true,
-        initialCount: initialLikeCount || 0,
-        onLike: async () => {
-            await likeSecret(secret.id)
-        },
-        onUnlike: async () => {
-            await unlikeSecret(secret.id)
-        },
-    })
+    const [isLiked, setIsLiked] = useState(initialHasLiked === true)
+    const [likeCount, setLikeCount] = useState(initialLikeCount || 0)
+
+    useEffect(() => {
+        setIsLiked(initialHasLiked === true)
+    }, [initialHasLiked])
+
+    useEffect(() => {
+        setLikeCount(initialLikeCount || 0)
+    }, [initialLikeCount])
 
     const timeAgo = formatDate(new Date(Number(secret.timestamp) * 1000))
     const isOwnPost = secret.owner.toLowerCase() === currentWallet.toLowerCase()
@@ -351,13 +371,25 @@ function PostCard({ secret, currentWallet }: {
         setShowHeartPop(true)
         setTimeout(() => setShowHeartPop(false), 300)
 
+        const wasLiked = isLiked
+        const prevCount = likeCount
+
+        setIsLiked(!wasLiked)
+        setLikeCount(prevCount + (wasLiked ? -1 : 1))
+
         try {
-            await toggleLike()
-            setTimeout(() => {
-                refetchLikes()
-                refetchHasLiked()
-            }, DATA_FETCH.REFETCH_DELAY)
+            const action = wasLiked ? 'unlike' : 'like'
+            const result = await executeGaslessAction(action, { secretId: secret.id })
+
+            if (result.success) {
+                setTimeout(() => {
+                    refetchLikes()
+                    refetchHasLiked()
+                }, DATA_FETCH.REFETCH_DELAY)
+            }
         } catch (error) {
+            setIsLiked(wasLiked)
+            setLikeCount(prevCount)
             console.error('Error toggling like:', error)
             const errorMsg = getUserFriendlyError(error)
             showCardError(errorMsg)
@@ -429,7 +461,8 @@ function PostCard({ secret, currentWallet }: {
                             <div className="flex items-center space-x-3 sm:space-x-4">
                                 <button
                                     onClick={handleLike}
-                                    className={`flex items-center space-x-1 hover:scale-105 transition-all ${
+                                    disabled={isGaslessPending}
+                                    className={`flex items-center space-x-1 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                                         isLiked ? 'text-red-600 hover:text-red-700' : 'text-gray-500 hover:text-red-600'
                                     }`}
                                 >

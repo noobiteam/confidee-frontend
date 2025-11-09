@@ -1,0 +1,149 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createWalletClient, http, publicActions, verifyMessage } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { baseSepolia } from 'viem/chains'
+import { CONTRACT_CONFIG } from '@/config/contract'
+import ConfideeABI from '@/abi/Confidee.json'
+import { getSession } from '@/lib/sessionStore'
+
+const RELAYER_PRIVATE_KEY = process.env.PRIVATE_KEY as `0x${string}`
+
+const rateLimitStore = new Map<string, { count: number; resetAt: Date }>()
+
+const RATE_LIMITS = {
+  like: 10,
+  unlike: 10,
+  comment: 5,
+  post: 2,
+}
+
+function checkRateLimit(address: string, action: string): boolean {
+  const key = `${address}:${action}:${new Date().toISOString().split('T')[0]}`
+  const now = new Date()
+  const resetAt = new Date()
+  resetAt.setHours(24, 0, 0, 0)
+
+  let entry = rateLimitStore.get(key)
+
+  if (!entry || entry.resetAt < now) {
+    entry = { count: 0, resetAt }
+    rateLimitStore.set(key, entry)
+  }
+
+  const limit = RATE_LIMITS[action as keyof typeof RATE_LIMITS] || 10
+
+  if (entry.count >= limit) {
+    return false
+  }
+
+  entry.count++
+  return true
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const { action, sessionToken, data } = await request.json()
+
+    if (!sessionToken || !action) {
+      return NextResponse.json(
+        { success: false, error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    console.log('[RELAYER] Looking for session token:', sessionToken.substring(0, 10) + '...')
+
+    const session = getSession(sessionToken)
+
+    console.log('[RELAYER] Session found:', session ? 'YES' : 'NO', session ? `for ${session.address}` : '')
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid or expired session' },
+        { status: 401 }
+      )
+    }
+
+    const userAddress = session.address
+
+    if (!checkRateLimit(userAddress, action)) {
+      return NextResponse.json(
+        { success: false, error: `Daily ${action} limit reached` },
+        { status: 429 }
+      )
+    }
+
+    if (!RELAYER_PRIVATE_KEY) {
+      return NextResponse.json(
+        { success: false, error: 'Relayer not configured' },
+        { status: 500 }
+      )
+    }
+
+    const account = privateKeyToAccount(RELAYER_PRIVATE_KEY)
+    const client = createWalletClient({
+      account,
+      chain: baseSepolia,
+      transport: http(),
+    }).extend(publicActions)
+
+    let hash: `0x${string}`
+
+    switch (action) {
+      case 'like':
+        hash = await client.writeContract({
+          address: CONTRACT_CONFIG.address,
+          abi: ConfideeABI,
+          functionName: 'likeSecret',
+          args: [BigInt(data.secretId)],
+        })
+        break
+
+      case 'unlike':
+        hash = await client.writeContract({
+          address: CONTRACT_CONFIG.address,
+          abi: ConfideeABI,
+          functionName: 'unlikeSecret',
+          args: [BigInt(data.secretId)],
+        })
+        break
+
+      case 'comment':
+        hash = await client.writeContract({
+          address: CONTRACT_CONFIG.address,
+          abi: ConfideeABI,
+          functionName: 'createComment',
+          args: [BigInt(data.secretId), data.content],
+        })
+        break
+
+      case 'post':
+        hash = await client.writeContract({
+          address: CONTRACT_CONFIG.address,
+          abi: ConfideeABI,
+          functionName: 'createSecret',
+          args: [data.content],
+        })
+        break
+
+      default:
+        return NextResponse.json(
+          { success: false, error: 'Invalid action' },
+          { status: 400 }
+        )
+    }
+
+    await client.waitForTransactionReceipt({ hash })
+
+    return NextResponse.json({
+      success: true,
+      txHash: hash,
+    })
+  } catch (error: any) {
+    console.error('Relayer execution error:', error)
+    return NextResponse.json(
+      { success: false, error: error.message || 'Execution failed' },
+      { status: 500 }
+    )
+  }
+}
