@@ -26,9 +26,7 @@ export default function DashboardPage() {
     const { toast, success: showSuccess, error: showError, hideToast } = useToast()
 
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
-    const [isInitialLoading, setIsInitialLoading] = useState(true)
     const [isMounted, setIsMounted] = useState(false)
-    const [hasCheckedAuth, setHasCheckedAuth] = useState(false)
 
     const {
         postContent,
@@ -46,40 +44,43 @@ export default function DashboardPage() {
         setIsMounted(true)
     }, [])
 
+    // Authentication and redirect logic with debounce
     useEffect(() => {
         // Only run auth check after component is mounted on client
         if (!isMounted) return
 
-        console.log('[Dashboard] Auth Check:', { status, address: address?.slice(0, 10), hasCheckedAuth })
+        console.log('[Dashboard] Auth Check:', {
+            status,
+            address: address?.slice(0, 10),
+            isMounted
+        })
 
-        // Wait until wagmi has finished reconnecting (status is 'connected' or 'disconnected')
-        // This prevents redirect during the initial hydration/reconnection phase
-        const isWagmiReady = status === 'connected' || status === 'disconnected'
+        // IMPORTANT: Wait until wagmi has finished reconnecting
+        // Status can be: 'connecting' | 'reconnecting' | 'connected' | 'disconnected'
+        // We must wait for reconnecting to finish before making auth decisions
+        const isStillReconnecting = status === 'connecting' || status === 'reconnecting'
 
-        if (isWagmiReady && !hasCheckedAuth) {
-            setHasCheckedAuth(true)
+        if (isStillReconnecting) {
+            console.log('[Dashboard] Wagmi still reconnecting, waiting...')
+            return
+        }
 
+        // Add a small delay to ensure wagmi state is fully settled
+        // This prevents race conditions during hydration
+        const checkAuthTimeout = setTimeout(() => {
+            // Wagmi is ready (either connected or disconnected)
             if (!address) {
-                // No wallet connected, redirect to landing
-                console.log('[Dashboard] No wallet, redirecting to home')
+                // No wallet connected after reconnection attempt finished, redirect to landing
+                console.log('[Dashboard] No wallet found, redirecting to home')
                 router.push('/')
             } else {
-                // Wallet is connected, setup dashboard
-                console.log('[Dashboard] Wallet connected, setting up dashboard')
-                const hasVisitedBefore = typeof window !== 'undefined' && sessionStorage.getItem('dashboardVisited')
-
-                if (hasVisitedBefore) {
-                    setIsInitialLoading(false)
-                } else {
-                    sessionStorage.setItem('dashboardVisited', 'true')
-                    const timer = setTimeout(() => {
-                        setIsInitialLoading(false)
-                    }, UI_TIMEOUTS.LOADING_DELAY)
-                    return () => clearTimeout(timer)
-                }
+                // Wallet is connected, dashboard is ready
+                console.log('[Dashboard] Wallet connected, dashboard ready')
             }
-        }
-    }, [address, router, status, isMounted, hasCheckedAuth])
+        }, 100) // Small delay to ensure state is stable
+
+        return () => clearTimeout(checkAuthTimeout)
+    }, [address, router, status, isMounted])
 
     useEffect(() => {
         if (isConfirmed && success) {
@@ -124,26 +125,21 @@ export default function DashboardPage() {
         })
     }
 
-    if (!address) {
-        return null
-    }
-
-    if (isInitialLoading) {
+    // Show loading ONLY while mounting or reconnecting (very brief)
+    if (!isMounted || status === 'connecting' || status === 'reconnecting') {
         return (
             <main className="min-h-screen bg-white flex items-center justify-center">
                 <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
                 <div className="relative text-center">
-                    <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mb-6"></div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back!</h2>
-                    <p className="text-gray-600">Loading your safe space...</p>
-                    <div className="mt-8 flex items-center justify-center space-x-2">
-                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                    </div>
+                    <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent"></div>
                 </div>
             </main>
         )
+    }
+
+    // No wallet connected - don't render anything (will redirect)
+    if (!address) {
+        return null
     }
 
     return (
