@@ -8,6 +8,9 @@ export const DATA_FETCH = {
   /** Number of latest secrets to fetch from blockchain */
   LATEST_SECRETS_LIMIT: 50,
 
+  /** Number of posts per page for pagination */
+  POSTS_PER_PAGE: 12,
+
   /** Polling interval for transaction confirmations (ms) */
   TX_POLL_INTERVAL: 1000,
 

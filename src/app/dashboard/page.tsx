@@ -1,7 +1,7 @@
 'use client'
 
 import { useAccount } from 'wagmi'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import WalletButton from '@/components/WalletButton'
@@ -11,7 +11,7 @@ import TipModal from '@/components/TipModal'
 import Toast from '@/components/Toast'
 import PostCardSkeleton from '@/components/PostCardSkeleton'
 import SessionModal from '@/components/SessionModal'
-import { useConfideeContract, useGetLatestSecrets, useGetLikeCount, useHasUserLiked, useGetCommentCount, useGetTotalTips } from '@/hooks/useConfideeContract'
+import { useConfideeContract, useGetAllSecrets, useGetTotalSecrets, useGetLikeCount, useHasUserLiked, useGetCommentCount, useGetTotalTips } from '@/hooks/useConfideeContract'
 import { useToast } from '@/hooks/useToast'
 import { useGaslessAction } from '@/hooks/useGaslessAction'
 import { useSession } from '@/hooks/useSession'
@@ -22,7 +22,6 @@ import { DATA_FETCH, CONTENT_LIMITS, BLOCKCHAIN } from '@/constants/app'
 export default function DashboardPage() {
     const { address, status } = useAccount()
     const router = useRouter()
-    const { secrets, isLoading: secretsLoading, refetch } = useGetLatestSecrets(DATA_FETCH.LATEST_SECRETS_LIMIT)
     const { toast, success: showSuccess, error: showError, hideToast } = useToast()
     const { executeGaslessAction, isPending: isGaslessPending } = useGaslessAction()
     const { isCreatingSession, createSession, needsSession, setHasPrompted } = useSession()
@@ -33,9 +32,80 @@ export default function DashboardPage() {
     const [postContent, setPostContent] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
 
+    // Infinite scroll state
+    const [page, setPage] = useState(0)
+    const [allSecrets, setAllSecrets] = useState<Array<{
+        id: bigint;
+        owner: string;
+        content: string;
+        timestamp: bigint;
+        isActive: boolean;
+        aiReply?: string;
+        aiReplyTimestamp?: bigint;
+        totalTips?: bigint;
+    }>>([])
+    const [hasMore, setHasMore] = useState(true)
+    const [isLoadingMore, setIsLoadingMore] = useState(false)
+    const observerTarget = useRef<HTMLDivElement>(null)
+
+    const { total: totalSecrets } = useGetTotalSecrets()
+    const { secrets: currentPageSecrets, isLoading: secretsLoading, refetch } = useGetAllSecrets(
+        page * DATA_FETCH.POSTS_PER_PAGE,
+        DATA_FETCH.POSTS_PER_PAGE
+    )
+
     useEffect(() => {
         setIsMounted(true)
     }, [])
+
+    // Load secrets when currentPageSecrets changes
+    useEffect(() => {
+        if (!secretsLoading && currentPageSecrets) {
+            if (currentPageSecrets.length > 0) {
+                setAllSecrets(prev => {
+                    // Deduplicate by id
+                    const existingIds = new Set(prev.map(s => s.id.toString()))
+                    const newSecrets = currentPageSecrets.filter(s => !existingIds.has(s.id.toString()))
+
+                    // Only update if there are new secrets
+                    if (newSecrets.length === 0) return prev
+                    return [...prev, ...newSecrets]
+                })
+
+                // Check if we have more posts to load
+                const loadedCount = (page + 1) * DATA_FETCH.POSTS_PER_PAGE
+                setHasMore(loadedCount < totalSecrets)
+            } else if (page === 0) {
+                setAllSecrets([])
+                setHasMore(false)
+            }
+            setIsLoadingMore(false)
+        }
+    }, [secretsLoading, currentPageSecrets, page, totalSecrets])
+
+    // Intersection Observer for infinite scroll
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasMore && !secretsLoading && !isLoadingMore) {
+                    setIsLoadingMore(true)
+                    setPage(prev => prev + 1)
+                }
+            },
+            { threshold: 0.1 }
+        )
+
+        const currentTarget = observerTarget.current
+        if (currentTarget) {
+            observer.observe(currentTarget)
+        }
+
+        return () => {
+            if (currentTarget) {
+                observer.unobserve(currentTarget)
+            }
+        }
+    }, [hasMore, secretsLoading, isLoadingMore])
 
     useEffect(() => {
         if (!isMounted) return
@@ -102,7 +172,10 @@ export default function DashboardPage() {
                 setPostContent('')
                 setIsPostModalOpen(false)
 
+                // Reset pagination to show new post
                 setTimeout(async () => {
+                    setPage(0)
+                    setAllSecrets([])
                     await refetch()
                 }, DATA_FETCH.REFETCH_DELAY)
             }
@@ -167,22 +240,54 @@ export default function DashboardPage() {
 
                 <section className="pb-12 sm:pb-20 px-4 sm:px-6 md:px-8 lg:px-20">
                     <div className="mx-auto max-w-7xl">
-                        {secretsLoading ? (
+                        {page === 0 && secretsLoading ? (
                             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                                {[...Array(6)].map((_, i) => (
+                                {[...Array(12)].map((_, i) => (
                                     <PostCardSkeleton key={i} />
                                 ))}
                             </div>
-                        ) : secrets.length > 0 ? (
-                            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                                {secrets.map((secret) => (
-                                    <PostCard
-                                        key={secret.id.toString()}
-                                        secret={secret}
-                                        currentWallet={address || ''}
-                                    />
-                                ))}
-                            </div>
+                        ) : allSecrets.length > 0 ? (
+                            <>
+                                <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+                                    {allSecrets.map((secret) => (
+                                        <PostCard
+                                            key={secret.id.toString()}
+                                            secret={secret}
+                                            currentWallet={address || ''}
+                                        />
+                                    ))}
+                                </div>
+
+                                {/* Loading indicator for infinite scroll */}
+                                {hasMore && (
+                                    <div ref={observerTarget} className="mt-8 flex justify-center">
+                                        {secretsLoading ? (
+                                            <div className="flex items-center space-x-2 text-blue-600">
+                                                <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent"></div>
+                                                <span className="text-sm font-medium">Loading more posts...</span>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => {
+                                                    setIsLoadingMore(true)
+                                                    setPage(prev => prev + 1)
+                                                }}
+                                                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:scale-105"
+                                            >
+                                                Load More
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+
+                                {!hasMore && allSecrets.length > 0 && (
+                                    <div className="mt-8 text-center">
+                                        <p className="text-gray-500 text-sm">
+                                            You&apos;ve reached the end! That&apos;s all the posts.
+                                        </p>
+                                    </div>
+                                )}
+                            </>
                         ) : (
                             <div className="text-center py-16 sm:py-24 animate-fade-in">
                                 <div className="rounded-2xl p-8 sm:p-12 max-w-md mx-auto">
