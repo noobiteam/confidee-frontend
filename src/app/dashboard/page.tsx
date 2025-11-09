@@ -17,16 +17,15 @@ import { useGaslessAction } from '@/hooks/useGaslessAction'
 import { useSession } from '@/hooks/useSession'
 import { formatDate } from '@/utils/dateFormatter'
 import { getUserFriendlyError } from '@/utils/errorMessages'
-import { DATA_FETCH, CONTENT_LIMITS, UI_TIMEOUTS, BLOCKCHAIN } from '@/constants/app'
+import { DATA_FETCH, CONTENT_LIMITS, BLOCKCHAIN } from '@/constants/app'
 
 export default function DashboardPage() {
     const { address, status } = useAccount()
     const router = useRouter()
-    const { isWritePending, isConfirming, isConfirmed } = useConfideeContract()
     const { secrets, isLoading: secretsLoading, refetch } = useGetLatestSecrets(DATA_FETCH.LATEST_SECRETS_LIMIT)
     const { toast, success: showSuccess, error: showError, hideToast } = useToast()
     const { executeGaslessAction, isPending: isGaslessPending } = useGaslessAction()
-    const { session, isCreatingSession, createSession, needsSession, setHasPrompted } = useSession()
+    const { isCreatingSession, createSession, needsSession, setHasPrompted } = useSession()
 
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
     const [isSessionModalOpen, setIsSessionModalOpen] = useState(false)
@@ -231,7 +230,7 @@ export default function DashboardPage() {
                 isOpen={isPostModalOpen}
                 onClose={() => {
                     setIsPostModalOpen(false)
-                    resetForm()
+                    setPostContent('')
                 }}
                 title="Share your thoughts"
                 maxWidth="2xl"

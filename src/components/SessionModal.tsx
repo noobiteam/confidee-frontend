@@ -27,7 +27,7 @@ export default function SessionModal({ isOpen, onClose, onCreateSession, isCreat
 
         <div className="bg-gray-50 p-4 rounded-lg">
           <p className="text-sm text-gray-600">
-            You'll only need to sign this message once. After that, all your actions will be gasless and instant!
+            You&apos;ll only need to sign this message once. After that, all your actions will be gasless and instant!
           </p>
         </div>
 

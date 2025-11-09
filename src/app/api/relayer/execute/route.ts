@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createWalletClient, http, publicActions, verifyMessage } from 'viem'
+import { createWalletClient, http, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { baseSepolia } from 'viem/chains'
 import { CONTRACT_CONFIG } from '@/config/contract'
@@ -139,10 +139,11 @@ export async function POST(request: NextRequest) {
       success: true,
       txHash: hash,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Relayer execution error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Execution failed'
     return NextResponse.json(
-      { success: false, error: error.message || 'Execution failed' },
+      { success: false, error: errorMessage },
       { status: 500 }
     )
   }

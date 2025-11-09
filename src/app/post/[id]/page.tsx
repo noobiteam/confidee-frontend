@@ -22,7 +22,7 @@ export default function PostDetailPage() {
     const postId = BigInt(params.id as string)
 
     const { tipPost } = useConfideeContract()
-    const { executeGaslessAction, isPending: isGaslessPending } = useGaslessAction()
+    const { executeGaslessAction } = useGaslessAction()
 
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
     const [isTipModalOpen, setIsTipModalOpen] = useState(false)

@@ -43,7 +43,7 @@ export function useSession() {
         }
 
         localStorage.removeItem(SESSION_STORAGE_KEY)
-      } catch (e) {
+      } catch {
         localStorage.removeItem(SESSION_STORAGE_KEY)
       }
     }

@@ -54,10 +54,11 @@ export async function POST(request: NextRequest) {
       token,
       expiresAt,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Session creation error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create session'
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to create session' },
+      { success: false, error: errorMessage },
       { status: 500 }
     )
   }

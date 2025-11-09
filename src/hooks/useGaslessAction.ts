@@ -28,8 +28,8 @@ export function useGaslessAction() {
             if (parsed.expiresAt > Date.now()) {
               currentSession = parsed
             }
-          } catch (e) {
-            // ignore
+          } catch {
+            // ignore parse error
           }
         }
 
@@ -39,7 +39,7 @@ export function useGaslessAction() {
             if (!currentSession) {
               throw new Error('Failed to create session')
             }
-          } catch (error) {
+          } catch {
             setIsPending(false)
             throw new Error('Please sign the message to enable gasless transactions')
           }
