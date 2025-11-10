@@ -124,30 +124,30 @@ export default function PostCard({ id, content, timestamp, wallet, likes, likeCo
                             <button
                                 onClick={(e) => handleActionClick(e, () => onLike(id))}
                                 disabled={isPending}
-                                className={`flex items-center space-x-1 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${hasUserLiked
+                                className={`flex items-center space-x-1 hover:scale-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed px-3 py-2 rounded-lg hover:bg-gray-100 active:scale-95 ${hasUserLiked
                                     ? 'text-red-600 hover:text-red-700'
                                     : 'text-gray-500 hover:text-red-600'
                                     }`}
                             >
                                 <svg
-                                    className={`w-4 h-4 ${showHeartPop ? 'animate-heart-pop' : ''}`}
+                                    className={`w-5 h-5 sm:w-4 sm:h-4 ${showHeartPop ? 'animate-heart-pop' : ''}`}
                                     fill={hasUserLiked ? "currentColor" : "none"}
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
                                 >
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
-                                <span className="text-xs sm:text-sm">{likeCount}</span>
+                                <span className="text-xs sm:text-sm font-medium">{likeCount}</span>
                             </button>
 
                             <button
                                 onClick={(e) => handleActionClick(e, () => onReply(id))}
-                                className="flex items-center space-x-1 hover:text-blue-600 hover:scale-105 transition-all"
+                                className="flex items-center space-x-1 hover:text-blue-600 hover:scale-110 transition-all px-3 py-2 rounded-lg hover:bg-gray-100 active:scale-95"
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
-                                <span className="text-xs sm:text-sm">{replies ? replies.length : 0}</span>
+                                <span className="text-xs sm:text-sm font-medium">{replies ? replies.length : 0}</span>
                             </button>
 
                             <div className="flex items-center space-x-1">
