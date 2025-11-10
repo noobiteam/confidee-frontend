@@ -68,6 +68,11 @@ export function useGaslessAction() {
 
       const result = await response.json()
 
+      // Emit event to update rate limits UI
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('limitUpdate'))
+      }
+
       setIsPending(false)
       return result
     } catch (error) {

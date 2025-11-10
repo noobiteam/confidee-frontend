@@ -5,41 +5,10 @@ import { baseSepolia } from 'viem/chains'
 import { CONTRACT_CONFIG } from '@/config/contract'
 import ConfideeABIJson from '@/abi/Confidee.json'
 import { getSession } from '@/lib/sessionStore'
+import { checkRateLimit } from '@/lib/rateLimitStore'
 
 const ConfideeABI = (ConfideeABIJson as any).abi as Abi
 const RELAYER_PRIVATE_KEY = process.env.PRIVATE_KEY as `0x${string}`
-
-const rateLimitStore = new Map<string, { count: number; resetAt: Date }>()
-
-const RATE_LIMITS = {
-  like: 10,
-  unlike: 10,
-  comment: 5,
-  post: 2,
-}
-
-function checkRateLimit(address: string, action: string): boolean {
-  const key = `${address}:${action}:${new Date().toISOString().split('T')[0]}`
-  const now = new Date()
-  const resetAt = new Date()
-  resetAt.setHours(24, 0, 0, 0)
-
-  let entry = rateLimitStore.get(key)
-
-  if (!entry || entry.resetAt < now) {
-    entry = { count: 0, resetAt }
-    rateLimitStore.set(key, entry)
-  }
-
-  const limit = RATE_LIMITS[action as keyof typeof RATE_LIMITS] || 10
-
-  if (entry.count >= limit) {
-    return false
-  }
-
-  entry.count++
-  return true
-}
 
 export async function POST(request: NextRequest) {
   try {

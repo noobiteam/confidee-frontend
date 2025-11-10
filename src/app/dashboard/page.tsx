@@ -11,6 +11,7 @@ import TipModal from '@/components/TipModal'
 import Toast from '@/components/Toast'
 import PostCardSkeleton from '@/components/PostCardSkeleton'
 import SessionModal from '@/components/SessionModal'
+import UserLimitsPanel from '@/components/UserLimitsPanel'
 import { useConfideeContract, useGetAllSecrets, useGetTotalSecrets, useGetLikeCount, useHasUserLiked, useGetCommentCount, useGetTotalTips } from '@/hooks/useConfideeContract'
 import { useToast } from '@/hooks/useToast'
 import { useGaslessAction } from '@/hooks/useGaslessAction'
@@ -239,6 +240,9 @@ export default function DashboardPage() {
         <main className="min-h-screen bg-white flex flex-col">
             <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
             <div className="relative flex-1">
+                {/* Sticky User Limits Panel */}
+                <UserLimitsPanel />
+
                 <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
                     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
                         <div className="flex items-center justify-between">
