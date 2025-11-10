@@ -74,6 +74,12 @@ export default function DashboardPage() {
         if (!secretsLoading && currentPageSecrets) {
             if (currentPageSecrets.length > 0) {
                 setAllSecrets(prev => {
+                    // If page is 0, replace all posts (fresh start)
+                    if (page === 0) {
+                        return [...currentPageSecrets]
+                    }
+
+                    // Otherwise, append only new posts
                     const existingIds = new Set(prev.map(s => s.id.toString()))
                     const newSecrets = currentPageSecrets.filter(s => !existingIds.has(s.id.toString()))
 
@@ -183,7 +189,6 @@ export default function DashboardPage() {
 
                 setTimeout(async () => {
                     setPage(0)
-                    setAllSecrets([])
                     await refetch()
                 }, DATA_FETCH.REFETCH_DELAY)
 
@@ -200,7 +205,6 @@ export default function DashboardPage() {
                             if (aiResponse.ok) {
                                 setTimeout(async () => {
                                     setPage(0)
-                                    setAllSecrets([])
                                     await refetch()
                                 }, 3000)
                             }
