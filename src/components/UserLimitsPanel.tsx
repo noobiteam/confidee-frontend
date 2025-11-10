@@ -18,20 +18,69 @@ interface UserLimits {
 }
 
 export default function UserLimitsPanel() {
-  const { session, hasSession } = useSession()
+  const { session } = useSession()
   const [limits, setLimits] = useState<UserLimits | null>(null)
   const [, setTimeUntilReset] = useState('')
   const [sessionTimeLeft, setSessionTimeLeft] = useState('')
+  const [mounted, setMounted] = useState(false)
+
+  // Check if we should show the panel
+  const shouldShow = (() => {
+    if (!mounted) return false
+
+    // If session exists in hook, use it
+    if (session?.token) return true
+
+    // Otherwise, check localStorage for token (handles initial load before hook restores session)
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('confidee_session')
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored)
+          return parsed.expiresAt > Date.now() && parsed.token
+        } catch {
+          return false
+        }
+      }
+    }
+
+    return false
+  })()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Fetch rate limits
   useEffect(() => {
-    if (!hasSession || !session?.token) return
+    // Get token from either session hook or localStorage
+    const getToken = () => {
+      if (session?.token) return session.token
+
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('confidee_session')
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored)
+            if (parsed.expiresAt > Date.now()) {
+              return parsed.token
+            }
+          } catch {
+            return null
+          }
+        }
+      }
+      return null
+    }
+
+    const token = getToken()
+    if (!token) return
 
     const fetchLimits = async () => {
       try {
         const response = await fetch('/api/rate-limits', {
           headers: {
-            'Authorization': `Bearer ${session.token}`
+            'Authorization': `Bearer ${token}`
           }
         })
 
@@ -59,11 +108,11 @@ export default function UserLimitsPanel() {
       clearInterval(interval)
       window.removeEventListener('limitUpdate', handleLimitUpdate)
     }
-  }, [hasSession, session])
+  }, [session])
 
   // Update countdown timers
   useEffect(() => {
-    if (!limits && !session) return
+    if (!limits && !session && !shouldShow) return
 
     const updateTimers = () => {
       // Rate limit reset countdown
@@ -81,9 +130,27 @@ export default function UserLimitsPanel() {
         }
       }
 
-      // Session expiry countdown
-      if (session?.expiresAt) {
-        const expiryTime = new Date(session.expiresAt)
+      // Session expiry countdown - check both hook session and localStorage
+      const getSessionExpiry = () => {
+        if (session?.expiresAt) return session.expiresAt
+
+        if (typeof window !== 'undefined') {
+          const stored = localStorage.getItem('confidee_session')
+          if (stored) {
+            try {
+              const parsed = JSON.parse(stored)
+              return parsed.expiresAt
+            } catch {
+              return null
+            }
+          }
+        }
+        return null
+      }
+
+      const expiresAt = getSessionExpiry()
+      if (expiresAt) {
+        const expiryTime = new Date(expiresAt)
         const now = new Date()
         const diff = expiryTime.getTime() - now.getTime()
 
@@ -100,9 +167,10 @@ export default function UserLimitsPanel() {
     updateTimers()
     const interval = setInterval(updateTimers, 60000) // Update every minute
     return () => clearInterval(interval)
-  }, [limits, session])
+  }, [limits, session, shouldShow])
 
-  if (!hasSession) {
+  // Don't show if no valid session token
+  if (!shouldShow) {
     return null
   }
 
