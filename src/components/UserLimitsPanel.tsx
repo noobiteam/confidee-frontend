@@ -17,10 +17,17 @@ interface UserLimits {
   comment: RateLimitInfo
 }
 
+function getNextMidnightUTC(): Date {
+  const resetAt = new Date()
+  resetAt.setUTCHours(24, 0, 0, 0)
+  return resetAt
+}
+
 export default function UserLimitsPanel() {
   const { session } = useSession()
   const [limits, setLimits] = useState<UserLimits | null>(null)
-  const [sessionTimeLeft, setSessionTimeLeft] = useState('')
+  const [resetTimeLeft, setResetTimeLeft] = useState('')
+  const [resetTimeDisplay, setResetTimeDisplay] = useState('')
   const [mounted, setMounted] = useState(false)
   const [hasValidToken, setHasValidToken] = useState(false)
 
@@ -115,49 +122,38 @@ export default function UserLimitsPanel() {
     }
   }, [session, mounted])
 
-  // Update countdown timers
+  // Update countdown timer for daily limit reset
   useEffect(() => {
-    if (!limits && !session && !hasValidToken) return
+    if (!hasValidToken && !limits) return
 
-    const updateTimers = () => {
-      // Session expiry countdown - check both hook session and localStorage
-      const getSessionExpiry = () => {
-        if (session?.expiresAt) return session.expiresAt
+    const updateTimer = () => {
+      const now = new Date()
+      const nextMidnight = getNextMidnightUTC()
+      const diff = nextMidnight.getTime() - now.getTime()
 
-        if (typeof window !== 'undefined') {
-          const stored = localStorage.getItem('confidee_session')
-          if (stored) {
-            try {
-              const parsed = JSON.parse(stored)
-              return parsed.expiresAt
-            } catch {
-              return null
-            }
-          }
-        }
-        return null
-      }
+      if (diff > 0) {
+        const hours = Math.floor(diff / (1000 * 60 * 60))
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+        setResetTimeLeft(`${hours}h ${minutes}m ${seconds}s`)
 
-      const expiresAt = getSessionExpiry()
-      if (expiresAt) {
-        const expiryTime = new Date(expiresAt)
-        const now = new Date()
-        const diff = expiryTime.getTime() - now.getTime()
-
-        if (diff > 0) {
-          const hours = Math.floor(diff / (1000 * 60 * 60))
-          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-          setSessionTimeLeft(`${hours}h ${minutes}m`)
-        } else {
-          setSessionTimeLeft('Expired')
-        }
+        // Format reset time in user's local timezone
+        const resetTimeStr = nextMidnight.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        })
+        setResetTimeDisplay(resetTimeStr)
+      } else {
+        setResetTimeLeft('Resetting...')
+        setResetTimeDisplay('Now')
       }
     }
 
-    updateTimers()
-    const interval = setInterval(updateTimers, 60000) // Update every minute
+    updateTimer()
+    const interval = setInterval(updateTimer, 1000) // Update every second
     return () => clearInterval(interval)
-  }, [limits, session, hasValidToken])
+  }, [limits, hasValidToken])
 
   // Don't show if no valid session token
   if (!hasValidToken) {
@@ -193,7 +189,7 @@ export default function UserLimitsPanel() {
             <span className="font-semibold text-green-700">{limits.comment.remaining}/{limits.comment.limit}</span>
           </div>
 
-          {sessionTimeLeft && (
+          {resetTimeLeft && (
             <>
               <div className="border-t border-gray-200 my-2 pt-2">
                 <div className="flex items-center justify-between">
@@ -201,17 +197,19 @@ export default function UserLimitsPanel() {
                     <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Session
+                    Resets in
                   </span>
-                  <span className="font-semibold text-purple-700">{sessionTimeLeft}</span>
+                  <span className="font-semibold text-purple-700">{resetTimeLeft}</span>
                 </div>
               </div>
             </>
           )}
 
-          <p className="text-[11px] text-gray-400 pt-2 border-t border-gray-100">
-            Resets at midnight UTC
-          </p>
+          {resetTimeDisplay && (
+            <p className="text-[11px] text-gray-400 pt-2 border-t border-gray-100">
+              Resets at {resetTimeDisplay} (your time)
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -24,8 +24,10 @@ export function checkRateLimit(address: string, action: string): boolean {
   const actionKey = (action === 'like' || action === 'unlike') ? 'like' : action
   const key = `${address}:${actionKey}:${new Date().toISOString().split('T')[0]}`
   const now = new Date()
+
+  // Get next midnight UTC
   const resetAt = new Date()
-  resetAt.setHours(24, 0, 0, 0)
+  resetAt.setUTCHours(24, 0, 0, 0) // Next midnight UTC
 
   let entry = rateLimitStore.get(key)
 
@@ -49,8 +51,10 @@ export function getRateLimitInfo(address: string, action: string): RateLimitInfo
   const actionKey = (action === 'like' || action === 'unlike') ? 'like' : action
   const key = `${address}:${actionKey}:${new Date().toISOString().split('T')[0]}`
   const now = new Date()
+
+  // Get next midnight UTC
   const resetAt = new Date()
-  resetAt.setHours(24, 0, 0, 0)
+  resetAt.setUTCHours(24, 0, 0, 0) // Next midnight UTC
 
   const limit = rateLimitStore.get(key)
 
