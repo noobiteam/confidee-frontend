@@ -24,14 +24,17 @@ interface PostCardProps {
     }>
     onReply: (postId: string) => void
     onLike: (postId: string) => void
-    isDetailView?: boolean  // NEW: flag untuk detect if in detail page
+    isDetailView?: boolean
+    isPending?: boolean // NEW: untuk disable button saat loading
+    showHeartPop?: boolean // NEW: untuk heart animation
+    isLiked?: boolean // NEW: explicit liked state
 }
 
-export default function PostCard({ id, content, timestamp, wallet, likes, likeCount, totalTips, currentUserWallet, aiResponse, replies, onReply, onLike, isDetailView = false }: PostCardProps) {
+export default function PostCard({ id, content, timestamp, wallet, likes, likeCount, totalTips, currentUserWallet, aiResponse, replies, onReply, onLike, isDetailView = false, isPending = false, showHeartPop = false, isLiked }: PostCardProps) {
     const router = useRouter()
     const shortWallet = `${wallet.slice(0, 4)}...${wallet.slice(-4)}`
     const timeAgo = formatDate(new Date(timestamp))
-    const hasUserLiked = likes ? likes.includes(currentUserWallet) : false
+    const hasUserLiked = isLiked !== undefined ? isLiked : (likes ? likes.includes(currentUserWallet) : false)
 
     const handleCardClick = () => {
         // Kalo bukan detail view, go to detail page
@@ -120,12 +123,18 @@ export default function PostCard({ id, content, timestamp, wallet, likes, likeCo
                         <div className="flex items-center space-x-3 sm:space-x-4">
                             <button
                                 onClick={(e) => handleActionClick(e, () => onLike(id))}
-                                className={`flex items-center space-x-1 hover:scale-105 transition-all ${hasUserLiked
+                                disabled={isPending}
+                                className={`flex items-center space-x-1 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${hasUserLiked
                                     ? 'text-red-600 hover:text-red-700'
                                     : 'text-gray-500 hover:text-red-600'
                                     }`}
                             >
-                                <svg className="w-4 h-4" fill={hasUserLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                <svg
+                                    className={`w-4 h-4 ${showHeartPop ? 'animate-heart-pop' : ''}`}
+                                    fill={hasUserLiked ? "currentColor" : "none"}
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
                                 <span className="text-xs sm:text-sm">{likeCount}</span>

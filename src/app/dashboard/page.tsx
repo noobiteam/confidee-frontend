@@ -508,6 +508,8 @@ function PostCard({ secret, currentWallet }: {
     const handleLike = async (e: React.MouseEvent) => {
         e.stopPropagation()
 
+        if (isGaslessPending) return // Prevent double-click
+
         setShowHeartPop(true)
         setTimeout(() => setShowHeartPop(false), 300)
 

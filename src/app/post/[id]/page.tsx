@@ -22,11 +22,12 @@ export default function PostDetailPage() {
     const postId = BigInt(params.id as string)
 
     const { tipPost } = useConfideeContract()
-    const { executeGaslessAction } = useGaslessAction()
+    const { executeGaslessAction, isPending: isGaslessPending } = useGaslessAction()
 
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
     const [isTipModalOpen, setIsTipModalOpen] = useState(false)
     const [error, setError] = useState('')
+    const [showHeartPop, setShowHeartPop] = useState(false)
 
     type CachedPostData = {
         secret?: {
@@ -84,16 +85,40 @@ export default function PostDetailPage() {
     const { hasLiked: fetchedHasLiked, refetch: refetchHasLiked } = useHasUserLiked(postId, address as `0x${string}`)
     const { totalTips: fetchedTotalTips, refetch: refetchTips } = useGetTotalTips(postId)
 
-    const likeCount = fetchedLikeCount !== undefined ? fetchedLikeCount : cachedData?.likeCount
-    const hasLiked = fetchedHasLiked !== undefined ? fetchedHasLiked : cachedData?.hasLiked
+    const initialLikeCount = fetchedLikeCount !== undefined ? fetchedLikeCount : cachedData?.likeCount
+    const initialHasLiked = fetchedHasLiked !== undefined ? fetchedHasLiked : cachedData?.hasLiked
     const totalTips = fetchedTotalTips !== undefined ? fetchedTotalTips : (cachedData?.totalTips ? BigInt(cachedData.totalTips) : undefined)
+
+    // Local state for optimistic updates
+    const [isLiked, setIsLiked] = useState(initialHasLiked === true)
+    const [likeCount, setLikeCount] = useState(initialLikeCount || 0)
+
+    useEffect(() => {
+        setIsLiked(initialHasLiked === true)
+    }, [initialHasLiked])
+
+    useEffect(() => {
+        setLikeCount(initialLikeCount || 0)
+    }, [initialLikeCount])
 
     const handleLike = async () => {
         if (!post) return
+        if (isGaslessPending) return // Prevent double-click
+
+        // Show heart animation
+        setShowHeartPop(true)
+        setTimeout(() => setShowHeartPop(false), 300)
+
+        // Optimistic update
+        const wasLiked = isLiked
+        const prevCount = likeCount
+
+        setIsLiked(!wasLiked)
+        setLikeCount(prevCount + (wasLiked ? -1 : 1))
 
         setError('')
         try {
-            const action = hasLiked ? 'unlike' : 'like'
+            const action = wasLiked ? 'unlike' : 'like'
             const result = await executeGaslessAction(action, { secretId: post.id })
 
             if (result.success) {
@@ -103,6 +128,10 @@ export default function PostDetailPage() {
                 }, DATA_FETCH.REFETCH_DELAY)
             }
         } catch (err) {
+            // Rollback on error
+            setIsLiked(wasLiked)
+            setLikeCount(prevCount)
+
             console.error('Error liking post:', err)
             const errorMsg = getUserFriendlyError(err)
             setError(errorMsg)
@@ -201,7 +230,7 @@ export default function PostDetailPage() {
                             content={post.content}
                             timestamp={new Date(Number(post.timestamp) * 1000)}
                             wallet={post.owner}
-                            likes={hasLiked ? [address || ''] : []}
+                            likes={isLiked ? [address || ''] : []}
                             likeCount={likeCount || 0}
                             totalTips={Number(totalTips || BigInt(0))}
                             currentUserWallet={address || ''}
@@ -218,6 +247,9 @@ export default function PostDetailPage() {
                             onReply={() => setIsCommentModalOpen(true)}
                             onLike={handleLike}
                             isDetailView={true}
+                            isPending={isGaslessPending}
+                            showHeartPop={showHeartPop}
+                            isLiked={isLiked}
                         />
 
                                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
