@@ -35,7 +35,6 @@ export default function DashboardPage() {
 
     // Infinite scroll state
     const [page, setPage] = useState(0)
-    const [, setRefreshKey] = useState(0) // Force refresh trigger
     const [allSecrets, setAllSecrets] = useState<Array<{
         id: bigint;
         owner: string;
@@ -200,7 +199,6 @@ export default function DashboardPage() {
                                     // Force complete refresh by resetting state
                                     setPage(0)
                                     setAllSecrets([])
-                                    setRefreshKey(prev => prev + 1) // Trigger cache invalidation
                                     await refetch()
                                     console.log('🔄 Refetched posts to show AI reply')
                                 }, 3000) // Wait 3s for blockchain confirmation

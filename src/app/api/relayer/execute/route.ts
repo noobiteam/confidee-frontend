@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
       txHash: hash,
       ...(secretId && { secretId }),
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Relayer execution error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Execution failed'
     return NextResponse.json(

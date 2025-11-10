@@ -20,7 +20,6 @@ interface UserLimits {
 export default function UserLimitsPanel() {
   const { session } = useSession()
   const [limits, setLimits] = useState<UserLimits | null>(null)
-  const [, setTimeUntilReset] = useState('')
   const [sessionTimeLeft, setSessionTimeLeft] = useState('')
   const [mounted, setMounted] = useState(false)
 
@@ -115,21 +114,6 @@ export default function UserLimitsPanel() {
     if (!limits && !session && !shouldShow) return
 
     const updateTimers = () => {
-      // Rate limit reset countdown
-      if (limits?.post.resetAt) {
-        const resetTime = new Date(limits.post.resetAt)
-        const now = new Date()
-        const diff = resetTime.getTime() - now.getTime()
-
-        if (diff > 0) {
-          const hours = Math.floor(diff / (1000 * 60 * 60))
-          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-          setTimeUntilReset(`${hours}h ${minutes}m`)
-        } else {
-          setTimeUntilReset('Resetting...')
-        }
-      }
-
       // Session expiry countdown - check both hook session and localStorage
       const getSessionExpiry = () => {
         if (session?.expiresAt) return session.expiresAt

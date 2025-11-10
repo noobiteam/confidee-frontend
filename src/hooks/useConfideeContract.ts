@@ -20,7 +20,7 @@ export function useConfideeContract() {
         args: [encryptedData],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Create secret error:', error);
       throw error;
     }
@@ -35,7 +35,7 @@ export function useConfideeContract() {
         args: [secretId, sharedWith],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Share secret error:', error);
       throw error;
     }
@@ -50,7 +50,7 @@ export function useConfideeContract() {
         args: [secretId, revokeFrom],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Revoke access error:', error);
       throw error;
     }
@@ -65,7 +65,7 @@ export function useConfideeContract() {
         args: [secretId],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Delete secret error:', error);
       throw error;
     }
@@ -80,7 +80,7 @@ export function useConfideeContract() {
         args: [secretId],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Like secret error:', error);
       throw error;
     }
@@ -95,7 +95,7 @@ export function useConfideeContract() {
         args: [secretId],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Unlike secret error:', error);
       throw error;
     }
@@ -110,7 +110,7 @@ export function useConfideeContract() {
         args: [secretId, content],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Create comment error:', error);
       throw error;
     }
@@ -125,7 +125,7 @@ export function useConfideeContract() {
         args: [commentId],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Delete comment error:', error);
       throw error;
     }
@@ -141,7 +141,7 @@ export function useConfideeContract() {
         value: BigInt(Math.floor(parseFloat(amountInEth) * 1e18)),
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Tip post error:', error);
       throw error;
     }
