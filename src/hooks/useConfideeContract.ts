@@ -3,7 +3,7 @@ import { CONTRACT_CONFIG } from '@/config/contract';
 import ConfideeABIJson from '@/abi/Confidee.json';
 import { Address, type Abi } from 'viem';
 
-const ConfideeABI = (ConfideeABIJson as any).abi as Abi;
+const ConfideeABI = (ConfideeABIJson as { abi: Abi }).abi;
 
 export function useConfideeContract() {
   const { writeContractAsync, data: hash, isPending: isWritePending } = useWriteContract();

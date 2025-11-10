@@ -20,7 +20,7 @@ interface UserLimits {
 export default function UserLimitsPanel() {
   const { session, hasSession } = useSession()
   const [limits, setLimits] = useState<UserLimits | null>(null)
-  const [timeUntilReset, setTimeUntilReset] = useState('')
+  const [, setTimeUntilReset] = useState('')
   const [sessionTimeLeft, setSessionTimeLeft] = useState('')
 
   // Fetch rate limits

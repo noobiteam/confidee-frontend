@@ -7,7 +7,7 @@ import ConfideeABIJson from '@/abi/Confidee.json'
 import { getSession } from '@/lib/sessionStore'
 import { checkRateLimit } from '@/lib/rateLimitStore'
 
-const ConfideeABI = (ConfideeABIJson as any).abi as Abi
+const ConfideeABI = (ConfideeABIJson as { abi: Abi }).abi
 const RELAYER_PRIVATE_KEY = process.env.PRIVATE_KEY as `0x${string}`
 
 export async function POST(request: NextRequest) {

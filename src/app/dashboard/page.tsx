@@ -35,7 +35,7 @@ export default function DashboardPage() {
 
     // Infinite scroll state
     const [page, setPage] = useState(0)
-    const [refreshKey, setRefreshKey] = useState(0) // Force refresh trigger
+    const [, setRefreshKey] = useState(0) // Force refresh trigger
     const [allSecrets, setAllSecrets] = useState<Array<{
         id: bigint;
         owner: string;
