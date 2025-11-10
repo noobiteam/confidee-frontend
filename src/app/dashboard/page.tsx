@@ -1,7 +1,7 @@
 'use client'
 
 import { useAccount } from 'wagmi'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import WalletButton from '@/components/WalletButton'
@@ -10,38 +10,115 @@ import BaseModal from '@/components/BaseModal'
 import TipModal from '@/components/TipModal'
 import Toast from '@/components/Toast'
 import PostCardSkeleton from '@/components/PostCardSkeleton'
-import { useConfideeContract, useGetLatestSecrets, useGetLikeCount, useHasUserLiked, useGetCommentCount, useGetTotalTips } from '@/hooks/useConfideeContract'
-import { usePostForm } from '@/hooks/usePostForm'
+import SessionModal from '@/components/SessionModal'
+import UserLimitsPanel from '@/components/UserLimitsPanel'
+import { useConfideeContract, useGetAllSecrets, useGetTotalSecrets, useGetLikeCount, useHasUserLiked, useGetCommentCount, useGetTotalTips } from '@/hooks/useConfideeContract'
 import { useToast } from '@/hooks/useToast'
-import { useOptimisticLike } from '@/hooks/useOptimisticLike'
+import { useGaslessAction } from '@/hooks/useGaslessAction'
+import { useSession } from '@/hooks/useSession'
 import { formatDate } from '@/utils/dateFormatter'
 import { getUserFriendlyError } from '@/utils/errorMessages'
-import { DATA_FETCH, CONTENT_LIMITS, UI_TIMEOUTS, BLOCKCHAIN } from '@/constants/app'
+import { DATA_FETCH, CONTENT_LIMITS, BLOCKCHAIN } from '@/constants/app'
 
 export default function DashboardPage() {
     const { address, status } = useAccount()
     const router = useRouter()
-    const { isWritePending, isConfirming, isConfirmed } = useConfideeContract()
-    const { secrets, isLoading: secretsLoading, refetch } = useGetLatestSecrets(DATA_FETCH.LATEST_SECRETS_LIMIT)
     const { toast, success: showSuccess, error: showError, hideToast } = useToast()
+    const { executeGaslessAction, isPending: isGaslessPending } = useGaslessAction()
+    const { isCreatingSession, createSession, needsSession, setHasPrompted } = useSession()
 
     const [isPostModalOpen, setIsPostModalOpen] = useState(false)
+    const [isSessionModalOpen, setIsSessionModalOpen] = useState(false)
     const [isMounted, setIsMounted] = useState(false)
+    const [postContent, setPostContent] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const {
-        postContent,
-        setPostContent,
-        isSubmitting,
-        error,
-        success,
-        setSuccess,
-        handleSubmit: submitPost,
-        resetForm
-    } = usePostForm()
+    // Infinite scroll state
+    const [page, setPage] = useState(0)
+    const [allSecrets, setAllSecrets] = useState<Array<{
+        id: bigint;
+        owner: string;
+        content: string;
+        timestamp: bigint;
+        isActive: boolean;
+        aiReply?: string;
+        aiReplyTimestamp?: bigint;
+        totalTips?: bigint;
+    }>>([])
+    const [hasMore, setHasMore] = useState(true)
+    const [isLoadingMore, setIsLoadingMore] = useState(false)
+    const observerTarget = useRef<HTMLDivElement>(null)
+
+    const { total: totalSecrets } = useGetTotalSecrets()
+    const { secrets: currentPageSecrets, isLoading: secretsLoading, refetch } = useGetAllSecrets(
+        page * DATA_FETCH.POSTS_PER_PAGE,
+        DATA_FETCH.POSTS_PER_PAGE
+    )
 
     useEffect(() => {
         setIsMounted(true)
+
+        if (typeof window !== 'undefined') {
+            const justCreatedSession = sessionStorage.getItem('session_just_created')
+            if (justCreatedSession === 'true') {
+                sessionStorage.removeItem('session_just_created')
+                setTimeout(() => {
+                    showSuccess('Session created! You can now use gasless transactions 🎉')
+                }, 500)
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    useEffect(() => {
+        if (!secretsLoading && currentPageSecrets) {
+            if (currentPageSecrets.length > 0) {
+                setAllSecrets(prev => {
+                    // If page is 0, replace all posts (fresh start)
+                    if (page === 0) {
+                        return [...currentPageSecrets]
+                    }
+
+                    // Otherwise, append only new posts
+                    const existingIds = new Set(prev.map(s => s.id.toString()))
+                    const newSecrets = currentPageSecrets.filter(s => !existingIds.has(s.id.toString()))
+
+                    if (newSecrets.length === 0) return prev
+                    return [...prev, ...newSecrets]
+                })
+
+                const loadedCount = (page + 1) * DATA_FETCH.POSTS_PER_PAGE
+                setHasMore(loadedCount < totalSecrets)
+            } else if (page === 0) {
+                setAllSecrets([])
+                setHasMore(false)
+            }
+            setIsLoadingMore(false)
+        }
+    }, [secretsLoading, currentPageSecrets, page, totalSecrets])
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasMore && !secretsLoading && !isLoadingMore) {
+                    setIsLoadingMore(true)
+                    setPage(prev => prev + 1)
+                }
+            },
+            { threshold: 0.1 }
+        )
+
+        const currentTarget = observerTarget.current
+        if (currentTarget) {
+            observer.observe(currentTarget)
+        }
+
+        return () => {
+            if (currentTarget) {
+                observer.unobserve(currentTarget)
+            }
+        }
+    }, [hasMore, secretsLoading, isLoadingMore])
 
     useEffect(() => {
         if (!isMounted) return
@@ -62,42 +139,86 @@ export default function DashboardPage() {
     }, [address, router, status, isMounted])
 
     useEffect(() => {
-        if (isConfirmed && success) {
-            refetch()
-            setSuccess(false)
-            showSuccess('Post successfully added to blockchain! 🎉')
+        if (needsSession && isMounted && !isSessionModalOpen) {
+            setTimeout(() => {
+                setIsSessionModalOpen(true)
+            }, 500)
         }
-    }, [isConfirmed, success, refetch, setSuccess, showSuccess])
+    }, [needsSession, isMounted, isSessionModalOpen])
 
-    useEffect(() => {
-        if (error) {
-            showError(error)
+    const handleCreateSession = async () => {
+        try {
+            await createSession()
+            setIsSessionModalOpen(false)
+
+            sessionStorage.setItem('session_just_created', 'true')
+            window.location.reload()
+        } catch (error) {
+            console.error('Failed to create session:', error)
+            showError('Failed to create session. Please try again.')
         }
-    }, [error, showError])
+    }
+
+    const handleSkipSession = () => {
+        setIsSessionModalOpen(false)
+        setHasPrompted(true)
+    }
 
     const handlePostSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        await submitPost((newSecretId, savedContent) => {
-            setIsPostModalOpen(false)
+        if (!postContent.trim()) {
+            showError('Please write something to share')
+            return
+        }
 
-            setTimeout(async () => {
-                try {
-                    await fetch('/api/ai-reply', {
+        if (postContent.length > CONTENT_LIMITS.POST_MAX_LENGTH) {
+            showError(`Post is too long (max ${CONTENT_LIMITS.POST_MAX_LENGTH} characters)`)
+            return
+        }
+
+        setIsSubmitting(true)
+
+        try {
+            const result = await executeGaslessAction('post', { content: postContent })
+
+            if (result.success) {
+                showSuccess('Post successfully added to blockchain! 🎉')
+                setPostContent('')
+                setIsPostModalOpen(false)
+
+                setTimeout(async () => {
+                    setPage(0)
+                    await refetch()
+                }, DATA_FETCH.REFETCH_DELAY)
+
+                if (result.secretId) {
+                    fetch('/api/ai-reply', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            postContent: savedContent,
-                            secretId: newSecretId
+                            postContent,
+                            secretId: result.secretId
                         })
                     })
-                } catch (error) {
-                    console.error('AI reply error:', error)
+                        .then(async (aiResponse) => {
+                            if (aiResponse.ok) {
+                                setTimeout(async () => {
+                                    setPage(0)
+                                    await refetch()
+                                }, 3000)
+                            }
+                        })
+                        .catch(() => { })
                 }
-
-                setTimeout(() => refetch(), DATA_FETCH.REFETCH_DELAY)
-            }, DATA_FETCH.AI_REPLY_DELAY)
-        })
+            }
+        } catch (error) {
+            console.error('Error creating post:', error)
+            const errorMsg = getUserFriendlyError(error)
+            showError(errorMsg)
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     if (!isMounted || status === 'connecting' || status === 'reconnecting') {
@@ -119,6 +240,9 @@ export default function DashboardPage() {
         <main className="min-h-screen bg-white flex flex-col">
             <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
             <div className="relative flex-1">
+                {/* Sticky User Limits Panel */}
+                <UserLimitsPanel />
+
                 <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
                     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
                         <div className="flex items-center justify-between">
@@ -141,10 +265,10 @@ export default function DashboardPage() {
 
                         <button
                             onClick={() => setIsPostModalOpen(true)}
-                            disabled={isWritePending || isConfirming}
+                            disabled={isSubmitting || isGaslessPending}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-lg cursor-pointer"
                         >
-                            {isWritePending || isConfirming ? 'Posting...' : 'Share Your Thoughts'}
+                            {isSubmitting || isGaslessPending ? 'Posting...' : 'Share Your Thoughts'}
                         </button>
 
                     </div>
@@ -152,22 +276,54 @@ export default function DashboardPage() {
 
                 <section className="pb-12 sm:pb-20 px-4 sm:px-6 md:px-8 lg:px-20">
                     <div className="mx-auto max-w-7xl">
-                        {secretsLoading ? (
+                        {page === 0 && secretsLoading ? (
                             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                                {[...Array(6)].map((_, i) => (
+                                {[...Array(12)].map((_, i) => (
                                     <PostCardSkeleton key={i} />
                                 ))}
                             </div>
-                        ) : secrets.length > 0 ? (
-                            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                                {secrets.map((secret) => (
-                                    <PostCard
-                                        key={secret.id.toString()}
-                                        secret={secret}
-                                        currentWallet={address || ''}
-                                    />
-                                ))}
-                            </div>
+                        ) : allSecrets.length > 0 ? (
+                            <>
+                                <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+                                    {allSecrets.map((secret) => (
+                                        <PostCard
+                                            key={secret.id.toString()}
+                                            secret={secret}
+                                            currentWallet={address || ''}
+                                        />
+                                    ))}
+                                </div>
+
+                                {/* Loading indicator for infinite scroll */}
+                                {hasMore && (
+                                    <div ref={observerTarget} className="mt-8 flex justify-center">
+                                        {secretsLoading ? (
+                                            <div className="flex items-center space-x-2 text-blue-600">
+                                                <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent"></div>
+                                                <span className="text-sm font-medium">Loading more posts...</span>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => {
+                                                    setIsLoadingMore(true)
+                                                    setPage(prev => prev + 1)
+                                                }}
+                                                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:scale-105"
+                                            >
+                                                Load More
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+
+                                {!hasMore && allSecrets.length > 0 && (
+                                    <div className="mt-8 text-center">
+                                        <p className="text-gray-500 text-sm">
+                                            You&apos;ve reached the end! That&apos;s all the posts.
+                                        </p>
+                                    </div>
+                                )}
+                            </>
                         ) : (
                             <div className="text-center py-16 sm:py-24 animate-fade-in">
                                 <div className="rounded-2xl p-8 sm:p-12 max-w-md mx-auto">
@@ -215,7 +371,7 @@ export default function DashboardPage() {
                 isOpen={isPostModalOpen}
                 onClose={() => {
                     setIsPostModalOpen(false)
-                    resetForm()
+                    setPostContent('')
                 }}
                 title="Share your thoughts"
                 maxWidth="2xl"
@@ -261,7 +417,7 @@ export default function DashboardPage() {
                             type="button"
                             onClick={() => {
                                 setIsPostModalOpen(false)
-                                resetForm()
+                                setPostContent('')
                             }}
                             className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                             disabled={isSubmitting}
@@ -273,11 +429,18 @@ export default function DashboardPage() {
                             disabled={isSubmitting || !postContent.trim()}
                             className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
-                            {isSubmitting ? 'Posting to Blockchain...' : 'Post'}
+                            {isSubmitting ? 'Signing...' : 'Post'}
                         </button>
                     </div>
                 </form>
             </BaseModal>
+
+            <SessionModal
+                isOpen={isSessionModalOpen}
+                onClose={handleSkipSession}
+                onCreateSession={handleCreateSession}
+                isCreating={isCreatingSession}
+            />
         </main>
     )
 }
@@ -300,26 +463,23 @@ function PostCard({ secret, currentWallet }: {
     const [showHeartPop, setShowHeartPop] = useState(false)
     const { toast: cardToast, error: showCardError, hideToast: hideCardToast } = useToast()
 
-    const { likeSecret, unlikeSecret, tipPost } = useConfideeContract()
+    const { tipPost } = useConfideeContract()
+    const { executeGaslessAction, isPending: isGaslessPending } = useGaslessAction()
     const { likeCount: initialLikeCount, refetch: refetchLikes } = useGetLikeCount(secret.id)
     const { hasLiked: initialHasLiked, refetch: refetchHasLiked } = useHasUserLiked(secret.id, currentWallet as `0x${string}`)
     const { commentCount } = useGetCommentCount(secret.id)
     const { totalTips, refetch: refetchTips } = useGetTotalTips(secret.id)
 
-    const {
-        isLiked,
-        likeCount,
-        toggleLike,
-    } = useOptimisticLike({
-        initialLiked: initialHasLiked === true,
-        initialCount: initialLikeCount || 0,
-        onLike: async () => {
-            await likeSecret(secret.id)
-        },
-        onUnlike: async () => {
-            await unlikeSecret(secret.id)
-        },
-    })
+    const [isLiked, setIsLiked] = useState(initialHasLiked === true)
+    const [likeCount, setLikeCount] = useState(initialLikeCount || 0)
+
+    useEffect(() => {
+        setIsLiked(initialHasLiked === true)
+    }, [initialHasLiked])
+
+    useEffect(() => {
+        setLikeCount(initialLikeCount || 0)
+    }, [initialLikeCount])
 
     const timeAgo = formatDate(new Date(Number(secret.timestamp) * 1000))
     const isOwnPost = secret.owner.toLowerCase() === currentWallet.toLowerCase()
@@ -348,16 +508,30 @@ function PostCard({ secret, currentWallet }: {
     const handleLike = async (e: React.MouseEvent) => {
         e.stopPropagation()
 
+        if (isGaslessPending) return // Prevent double-click
+
         setShowHeartPop(true)
         setTimeout(() => setShowHeartPop(false), 300)
 
+        const wasLiked = isLiked
+        const prevCount = likeCount
+
+        setIsLiked(!wasLiked)
+        setLikeCount(prevCount + (wasLiked ? -1 : 1))
+
         try {
-            await toggleLike()
-            setTimeout(() => {
-                refetchLikes()
-                refetchHasLiked()
-            }, DATA_FETCH.REFETCH_DELAY)
+            const action = wasLiked ? 'unlike' : 'like'
+            const result = await executeGaslessAction(action, { secretId: secret.id })
+
+            if (result.success) {
+                setTimeout(() => {
+                    refetchLikes()
+                    refetchHasLiked()
+                }, DATA_FETCH.REFETCH_DELAY)
+            }
         } catch (error) {
+            setIsLiked(wasLiked)
+            setLikeCount(prevCount)
             console.error('Error toggling like:', error)
             const errorMsg = getUserFriendlyError(error)
             showCardError(errorMsg)
@@ -429,7 +603,8 @@ function PostCard({ secret, currentWallet }: {
                             <div className="flex items-center space-x-3 sm:space-x-4">
                                 <button
                                     onClick={handleLike}
-                                    className={`flex items-center space-x-1 hover:scale-105 transition-all ${
+                                    disabled={isGaslessPending}
+                                    className={`flex items-center space-x-1 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                                         isLiked ? 'text-red-600 hover:text-red-700' : 'text-gray-500 hover:text-red-600'
                                     }`}
                                 >

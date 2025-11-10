@@ -1,7 +1,9 @@
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { CONTRACT_CONFIG } from '@/config/contract';
-import ConfideeABI from '@/abi/Confidee.json';
-import { Address } from 'viem';
+import ConfideeABIJson from '@/abi/Confidee.json';
+import { Address, type Abi } from 'viem';
+
+const ConfideeABI = (ConfideeABIJson as { abi: Abi }).abi;
 
 export function useConfideeContract() {
   const { writeContractAsync, data: hash, isPending: isWritePending } = useWriteContract();
@@ -18,7 +20,7 @@ export function useConfideeContract() {
         args: [encryptedData],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Create secret error:', error);
       throw error;
     }
@@ -33,7 +35,7 @@ export function useConfideeContract() {
         args: [secretId, sharedWith],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Share secret error:', error);
       throw error;
     }
@@ -48,7 +50,7 @@ export function useConfideeContract() {
         args: [secretId, revokeFrom],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Revoke access error:', error);
       throw error;
     }
@@ -63,7 +65,7 @@ export function useConfideeContract() {
         args: [secretId],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Delete secret error:', error);
       throw error;
     }
@@ -78,7 +80,7 @@ export function useConfideeContract() {
         args: [secretId],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Like secret error:', error);
       throw error;
     }
@@ -93,7 +95,7 @@ export function useConfideeContract() {
         args: [secretId],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Unlike secret error:', error);
       throw error;
     }
@@ -108,7 +110,7 @@ export function useConfideeContract() {
         args: [secretId, content],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Create comment error:', error);
       throw error;
     }
@@ -123,7 +125,7 @@ export function useConfideeContract() {
         args: [commentId],
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Delete comment error:', error);
       throw error;
     }
@@ -139,7 +141,7 @@ export function useConfideeContract() {
         value: BigInt(Math.floor(parseFloat(amountInEth) * 1e18)),
       });
       return hash;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Tip post error:', error);
       throw error;
     }

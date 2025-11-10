@@ -11,6 +11,8 @@ import Footer from '@/components/Footer'
 import CommentModal from '@/components/CommentModal'
 import TipModal from '@/components/TipModal'
 import { useConfideeContract, useGetSecret, useGetSecretComments, useGetLikeCount, useHasUserLiked, useGetTotalTips } from '@/hooks/useConfideeContract'
+import { useGaslessAction } from '@/hooks/useGaslessAction'
+import { getUserFriendlyError } from '@/utils/errorMessages'
 import { DATA_FETCH, UI_TIMEOUTS, ROUTES } from '@/constants/app'
 
 export default function PostDetailPage() {
@@ -19,11 +21,13 @@ export default function PostDetailPage() {
     const params = useParams()
     const postId = BigInt(params.id as string)
 
-    const { likeSecret, unlikeSecret, createComment, tipPost } = useConfideeContract()
+    const { tipPost } = useConfideeContract()
+    const { executeGaslessAction, isPending: isGaslessPending } = useGaslessAction()
 
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
     const [isTipModalOpen, setIsTipModalOpen] = useState(false)
     const [error, setError] = useState('')
+    const [showHeartPop, setShowHeartPop] = useState(false)
 
     type CachedPostData = {
         secret?: {
@@ -81,35 +85,81 @@ export default function PostDetailPage() {
     const { hasLiked: fetchedHasLiked, refetch: refetchHasLiked } = useHasUserLiked(postId, address as `0x${string}`)
     const { totalTips: fetchedTotalTips, refetch: refetchTips } = useGetTotalTips(postId)
 
-    const likeCount = fetchedLikeCount !== undefined ? fetchedLikeCount : cachedData?.likeCount
-    const hasLiked = fetchedHasLiked !== undefined ? fetchedHasLiked : cachedData?.hasLiked
+    const initialLikeCount = fetchedLikeCount !== undefined ? fetchedLikeCount : cachedData?.likeCount
+    const initialHasLiked = fetchedHasLiked !== undefined ? fetchedHasLiked : cachedData?.hasLiked
     const totalTips = fetchedTotalTips !== undefined ? fetchedTotalTips : (cachedData?.totalTips ? BigInt(cachedData.totalTips) : undefined)
+
+    // Local state for optimistic updates
+    const [isLiked, setIsLiked] = useState(initialHasLiked === true)
+    const [likeCount, setLikeCount] = useState(initialLikeCount || 0)
+
+    useEffect(() => {
+        setIsLiked(initialHasLiked === true)
+    }, [initialHasLiked])
+
+    useEffect(() => {
+        setLikeCount(initialLikeCount || 0)
+    }, [initialLikeCount])
 
     const handleLike = async () => {
         if (!post) return
+        if (isGaslessPending) return // Prevent double-click
+
+        // Show heart animation
+        setShowHeartPop(true)
+        setTimeout(() => setShowHeartPop(false), 300)
+
+        // Optimistic update
+        const wasLiked = isLiked
+        const prevCount = likeCount
+
+        setIsLiked(!wasLiked)
+        setLikeCount(prevCount + (wasLiked ? -1 : 1))
 
         setError('')
         try {
-            if (hasLiked) {
-                await unlikeSecret(post.id)
-            } else {
-                await likeSecret(post.id)
+            const action = wasLiked ? 'unlike' : 'like'
+            const result = await executeGaslessAction(action, { secretId: post.id })
+
+            if (result.success) {
+                setTimeout(() => {
+                    refetchLikes()
+                    refetchHasLiked()
+                }, DATA_FETCH.REFETCH_DELAY)
             }
-            setTimeout(() => {
-                refetchLikes()
-                refetchHasLiked()
-            }, DATA_FETCH.TX_POLL_INTERVAL)
         } catch (err) {
+            // Rollback on error
+            setIsLiked(wasLiked)
+            setLikeCount(prevCount)
+
             console.error('Error liking post:', err)
-            setError(err instanceof Error ? err.message : 'Failed to like post')
+            const errorMsg = getUserFriendlyError(err)
+            setError(errorMsg)
             setTimeout(() => setError(''), UI_TIMEOUTS.ERROR_MESSAGE)
         }
     }
 
     const handleCommentSubmit = async (content: string) => {
         if (!post) return
-        await createComment(post.id, content)
-        setTimeout(() => refetchComments(), DATA_FETCH.TX_POLL_INTERVAL)
+
+        setError('')
+        try {
+            const result = await executeGaslessAction('comment', {
+                secretId: post.id,
+                content
+            })
+
+            if (result.success) {
+                setIsCommentModalOpen(false)
+                setTimeout(() => refetchComments(), DATA_FETCH.REFETCH_DELAY)
+            }
+        } catch (err) {
+            console.error('Error creating comment:', err)
+            const errorMsg = getUserFriendlyError(err)
+            setError(errorMsg)
+            setTimeout(() => setError(''), UI_TIMEOUTS.ERROR_MESSAGE)
+            throw err
+        }
     }
 
     const handleTipSubmit = async (amount: string) => {
@@ -180,7 +230,7 @@ export default function PostDetailPage() {
                             content={post.content}
                             timestamp={new Date(Number(post.timestamp) * 1000)}
                             wallet={post.owner}
-                            likes={hasLiked ? [address || ''] : []}
+                            likes={isLiked ? [address || ''] : []}
                             likeCount={likeCount || 0}
                             totalTips={Number(totalTips || BigInt(0))}
                             currentUserWallet={address || ''}
@@ -197,6 +247,9 @@ export default function PostDetailPage() {
                             onReply={() => setIsCommentModalOpen(true)}
                             onLike={handleLike}
                             isDetailView={true}
+                            isPending={isGaslessPending}
+                            showHeartPop={showHeartPop}
+                            isLiked={isLiked}
                         />
 
                                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">

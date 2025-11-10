@@ -8,6 +8,9 @@ export const DATA_FETCH = {
   /** Number of latest secrets to fetch from blockchain */
   LATEST_SECRETS_LIMIT: 50,
 
+  /** Number of posts per page for pagination */
+  POSTS_PER_PAGE: 12,
+
   /** Polling interval for transaction confirmations (ms) */
   TX_POLL_INTERVAL: 1000,
 
@@ -59,8 +62,8 @@ export const TIP_PRESETS = {
 
 // ==================== BLOCKCHAIN ====================
 export const BLOCKCHAIN = {
-  /** Contract address */
-  CONTRACT_ADDRESS: "0x49BaCB0B84b261Ee998CC057bA6ad25cC0Ff626F" as `0x${string}`,
+  /** Contract address - V2 with meta-transaction support */
+  CONTRACT_ADDRESS: "0x75a75c56c7e92a13CB16347f2A29E9869F348d64" as `0x${string}`,
 
   /** Block explorer base URL */
   EXPLORER_URL: "https://sepolia.basescan.org",
