@@ -22,13 +22,21 @@ export default function UserLimitsPanel() {
   const [limits, setLimits] = useState<UserLimits | null>(null)
   const [sessionTimeLeft, setSessionTimeLeft] = useState('')
   const [mounted, setMounted] = useState(false)
+  const [hasValidToken, setHasValidToken] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Check if we should show the panel
-  const shouldShow = (() => {
-    if (!mounted) return false
+  useEffect(() => {
+    if (!mounted) return
 
     // If session exists in hook, use it
-    if (session?.token) return true
+    if (session?.token) {
+      setHasValidToken(true)
+      return
+    }
 
     // Otherwise, check localStorage for token (handles initial load before hook restores session)
     if (typeof window !== 'undefined') {
@@ -36,22 +44,21 @@ export default function UserLimitsPanel() {
       if (stored) {
         try {
           const parsed = JSON.parse(stored)
-          return parsed.expiresAt > Date.now() && parsed.token
+          const isValid = parsed.expiresAt > Date.now() && !!parsed.token
+          setHasValidToken(isValid)
         } catch {
-          return false
+          setHasValidToken(false)
         }
+      } else {
+        setHasValidToken(false)
       }
     }
-
-    return false
-  })()
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  }, [mounted, session])
 
   // Fetch rate limits
   useEffect(() => {
+    if (!mounted) return
+
     // Get token from either session hook or localStorage
     const getToken = () => {
       if (session?.token) return session.token
@@ -98,7 +105,6 @@ export default function UserLimitsPanel() {
 
     // Listen for limit updates from actions
     const handleLimitUpdate = () => {
-      console.log('🔄 Limit update triggered, refetching...')
       fetchLimits()
     }
     window.addEventListener('limitUpdate', handleLimitUpdate)
@@ -107,11 +113,11 @@ export default function UserLimitsPanel() {
       clearInterval(interval)
       window.removeEventListener('limitUpdate', handleLimitUpdate)
     }
-  }, [session])
+  }, [session, mounted])
 
   // Update countdown timers
   useEffect(() => {
-    if (!limits && !session && !shouldShow) return
+    if (!limits && !session && !hasValidToken) return
 
     const updateTimers = () => {
       // Session expiry countdown - check both hook session and localStorage
@@ -151,10 +157,15 @@ export default function UserLimitsPanel() {
     updateTimers()
     const interval = setInterval(updateTimers, 60000) // Update every minute
     return () => clearInterval(interval)
-  }, [limits, session, shouldShow])
+  }, [limits, session, hasValidToken])
 
   // Don't show if no valid session token
-  if (!shouldShow) {
+  if (!hasValidToken) {
+    return null
+  }
+
+  // Don't show loading state - only show when data is ready
+  if (!limits) {
     return null
   }
 
@@ -168,47 +179,40 @@ export default function UserLimitsPanel() {
           <h3 className="text-sm font-semibold text-gray-800">Daily Limits</h3>
         </div>
 
-        {limits ? (
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Posts</span>
-              <span className="font-semibold text-blue-700">{limits.post.remaining}/{limits.post.limit}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Likes/Unlikes</span>
-              <span className="font-semibold text-pink-700">{limits.like.remaining}/{limits.like.limit}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Comments</span>
-              <span className="font-semibold text-green-700">{limits.comment.remaining}/{limits.comment.limit}</span>
-            </div>
+        <div className="space-y-2 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600">Posts</span>
+            <span className="font-semibold text-blue-700">{limits.post.remaining}/{limits.post.limit}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600">Likes/Unlikes</span>
+            <span className="font-semibold text-pink-700">{limits.like.remaining}/{limits.like.limit}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600">Comments</span>
+            <span className="font-semibold text-green-700">{limits.comment.remaining}/{limits.comment.limit}</span>
+          </div>
 
-            {sessionTimeLeft && (
-              <>
-                <div className="border-t border-gray-200 my-2 pt-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 flex items-center gap-1.5">
-                      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Session
-                    </span>
-                    <span className="font-semibold text-purple-700">{sessionTimeLeft}</span>
-                  </div>
+          {sessionTimeLeft && (
+            <>
+              <div className="border-t border-gray-200 my-2 pt-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Session
+                  </span>
+                  <span className="font-semibold text-purple-700">{sessionTimeLeft}</span>
                 </div>
-              </>
-            )}
+              </div>
+            </>
+          )}
 
-            <p className="text-[11px] text-gray-400 pt-2 border-t border-gray-100">
-              Resets at midnight UTC
-            </p>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 text-sm text-gray-400">
-            <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent"></div>
-            <span>Loading...</span>
-          </div>
-        )}
+          <p className="text-[11px] text-gray-400 pt-2 border-t border-gray-100">
+            Resets at midnight UTC
+          </p>
+        </div>
       </div>
     </div>
   )

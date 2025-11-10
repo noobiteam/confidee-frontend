@@ -57,6 +57,19 @@ export default function DashboardPage() {
 
     useEffect(() => {
         setIsMounted(true)
+
+        // Check if we just created a session (after refresh)
+        if (typeof window !== 'undefined') {
+            const justCreatedSession = sessionStorage.getItem('session_just_created')
+            if (justCreatedSession === 'true') {
+                sessionStorage.removeItem('session_just_created')
+                // Show success toast after refresh
+                setTimeout(() => {
+                    showSuccess('Session created! You can now use gasless transactions 🎉')
+                }, 500)
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // Load secrets when currentPageSecrets changes
@@ -127,18 +140,23 @@ export default function DashboardPage() {
     }, [address, router, status, isMounted])
 
     useEffect(() => {
-        if (needsSession && isMounted) {
+        if (needsSession && isMounted && !isSessionModalOpen) {
             setTimeout(() => {
                 setIsSessionModalOpen(true)
             }, 500)
         }
-    }, [needsSession, isMounted])
+    }, [needsSession, isMounted, isSessionModalOpen])
 
     const handleCreateSession = async () => {
         try {
             await createSession()
             setIsSessionModalOpen(false)
-            showSuccess('Session created! You can now use gasless transactions 🎉')
+
+            // Save flag to show toast after refresh
+            sessionStorage.setItem('session_just_created', 'true')
+
+            // Immediately refresh (toast will show after reload)
+            window.location.reload()
         } catch (error) {
             console.error('Failed to create session:', error)
             showError('Failed to create session. Please try again.')
