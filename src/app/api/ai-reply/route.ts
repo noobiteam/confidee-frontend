@@ -6,7 +6,7 @@ import { ethers } from 'ethers';
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
 
-const CONTRACT_ADDRESS = "0x9e786247f20FD331f89cA6cA977A92820f179583";
+const CONTRACT_ADDRESS = "0x76bB5ED109C7Da47526Aa1CD5c1D31b305FFdCeB";
 const CONTRACT_ABI = [
   "function addAIReply(uint256 _secretId, string memory _aiReply) external"
 ];

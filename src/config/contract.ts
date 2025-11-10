@@ -5,7 +5,7 @@
 
 export const CONTRACT_CONFIG = {
   // V2 Contract with meta-transaction support (2.5% fee)
-  address: "0x9e786247f20FD331f89cA6cA977A92820f179583" as `0x${string}`,
+  address: "0x76bB5ED109C7Da47526Aa1CD5c1D31b305FFdCeB" as `0x${string}`,
 
   chainId: 84532,
   chainName: "Base Sepolia",
@@ -16,7 +16,7 @@ export const CONTRACT_CONFIG = {
   explorerName: "BaseScan",
 
   // Contract URL
-  contractUrl: "https://sepolia.basescan.org/address/0x9e786247f20FD331f89cA6cA977A92820f179583",
+  contractUrl: "https://sepolia.basescan.org/address/0x76bB5ED109C7Da47526Aa1CD5c1D31b305FFdCeB",
 
   deployer: "0xD9D4F8cE84fB1253a4f2906ED2f67f4702F13f86",
   deployedAt: new Date("2025-11-10"), // V2 Fresh deployment
