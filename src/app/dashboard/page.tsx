@@ -58,12 +58,10 @@ export default function DashboardPage() {
     useEffect(() => {
         setIsMounted(true)
 
-        // Check if we just created a session (after refresh)
         if (typeof window !== 'undefined') {
             const justCreatedSession = sessionStorage.getItem('session_just_created')
             if (justCreatedSession === 'true') {
                 sessionStorage.removeItem('session_just_created')
-                // Show success toast after refresh
                 setTimeout(() => {
                     showSuccess('Session created! You can now use gasless transactions 🎉')
                 }, 500)
@@ -72,21 +70,17 @@ export default function DashboardPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    // Load secrets when currentPageSecrets changes
     useEffect(() => {
         if (!secretsLoading && currentPageSecrets) {
             if (currentPageSecrets.length > 0) {
                 setAllSecrets(prev => {
-                    // Deduplicate by id
                     const existingIds = new Set(prev.map(s => s.id.toString()))
                     const newSecrets = currentPageSecrets.filter(s => !existingIds.has(s.id.toString()))
 
-                    // Only update if there are new secrets
                     if (newSecrets.length === 0) return prev
                     return [...prev, ...newSecrets]
                 })
 
-                // Check if we have more posts to load
                 const loadedCount = (page + 1) * DATA_FETCH.POSTS_PER_PAGE
                 setHasMore(loadedCount < totalSecrets)
             } else if (page === 0) {
@@ -97,7 +91,6 @@ export default function DashboardPage() {
         }
     }, [secretsLoading, currentPageSecrets, page, totalSecrets])
 
-    // Intersection Observer for infinite scroll
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -152,10 +145,7 @@ export default function DashboardPage() {
             await createSession()
             setIsSessionModalOpen(false)
 
-            // Save flag to show toast after refresh
             sessionStorage.setItem('session_just_created', 'true')
-
-            // Immediately refresh (toast will show after reload)
             window.location.reload()
         } catch (error) {
             console.error('Failed to create session:', error)
@@ -191,16 +181,13 @@ export default function DashboardPage() {
                 setPostContent('')
                 setIsPostModalOpen(false)
 
-                // Reset pagination to show new post immediately
                 setTimeout(async () => {
                     setPage(0)
                     setAllSecrets([])
                     await refetch()
                 }, DATA_FETCH.REFETCH_DELAY)
 
-                // Trigger AI reply generation (non-blocking)
                 if (result.secretId) {
-                    // Don't use setTimeout, start immediately after post is confirmed
                     fetch('/api/ai-reply', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -211,21 +198,14 @@ export default function DashboardPage() {
                     })
                         .then(async (aiResponse) => {
                             if (aiResponse.ok) {
-                                console.log('✅ AI reply generated successfully')
-                                // Wait for AI reply to be written to blockchain, then force full refresh
                                 setTimeout(async () => {
-                                    // Force complete refresh by resetting state
                                     setPage(0)
                                     setAllSecrets([])
                                     await refetch()
-                                    console.log('🔄 Refetched posts to show AI reply')
-                                }, 3000) // Wait 3s for blockchain confirmation
+                                }, 3000)
                             }
                         })
-                        .catch((aiError) => {
-                            console.error('AI reply generation failed:', aiError)
-                            // Don't show error to user, AI reply is optional
-                        })
+                        .catch(() => { })
                 }
             }
         } catch (error) {

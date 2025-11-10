@@ -40,14 +40,12 @@ export async function POST(request: NextRequest) {
     cleanExpiredSessions()
 
     const token = randomBytes(32).toString('hex')
-    const expiresAt = Date.now() + 24 * 60 * 60 * 1000 // 24 hours
+    const expiresAt = Date.now() + 24 * 60 * 60 * 1000
 
     setSession(token, {
       address: address.toLowerCase(),
       expiresAt,
     })
-
-    console.log('[SESSION CREATE] Token created:', token.substring(0, 10) + '...', 'for address:', address.toLowerCase())
 
     return NextResponse.json({
       success: true,

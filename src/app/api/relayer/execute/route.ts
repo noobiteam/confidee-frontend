@@ -21,11 +21,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('[RELAYER] Looking for session token:', sessionToken.substring(0, 10) + '...')
-
     const session = getSession(sessionToken)
-
-    console.log('[RELAYER] Session found:', session ? 'YES' : 'NO', session ? `for ${session.address}` : '')
 
     if (!session) {
       return NextResponse.json(
@@ -59,7 +55,6 @@ export async function POST(request: NextRequest) {
 
     let hash: `0x${string}`
 
-    // Use meta-transaction functions (V2) - pass real user address
     switch (action) {
       case 'like':
         hash = await client.writeContract({
@@ -106,11 +101,8 @@ export async function POST(request: NextRequest) {
 
     const receipt = await client.waitForTransactionReceipt({ hash })
 
-    // Extract secretId from logs if action is 'post'
     let secretId: string | undefined
     if (action === 'post' && receipt.logs.length > 0) {
-      // SecretCreated event: event SecretCreated(uint256 indexed secretId, address indexed owner, uint256 timestamp)
-      // secretId is first topic (after event signature)
       const secretCreatedLog = receipt.logs.find(log =>
         log.topics.length >= 2 && log.address.toLowerCase() === CONTRACT_CONFIG.address.toLowerCase()
       )

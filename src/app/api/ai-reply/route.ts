@@ -4,7 +4,6 @@ import { ethers } from 'ethers';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-// V2 Contract Address
 const CONTRACT_ADDRESS = "0x75a75c56c7e92a13CB16347f2A29E9869F348d64";
 const CONTRACT_ABI = [
   "function addAIReply(uint256 _secretId, string memory _aiReply) external"
@@ -25,7 +24,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate AI reply using Gemini
     console.log('🤖 Generating AI reply with Gemini...');
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
@@ -39,13 +37,11 @@ Respond with compassion, understanding, and helpful advice. Keep it concise (2-3
     const aiReply = response.text();
     console.log('✅ AI reply generated:', aiReply.substring(0, 100) + '...');
 
-    // Send AI reply to blockchain
     console.log('⛓️ Sending AI reply to blockchain...');
     const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL || "https://sepolia.base.org");
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY || '', provider);
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, wallet);
 
-    // Add AI reply to blockchain
     const tx = await contract.addAIReply(secretId, aiReply);
     console.log('📤 Transaction sent:', tx.hash);
     await tx.wait();
