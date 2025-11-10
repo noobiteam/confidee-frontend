@@ -184,6 +184,9 @@ export function useGetSecret(secretId: bigint | undefined) {
     content: string;
     timestamp: bigint;
     isActive: boolean;
+    aiReply: string;
+    aiReplyTimestamp: bigint;
+    totalTips: bigint;
   };
 
   return {
@@ -277,6 +280,9 @@ export function useGetLatestSecrets(limit: number = 20) {
     content: string;
     timestamp: bigint;
     isActive: boolean;
+    aiReply: string;
+    aiReplyTimestamp: bigint;
+    totalTips: bigint;
   };
 
   return {
@@ -301,6 +307,9 @@ export function useGetAllSecrets(offset: number = 0, limit: number = 20) {
     content: string;
     timestamp: bigint;
     isActive: boolean;
+    aiReply: string;
+    aiReplyTimestamp: bigint;
+    totalTips: bigint;
   };
 
   return {
