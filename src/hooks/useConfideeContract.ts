@@ -1,7 +1,9 @@
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { CONTRACT_CONFIG } from '@/config/contract';
-import ConfideeABI from '@/abi/Confidee.json';
-import { Address } from 'viem';
+import ConfideeABIJson from '@/abi/Confidee.json';
+import { Address, type Abi } from 'viem';
+
+const ConfideeABI = (ConfideeABIJson as any).abi as Abi;
 
 export function useConfideeContract() {
   const { writeContractAsync, data: hash, isPending: isWritePending } = useWriteContract();

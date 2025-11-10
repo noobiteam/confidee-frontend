@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createWalletClient, http, publicActions } from 'viem'
+import { createWalletClient, http, publicActions, type Abi } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { baseSepolia } from 'viem/chains'
 import { CONTRACT_CONFIG } from '@/config/contract'
-import ConfideeABI from '@/abi/Confidee.json'
+import ConfideeABIJson from '@/abi/Confidee.json'
 import { getSession } from '@/lib/sessionStore'
 
+const ConfideeABI = (ConfideeABIJson as any).abi as Abi
 const RELAYER_PRIVATE_KEY = process.env.PRIVATE_KEY as `0x${string}`
 
 const rateLimitStore = new Map<string, { count: number; resetAt: Date }>()
@@ -89,13 +90,14 @@ export async function POST(request: NextRequest) {
 
     let hash: `0x${string}`
 
+    // Use meta-transaction functions (V2) - pass real user address
     switch (action) {
       case 'like':
         hash = await client.writeContract({
           address: CONTRACT_CONFIG.address,
           abi: ConfideeABI,
-          functionName: 'likeSecret',
-          args: [BigInt(data.secretId)],
+          functionName: 'likeSecretMeta',
+          args: [BigInt(data.secretId), userAddress as `0x${string}`],
         })
         break
 
@@ -103,8 +105,8 @@ export async function POST(request: NextRequest) {
         hash = await client.writeContract({
           address: CONTRACT_CONFIG.address,
           abi: ConfideeABI,
-          functionName: 'unlikeSecret',
-          args: [BigInt(data.secretId)],
+          functionName: 'unlikeSecretMeta',
+          args: [BigInt(data.secretId), userAddress as `0x${string}`],
         })
         break
 
@@ -112,8 +114,8 @@ export async function POST(request: NextRequest) {
         hash = await client.writeContract({
           address: CONTRACT_CONFIG.address,
           abi: ConfideeABI,
-          functionName: 'createComment',
-          args: [BigInt(data.secretId), data.content],
+          functionName: 'createCommentMeta',
+          args: [BigInt(data.secretId), data.content, userAddress as `0x${string}`],
         })
         break
 
@@ -121,8 +123,8 @@ export async function POST(request: NextRequest) {
         hash = await client.writeContract({
           address: CONTRACT_CONFIG.address,
           abi: ConfideeABI,
-          functionName: 'createSecret',
-          args: [data.content],
+          functionName: 'createSecretMeta',
+          args: [data.content, userAddress as `0x${string}`],
         })
         break
 
@@ -133,11 +135,25 @@ export async function POST(request: NextRequest) {
         )
     }
 
-    await client.waitForTransactionReceipt({ hash })
+    const receipt = await client.waitForTransactionReceipt({ hash })
+
+    // Extract secretId from logs if action is 'post'
+    let secretId: string | undefined
+    if (action === 'post' && receipt.logs.length > 0) {
+      // SecretCreated event: event SecretCreated(uint256 indexed secretId, address indexed owner, uint256 timestamp)
+      // secretId is first topic (after event signature)
+      const secretCreatedLog = receipt.logs.find(log =>
+        log.topics.length >= 2 && log.address.toLowerCase() === CONTRACT_CONFIG.address.toLowerCase()
+      )
+      if (secretCreatedLog && secretCreatedLog.topics[1]) {
+        secretId = BigInt(secretCreatedLog.topics[1]).toString()
+      }
+    }
 
     return NextResponse.json({
       success: true,
       txHash: hash,
+      ...(secretId && { secretId }),
     })
   } catch (error) {
     console.error('Relayer execution error:', error)

@@ -34,6 +34,7 @@ export default function DashboardPage() {
 
     // Infinite scroll state
     const [page, setPage] = useState(0)
+    const [refreshKey, setRefreshKey] = useState(0) // Force refresh trigger
     const [allSecrets, setAllSecrets] = useState<Array<{
         id: bigint;
         owner: string;
@@ -172,12 +173,43 @@ export default function DashboardPage() {
                 setPostContent('')
                 setIsPostModalOpen(false)
 
-                // Reset pagination to show new post
+                // Reset pagination to show new post immediately
                 setTimeout(async () => {
                     setPage(0)
                     setAllSecrets([])
                     await refetch()
                 }, DATA_FETCH.REFETCH_DELAY)
+
+                // Trigger AI reply generation (non-blocking)
+                if (result.secretId) {
+                    // Don't use setTimeout, start immediately after post is confirmed
+                    fetch('/api/ai-reply', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            postContent,
+                            secretId: result.secretId
+                        })
+                    })
+                        .then(async (aiResponse) => {
+                            if (aiResponse.ok) {
+                                console.log('✅ AI reply generated successfully')
+                                // Wait for AI reply to be written to blockchain, then force full refresh
+                                setTimeout(async () => {
+                                    // Force complete refresh by resetting state
+                                    setPage(0)
+                                    setAllSecrets([])
+                                    setRefreshKey(prev => prev + 1) // Trigger cache invalidation
+                                    await refetch()
+                                    console.log('🔄 Refetched posts to show AI reply')
+                                }, 3000) // Wait 3s for blockchain confirmation
+                            }
+                        })
+                        .catch((aiError) => {
+                            console.error('AI reply generation failed:', aiError)
+                            // Don't show error to user, AI reply is optional
+                        })
+                }
             }
         } catch (error) {
             console.error('Error creating post:', error)

@@ -4,7 +4,8 @@ import { ethers } from 'ethers';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-const CONTRACT_ADDRESS = "0x49BaCB0B84b261Ee998CC057bA6ad25cC0Ff626F";
+// V2 Contract Address
+const CONTRACT_ADDRESS = "0x75a75c56c7e92a13CB16347f2A29E9869F348d64";
 const CONTRACT_ABI = [
   "function addAIReply(uint256 _secretId, string memory _aiReply) external"
 ];
