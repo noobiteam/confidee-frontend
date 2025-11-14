@@ -63,7 +63,7 @@ export const TIP_PRESETS = {
 // ==================== BLOCKCHAIN ====================
 export const BLOCKCHAIN = {
   /** Contract address - V2 with meta-transaction support (Fresh deployment) */
-  CONTRACT_ADDRESS: "0xa82362D8CFE69738606BF2cB399b7f5F9032B5D2" as `0x${string}`,
+  CONTRACT_ADDRESS: "0x76bB5ED109C7Da47526Aa1CD5c1D31b305FFdCeB" as `0x${string}`,
 
   /** Block explorer base URL */
   EXPLORER_URL: "https://sepolia.basescan.org",
