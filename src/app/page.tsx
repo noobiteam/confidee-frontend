@@ -6,6 +6,7 @@ import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { motion } from 'framer-motion'
 import WalletButton from '@/components/WalletButton'
 import Footer from '@/components/Footer'
+import { COMPONENTS, ANIMATIONS, getPrimaryButtonClass, getCardClass } from '@/constants/design'
 
 export default function HomePage() {
   const { address } = useAccount()
@@ -25,7 +26,7 @@ export default function HomePage() {
       <div className="fixed inset-0 bg-gradient-to-r from-blue-200/30 via-white to-blue-200/30"></div>
 
       <div className="relative">
-        <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
+        <nav className={COMPONENTS.nav.base}>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
             <div className="flex items-center justify-between">
               <div className="text-xl sm:text-2xl font-bold text-gray-900">
@@ -44,9 +45,9 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
           >
             <motion.div
-              className="inline-block bg-purple-100 text-purple-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-6 sm:mb-8"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
+              className={`inline-block ${COMPONENTS.badge.purple}`}
+              initial={ANIMATIONS.scaleIn.initial}
+              animate={ANIMATIONS.scaleIn.animate}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               Your safe space. Your voice. Your value.
@@ -73,9 +74,9 @@ export default function HomePage() {
 
             <motion.button
               onClick={handleMainButtonClick}
-              className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              className={`${getPrimaryButtonClass('md')} cursor-pointer`}
+              initial={ANIMATIONS.fadeIn.initial}
+              animate={ANIMATIONS.fadeIn.animate}
               transition={{ duration: 0.6, delay: 0.5 }}
             >
               {address ? 'Go to Dashboard' : 'Connect Wallet to Start'}
@@ -107,14 +108,14 @@ export default function HomePage() {
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               <motion.div
-                className="bg-blue-50 p-6 sm:p-8 rounded-2xl border border-blue-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-200"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                className={`${getCardClass('blue')} p-6 sm:p-8`}
+                initial={ANIMATIONS.fadeIn.initial}
+                whileInView={ANIMATIONS.fadeIn.animate}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
-                <div className="bg-blue-100 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className={`${COMPONENTS.card.blue.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6`}>
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
@@ -125,14 +126,14 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div
-                className="bg-purple-50 p-6 sm:p-8 rounded-2xl border border-purple-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-200"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                className={`${getCardClass('purple')} p-6 sm:p-8`}
+                initial={ANIMATIONS.fadeIn.initial}
+                whileInView={ANIMATIONS.fadeIn.animate}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                <div className="bg-purple-100 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className={`${COMPONENTS.card.purple.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6`}>
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
@@ -143,14 +144,14 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div
-                className="bg-green-50 p-6 sm:p-8 rounded-2xl sm:col-span-2 md:col-span-1 border border-green-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-200"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                className={`${getCardClass('green')} p-6 sm:p-8 sm:col-span-2 md:col-span-1`}
+                initial={ANIMATIONS.fadeIn.initial}
+                whileInView={ANIMATIONS.fadeIn.animate}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <div className="bg-green-100 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className={`${COMPONENTS.card.green.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6`}>
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -189,7 +190,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500">
-                    <span className="bg-blue-100 text-blue-700 px-2 sm:px-3 py-1 rounded-full font-medium">0.05 ETH received</span>
+                    <span className={COMPONENTS.badge.blue}>0.05 ETH received</span>
                     <span>12 supportive replies</span>
                   </div>
                 </div>
@@ -209,7 +210,7 @@ export default function HomePage() {
               </p>
               <button
                 onClick={handleMainButtonClick}
-                className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
+                className={`${getPrimaryButtonClass('md')} cursor-pointer`}
               >
                 {address ? 'Enter your safe space' : 'Connect Wallet to Start'}
               </button>
