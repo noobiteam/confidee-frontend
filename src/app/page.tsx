@@ -3,7 +3,8 @@
 import { useAccount } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { useRef } from 'react'
 import WalletButton from '@/components/WalletButton'
 import Footer from '@/components/Footer'
 import { COMPONENTS, ANIMATIONS, getPrimaryButtonClass, getCardClass } from '@/constants/design'
@@ -12,6 +13,16 @@ export default function HomePage() {
   const { address } = useAccount()
   const router = useRouter()
   const { openConnectModal } = useConnectModal()
+  const heroRef = useRef<HTMLDivElement>(null)
+
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  })
+
+  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
+  const blur = useTransform(scrollYProgress, [0, 0.7], [0, 8])
+  const scale = useTransform(scrollYProgress, [0, 0.7], [1, 0.95])
 
   const handleMainButtonClick = () => {
     if (address) {
@@ -37,12 +48,17 @@ export default function HomePage() {
           </div>
         </nav>
 
-        <section className="min-h-screen flex items-center justify-center px-4 sm:px-6">
+        <section ref={heroRef} className="min-h-screen flex items-center justify-center px-4 sm:px-6">
           <motion.div
             className="max-w-4xl mx-auto text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            style={{
+              opacity: opacity,
+              filter: useTransform(blur, (value) => `blur(${value}px)`),
+              scale: scale
+            }}
           >
             <motion.div
               className={`inline-block ${COMPONENTS.badge.purple}`}
