@@ -4,7 +4,7 @@ import { useAccount } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import WalletButton from '@/components/WalletButton'
 import Footer from '@/components/Footer'
 import { COMPONENTS, ANIMATIONS, getPrimaryButtonClass, getCardClass } from '@/constants/design'
@@ -14,15 +14,16 @@ export default function HomePage() {
   const router = useRouter()
   const { openConnectModal } = useConnectModal()
   const heroRef = useRef<HTMLDivElement>(null)
+  const [isHoveringButton, setIsHoveringButton] = useState(false)
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"]
   })
 
-  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
-  const blur = useTransform(scrollYProgress, [0, 0.7], [0, 8])
-  const scale = useTransform(scrollYProgress, [0, 0.7], [1, 0.95])
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+  const blur = useTransform(scrollYProgress, [0, 0.8], [0, 10])
+  const scale = useTransform(scrollYProgress, [0, 0.8], [1, 0.92])
 
   const handleMainButtonClick = () => {
     if (address) {
@@ -31,6 +32,27 @@ export default function HomePage() {
       openConnectModal()
     }
   }
+
+  const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>, cardRef: React.RefObject<HTMLDivElement | null>) => {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left - rect.width / 2
+    const y = e.clientY - rect.top - rect.height / 2
+
+    const rotateX = (y / rect.height) * 10
+    const rotateY = (x / rect.width) * 10
+
+    cardRef.current.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`
+  }
+
+  const handleCardMouseLeave = (cardRef: React.RefObject<HTMLDivElement | null>) => {
+    if (!cardRef.current) return
+    cardRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)'
+  }
+
+  const card1Ref = useRef<HTMLDivElement>(null)
+  const card2Ref = useRef<HTMLDivElement>(null)
+  const card3Ref = useRef<HTMLDivElement>(null)
 
   return (
     <main className="min-h-screen bg-white">
@@ -90,12 +112,35 @@ export default function HomePage() {
 
             <motion.button
               onClick={handleMainButtonClick}
-              className={`${getPrimaryButtonClass('md')} cursor-pointer`}
+              className={`${getPrimaryButtonClass('md')} cursor-pointer relative overflow-hidden group`}
               initial={ANIMATIONS.fadeIn.initial}
               animate={ANIMATIONS.fadeIn.animate}
               transition={{ duration: 0.6, delay: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              onHoverStart={() => setIsHoveringButton(true)}
+              onHoverEnd={() => setIsHoveringButton(false)}
             >
-              {address ? 'Go to Dashboard' : 'Connect Wallet to Start'}
+              <motion.span
+                className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: '100%' }}
+                transition={{ duration: 0.6 }}
+              />
+              <motion.span
+                className="absolute inset-0 bg-blue-600"
+                animate={isHoveringButton ? {
+                  boxShadow: [
+                    '0 0 20px rgba(59, 130, 246, 0.5)',
+                    '0 0 40px rgba(59, 130, 246, 0.8)',
+                    '0 0 20px rgba(59, 130, 246, 0.5)',
+                  ]
+                } : {}}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              />
+              <span className="relative z-10">
+                {address ? 'Go to Dashboard' : 'Connect Wallet to Start'}
+              </span>
             </motion.button>
 
             <motion.div
@@ -124,57 +169,162 @@ export default function HomePage() {
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               <motion.div
-                className={`${getCardClass('blue')} p-6 sm:p-8`}
-                initial={ANIMATIONS.fadeIn.initial}
-                whileInView={ANIMATIONS.fadeIn.animate}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
+                ref={card1Ref}
+                className={`${getCardClass('blue')} p-6 sm:p-8 relative overflow-visible group cursor-pointer`}
+                initial={{ opacity: 0, y: 60, scale: 0.85 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{
+                  duration: 0.9,
+                  delay: 0.2,
+                  ease: [0.16, 1, 0.3, 1]
+                }}
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transition: 'transform 0.15s ease-out'
+                }}
+                onMouseMove={(e) => handleCardMouseMove(e, card1Ref)}
+                onMouseLeave={() => handleCardMouseLeave(card1Ref)}
               >
-                <div className={`${COMPONENTS.card.blue.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6`}>
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-blue-600/20 rounded-2xl"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: [0, 1, 0] }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 2, delay: 0.2 }}
+                />
+                <motion.div
+                  className={`${COMPONENTS.card.blue.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6 relative z-10`}
+                  initial={{ scale: 0, rotate: -180 }}
+                  whileInView={{ scale: 1, rotate: 0 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    duration: 0.8,
+                    delay: 0.5,
+                    type: "spring",
+                    stiffness: 150,
+                    damping: 12
+                  }}
+                >
                   <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Complete Anonymity</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                </motion.div>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 relative z-10">Complete Anonymity</h3>
+                <p className="text-gray-600 text-sm leading-relaxed relative z-10">
                   Only your wallet address is visible. Share your deepest thoughts without fear of judgment or exposure.
                 </p>
+                <motion.div
+                  className="absolute inset-0 border-2 border-blue-400/0 group-hover:border-blue-400/50 rounded-2xl transition-colors duration-300"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                />
               </motion.div>
 
               <motion.div
-                className={`${getCardClass('purple')} p-6 sm:p-8`}
-                initial={ANIMATIONS.fadeIn.initial}
-                whileInView={ANIMATIONS.fadeIn.animate}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.1 }}
+                ref={card2Ref}
+                className={`${getCardClass('purple')} p-6 sm:p-8 relative overflow-visible group cursor-pointer`}
+                initial={{ opacity: 0, y: 60, scale: 0.85 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{
+                  duration: 0.9,
+                  delay: 0.4,
+                  ease: [0.16, 1, 0.3, 1]
+                }}
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transition: 'transform 0.15s ease-out'
+                }}
+                onMouseMove={(e) => handleCardMouseMove(e, card2Ref)}
+                onMouseLeave={() => handleCardMouseLeave(card2Ref)}
               >
-                <div className={`${COMPONENTS.card.purple.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6`}>
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-purple-600/20 rounded-2xl"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: [0, 1, 0] }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 2, delay: 0.4 }}
+                />
+                <motion.div
+                  className={`${COMPONENTS.card.purple.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6 relative z-10`}
+                  initial={{ scale: 0, rotate: -180 }}
+                  whileInView={{ scale: 1, rotate: 0 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    duration: 0.8,
+                    delay: 0.7,
+                    type: "spring",
+                    stiffness: 150,
+                    damping: 12
+                  }}
+                >
                   <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">AI Emotional Support</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                </motion.div>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 relative z-10">AI Emotional Support</h3>
+                <p className="text-gray-600 text-sm leading-relaxed relative z-10">
                   Replies adapt to your tone: serious, casual, or even playful. Get support that actually understands you.
                 </p>
+                <motion.div
+                  className="absolute inset-0 border-2 border-purple-400/0 group-hover:border-purple-400/50 rounded-2xl transition-colors duration-300"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                />
               </motion.div>
 
               <motion.div
-                className={`${getCardClass('green')} p-6 sm:p-8 sm:col-span-2 md:col-span-1`}
-                initial={ANIMATIONS.fadeIn.initial}
-                whileInView={ANIMATIONS.fadeIn.animate}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+                ref={card3Ref}
+                className={`${getCardClass('green')} p-6 sm:p-8 sm:col-span-2 md:col-span-1 relative overflow-visible group cursor-pointer`}
+                initial={{ opacity: 0, y: 60, scale: 0.85 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{
+                  duration: 0.9,
+                  delay: 0.6,
+                  ease: [0.16, 1, 0.3, 1]
+                }}
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transition: 'transform 0.15s ease-out'
+                }}
+                onMouseMove={(e) => handleCardMouseMove(e, card3Ref)}
+                onMouseLeave={() => handleCardMouseLeave(card3Ref)}
               >
-                <div className={`${COMPONENTS.card.green.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6`}>
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-green-600/20 rounded-2xl"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: [0, 1, 0] }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 2, delay: 0.6 }}
+                />
+                <motion.div
+                  className={`${COMPONENTS.card.green.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6 relative z-10`}
+                  initial={{ scale: 0, rotate: -180 }}
+                  whileInView={{ scale: 1, rotate: 0 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    duration: 0.8,
+                    delay: 0.9,
+                    type: "spring",
+                    stiffness: 150,
+                    damping: 12
+                  }}
+                >
                   <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Global Tokenized Community</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                </motion.div>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 relative z-10">Global Tokenized Community</h3>
+                <p className="text-gray-600 text-sm leading-relaxed relative z-10">
                   Join channels by topic or country, connect with the world, and earn ETH for supporting others in meaningful ways.
                 </p>
+                <motion.div
+                  className="absolute inset-0 border-2 border-green-400/0 group-hover:border-green-400/50 rounded-2xl transition-colors duration-300"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                />
               </motion.div>
             </div>
           </div>
