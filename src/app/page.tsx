@@ -67,8 +67,8 @@ export default function HomePage() {
     offset: ["start start", "end end"]
   })
 
-  const textOpacity = useTransform(stickyScrollProgress, [0.15, 0.45], [0, 1])
-  const textY = useTransform(stickyScrollProgress, [0.15, 0.45], [40, 0])
+  const textOpacity = useTransform(stickyScrollProgress, [0.1, 0.5], [0, 1])
+  const textY = useTransform(stickyScrollProgress, [0.1, 0.5], [100, 0])
 
   const userMessage = "Just got liquidated on my ETH long position because of that surprise Fed announcement. Lost 3 months of DCA savings in 10 minutes... Why did I use 100x leverage? Feeling so stupid right now 😭"
   const aiMessage = "Ouch, that stings anon. Fed announcements are brutal for leveraged positions. Take a breather, then maybe stick to spot trading for a while? If you're gonna use leverage again, 2-3x max with proper stop losses. The market will always be here tomorrow 🫂"
@@ -410,152 +410,71 @@ export default function HomePage() {
         <section className="py-12 sm:py-20 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto text-center">
 
-            <motion.div
+            <div
               ref={chatRef}
               className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-8 shadow-sm"
-              initial={{ opacity: 0, y: 40, scale: 0.95 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{
-                duration: 0.9,
-                delay: 0.6,
-                ease: [0.16, 1, 0.3, 1]
-              }}
             >
               <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-4 text-left max-w-2xl mx-auto">
                 <div className="bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 self-start">
                   <span className="text-sm font-medium text-gray-600">AU</span>
                 </div>
                 <div className="flex-1 w-full">
-                  <motion.div
-                    className="text-xs sm:text-sm text-gray-500 mb-2"
-                    initial={{ opacity: 0 }}
-                    animate={isChatInView ? { opacity: 1 } : {}}
-                    transition={{ delay: 0.8 }}
-                  >
+                  <div className="text-xs sm:text-sm text-gray-500 mb-2">
                     Anonymous User • 5 minutes ago
-                  </motion.div>
+                  </div>
                   <div className="text-sm sm:text-base text-gray-900 mb-4">
                     {typedText}
                     {typedText.length < userMessage.length && (
-                      <motion.span
-                        className="inline-block w-0.5 h-4 bg-gray-900 ml-0.5"
-                        animate={{ opacity: [1, 0] }}
-                        transition={{ duration: 0.5, repeat: Infinity }}
-                      />
+                      <span className="inline-block w-0.5 h-4 bg-gray-900 ml-0.5" />
                     )}
                   </div>
                   {typedText.length === userMessage.length && (
-                    <motion.div
-                      className="bg-blue-50 border-l-4 border-blue-400 p-3 sm:p-4 rounded-r-lg"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 }}
-                    >
+                    <div className="bg-blue-50 border-l-4 border-blue-400 p-3 sm:p-4 rounded-r-lg">
                       <div className="text-xs sm:text-sm font-medium text-blue-900 mb-1">AI Response</div>
                       <div className="text-blue-800 text-xs sm:text-sm">
                         {typedAIResponse}
                         {typedAIResponse.length < aiMessage.length && (
-                          <motion.span
-                            className="inline-block w-0.5 h-3 bg-blue-800 ml-0.5"
-                            animate={{ opacity: [1, 0] }}
-                            transition={{ duration: 0.5, repeat: Infinity }}
-                          />
+                          <span className="inline-block w-0.5 h-3 bg-blue-800 ml-0.5" />
                         )}
                       </div>
-                    </motion.div>
+                    </div>
                   )}
                   {typedAIResponse.length === aiMessage.length && (
-                    <motion.div
-                      className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                    >
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500">
                       <span className={COMPONENTS.badge.blue}>0.05 ETH received</span>
                       <span>12 supportive replies</span>
-                    </motion.div>
+                    </div>
                   )}
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
         <section className="py-12 sm:py-20 px-4 sm:px-6 mt-12">
           <div className="max-w-4xl mx-auto text-center">
-            <motion.div
-              className="bg-white rounded-2xl p-6 sm:p-12 shadow-sm border border-gray-200"
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{
-                duration: 0.9,
-                delay: 0.2,
-                ease: [0.16, 1, 0.3, 1]
-              }}
-            >
-              <motion.h2
-                className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 px-2 sm:px-0"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{
-                  duration: 0.7,
-                  delay: 0.4,
-                  ease: [0.16, 1, 0.3, 1]
-                }}
-              >
+            <div className="bg-white rounded-2xl p-6 sm:p-12 shadow-sm border border-gray-200">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 px-2 sm:px-0">
                 Ready to join the world&apos;s first tokenized emotional support network?
-              </motion.h2>
-              <motion.p
-                className="text-gray-600 mb-6 sm:mb-8 text-base sm:text-lg px-2 sm:px-0"
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{
-                  duration: 0.7,
-                  delay: 0.6,
-                  ease: [0.16, 1, 0.3, 1]
-                }}
-              >
+              </h2>
+              <p className="text-gray-600 mb-6 sm:mb-8 text-base sm:text-lg px-2 sm:px-0">
                 Connect your wallet and start sharing anonymously on Base network. Your feelings matter, and your care has real value.
-              </motion.p>
-              <motion.button
+              </p>
+              <button
                 onClick={handleMainButtonClick}
                 className={`${getPrimaryButtonClass('md')} cursor-pointer`}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{
-                  duration: 0.6,
-                  delay: 0.8,
-                  ease: [0.16, 1, 0.3, 1]
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
               >
                 {address ? 'Enter your safe space' : 'Connect Wallet to Start'}
-              </motion.button>
+              </button>
 
-              <motion.div
-                className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 mt-4 sm:mt-6 text-xs sm:text-sm text-gray-500"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{
-                  duration: 0.7,
-                  delay: 1.0,
-                  ease: [0.16, 1, 0.3, 1]
-                }}
-              >
+              <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 mt-4 sm:mt-6 text-xs sm:text-sm text-gray-500">
                 <span>Free to join</span>
                 <span className="hidden sm:inline">•</span>
                 <span>No personal data required</span>
                 <span className="hidden sm:inline">•</span>
                 <span>Powered by Base network</span>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           </div>
         </section>
         <Footer />
