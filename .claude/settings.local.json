@@ -6,7 +6,11 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(npm run build:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(lsof:*)",
+      "Bash(npx tsc:*)",
+      "Bash(curl:*)",
+      "Bash(node -e:*)"
     ],
     "deny": [],
     "ask": []
