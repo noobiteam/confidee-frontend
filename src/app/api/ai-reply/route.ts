@@ -96,7 +96,7 @@ Respond with compassion, understanding, and helpful advice. Keep it concise (2-3
         const response = await result.response;
         aiReply = response.text();
         console.log('✅ AI reply generated with Gemini fallback');
-      } catch (geminiError) {
+      } catch {
         // Last resort: Gemini 1.5
         console.log('⚠️ Trying Gemini 1.5 as last resort...');
         const fallbackModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });

@@ -468,7 +468,7 @@ export default function HomePage() {
                           transition={{ type: "spring", stiffness: 400, damping: 25 }}
                         >
                           <h4 className="text-lg font-semibold text-gray-900 mb-1.5 group-hover:text-purple-600 transition-colors">Get Support</h4>
-                          <p className="text-sm text-gray-600 leading-relaxed">AI assistance plus real humans who get what you're going through.</p>
+                          <p className="text-sm text-gray-600 leading-relaxed">AI assistance plus real humans who get what you&apos;re going through.</p>
                         </motion.div>
                       </div>
                     </motion.div>
