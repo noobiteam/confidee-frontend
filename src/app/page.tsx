@@ -145,8 +145,8 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              The world&apos;s first anonymous
-              <span className="text-blue-600"> Web3 safe space</span> where your feelings matter
+              Your anonymous
+              <span className="text-blue-600"> Web3 safe space</span> where feelings matter and care pays
             </motion.h1>
 
             <motion.p

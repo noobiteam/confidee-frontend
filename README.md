@@ -13,7 +13,7 @@ Confidee is a decentralized platform that combines emotional wellness with block
 - **Anonymous Support** - Complete privacy with wallet-based identity only
 - **Channel Structure** - Organized discussions by country, topic, and support categories
 - **Tip Economy** - Direct ETH donations to support community members
-- **Decentralized Care** - First tokenized emotional support ecosystem
+- **Decentralized Care** - Tokenized emotional support ecosystem where care has real value
 
 ## Tech Stack
 
