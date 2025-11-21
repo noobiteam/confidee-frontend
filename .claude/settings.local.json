@@ -10,7 +10,8 @@
       "Bash(lsof:*)",
       "Bash(npx tsc:*)",
       "Bash(curl:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

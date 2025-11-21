@@ -118,7 +118,7 @@ export default function HomePage() {
           </div>
         </nav>
 
-        <section ref={heroRef} className="min-h-screen flex items-center justify-center px-4 sm:px-6">
+        <section ref={heroRef} className="min-h-screen flex items-center justify-center px-4 sm:px-6 pt-20 sm:pt-0">
           <motion.div
             className="max-w-4xl mx-auto text-center"
             initial={{ opacity: 0, y: 20 }}
@@ -131,7 +131,7 @@ export default function HomePage() {
             }}
           >
             <motion.div
-              className={`inline-block ${COMPONENTS.badge.purple}`}
+              className={`inline-block ${COMPONENTS.badge.purple} text-xs sm:text-sm`}
               initial={ANIMATIONS.scaleIn.initial}
               animate={ANIMATIONS.scaleIn.animate}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -140,7 +140,7 @@ export default function HomePage() {
             </motion.div>
 
             <motion.h1
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2 sm:px-0"
+              className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-5 sm:mb-6 leading-tight px-4 sm:px-0 mt-5 sm:mt-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
@@ -150,7 +150,7 @@ export default function HomePage() {
             </motion.h1>
 
             <motion.p
-              className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed px-2 sm:px-0"
+              className="text-[16px] sm:text-lg md:text-xl text-gray-600 mb-7 sm:mb-10 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
@@ -160,16 +160,17 @@ export default function HomePage() {
 
             <motion.button
               onClick={handleMainButtonClick}
-              className={`${getPrimaryButtonClass('md')} cursor-pointer`}
+              className={`${getPrimaryButtonClass('md')} cursor-pointer text-sm sm:text-base px-6 sm:px-8 whitespace-nowrap`}
               initial={ANIMATIONS.fadeIn.initial}
               animate={ANIMATIONS.fadeIn.animate}
               transition={{ duration: 0.6, delay: 0.5 }}
             >
-              {address ? 'Go to Dashboard' : 'Connect Wallet to Start'}
+              <span className="hidden sm:inline">{address ? 'Go to Dashboard' : 'Connect Wallet to Start'}</span>
+              <span className="inline sm:hidden">{address ? 'Go to Dashboard' : 'Connect Wallet'}</span>
             </motion.button>
 
             <motion.div
-              className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-gray-500 max-w-md sm:max-w-none mx-auto mt-10"
+              className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-3 sm:gap-x-6 sm:gap-y-2 text-xs sm:text-sm text-gray-500 max-w-md sm:max-w-none mx-auto mt-6 sm:mt-10 px-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.6 }}
@@ -191,14 +192,14 @@ export default function HomePage() {
         </section>
 
         {/* Sticky container - cards stuck at top, text reveals below */}
-        <div ref={stickyContainerRef} className="relative h-[140vh]">
-          <div className="sticky top-[8vh]">
-            <section className="py-12 sm:py-20 px-4 sm:px-6">
+        <div ref={stickyContainerRef} className="relative h-[120vh] sm:h-[140vh]">
+          <div className="sticky top-[6vh] sm:top-[8vh]">
+            <section className="py-6 sm:py-20 px-4 sm:px-6">
               <div className="max-w-6xl mx-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                   <motion.div
                     ref={card1Ref}
-                    className={`${getCardClass('blue')} p-6 sm:p-8 relative overflow-visible group cursor-pointer`}
+                    className={`${getCardClass('blue')} p-5 sm:p-8 relative overflow-visible group cursor-pointer`}
                     initial={{ opacity: 0, y: 60, scale: 0.85 }}
                     whileInView={{ opacity: 1, y: 0, scale: 1 }}
                     viewport={{ once: true, margin: "-50px" }}
@@ -207,6 +208,8 @@ export default function HomePage() {
                       delay: 0.2,
                       ease: [0.16, 1, 0.3, 1]
                     }}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     style={{
                       transformStyle: 'preserve-3d',
                       transition: 'transform 0.15s ease-out'
@@ -222,7 +225,7 @@ export default function HomePage() {
                       transition={{ duration: 2, delay: 0.2 }}
                     />
                     <motion.div
-                      className={`${COMPONENTS.card.blue.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6 relative z-10`}
+                      className={`${COMPONENTS.card.blue.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-3 sm:mb-6 relative z-10`}
                       initial={{ scale: 0, rotate: -180 }}
                       whileInView={{ scale: 1, rotate: 0 }}
                       viewport={{ once: true }}
@@ -239,7 +242,7 @@ export default function HomePage() {
                       </svg>
                     </motion.div>
                     <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 relative z-10">Complete Anonymity</h3>
-                    <p className="text-gray-600 text-sm leading-relaxed relative z-10">
+                    <p className="text-gray-600 text-[13px] sm:text-sm leading-relaxed relative z-10">
                       Only your wallet address is visible. Share your deepest thoughts without fear of judgment or exposure.
                     </p>
                     <motion.div
@@ -251,7 +254,7 @@ export default function HomePage() {
 
                   <motion.div
                     ref={card2Ref}
-                    className={`${getCardClass('purple')} p-6 sm:p-8 relative overflow-visible group cursor-pointer`}
+                    className={`${getCardClass('purple')} p-5 sm:p-8 relative overflow-visible group cursor-pointer`}
                     initial={{ opacity: 0, y: 60, scale: 0.85 }}
                     whileInView={{ opacity: 1, y: 0, scale: 1 }}
                     viewport={{ once: true, margin: "-50px" }}
@@ -260,6 +263,8 @@ export default function HomePage() {
                       delay: 0.4,
                       ease: [0.16, 1, 0.3, 1]
                     }}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     style={{
                       transformStyle: 'preserve-3d',
                       transition: 'transform 0.15s ease-out'
@@ -275,7 +280,7 @@ export default function HomePage() {
                       transition={{ duration: 2, delay: 0.4 }}
                     />
                     <motion.div
-                      className={`${COMPONENTS.card.purple.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6 relative z-10`}
+                      className={`${COMPONENTS.card.purple.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-3 sm:mb-6 relative z-10`}
                       initial={{ scale: 0, rotate: -180 }}
                       whileInView={{ scale: 1, rotate: 0 }}
                       viewport={{ once: true }}
@@ -292,7 +297,7 @@ export default function HomePage() {
                       </svg>
                     </motion.div>
                     <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 relative z-10">AI Emotional Support</h3>
-                    <p className="text-gray-600 text-sm leading-relaxed relative z-10">
+                    <p className="text-gray-600 text-[13px] sm:text-sm leading-relaxed relative z-10">
                       Replies adapt to your tone: serious, casual, or even playful. Get support that actually understands you.
                     </p>
                     <motion.div
@@ -304,7 +309,7 @@ export default function HomePage() {
 
                   <motion.div
                     ref={card3Ref}
-                    className={`${getCardClass('green')} p-6 sm:p-8 sm:col-span-2 md:col-span-1 relative overflow-visible group cursor-pointer`}
+                    className={`${getCardClass('green')} p-5 sm:p-8 sm:col-span-2 md:col-span-1 relative overflow-visible group cursor-pointer`}
                     initial={{ opacity: 0, y: 60, scale: 0.85 }}
                     whileInView={{ opacity: 1, y: 0, scale: 1 }}
                     viewport={{ once: true, margin: "-50px" }}
@@ -313,6 +318,8 @@ export default function HomePage() {
                       delay: 0.6,
                       ease: [0.16, 1, 0.3, 1]
                     }}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     style={{
                       transformStyle: 'preserve-3d',
                       transition: 'transform 0.15s ease-out'
@@ -328,7 +335,7 @@ export default function HomePage() {
                       transition={{ duration: 2, delay: 0.6 }}
                     />
                     <motion.div
-                      className={`${COMPONENTS.card.green.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-4 sm:mb-6 relative z-10`}
+                      className={`${COMPONENTS.card.green.icon} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-3 sm:mb-6 relative z-10`}
                       initial={{ scale: 0, rotate: -180 }}
                       whileInView={{ scale: 1, rotate: 0 }}
                       viewport={{ once: true }}
@@ -345,7 +352,7 @@ export default function HomePage() {
                       </svg>
                     </motion.div>
                     <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 relative z-10">Global Tokenized Community</h3>
-                    <p className="text-gray-600 text-sm leading-relaxed relative z-10">
+                    <p className="text-gray-600 text-[13px] sm:text-sm leading-relaxed relative z-10">
                       Join channels by topic or country, connect with the world, and earn ETH for supporting others in meaningful ways.
                     </p>
                     <motion.div
@@ -359,10 +366,10 @@ export default function HomePage() {
             </section>
 
             {/* Text reveals below stuck cards */}
-            <div ref={stickyTextRef} className="px-4 sm:px-6 mt-20">
+            <div ref={stickyTextRef} className="px-4 sm:px-6 mt-16 sm:mt-20">
               <div className="max-w-4xl mx-auto text-center">
                 <motion.h2
-                  className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-2 sm:px-0"
+                  className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4 sm:px-0"
                   style={{
                     opacity: textOpacity,
                     y: textY
@@ -371,7 +378,7 @@ export default function HomePage() {
                   Where real support meets real value
                 </motion.h2>
                 <motion.p
-                  className="text-base sm:text-lg text-gray-600 mb-10 sm:mb-16 max-w-2xl mx-auto px-2 sm:px-0"
+                  className="text-base sm:text-lg text-gray-600 mb-8 sm:mb-16 max-w-2xl mx-auto px-4 sm:px-0 leading-relaxed"
                   style={{
                     opacity: textOpacity,
                     y: textY
@@ -384,9 +391,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        <section className="py-12 sm:py-20 px-4 sm:px-6">
+        <section className="py-12 sm:py-20 px-4 sm:px-6 mt-8 sm:mt-0">
           <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-12 items-center">
               {/* Left side - How It Works (2 columns / 40%) */}
               <div className="lg:col-span-2">
                 <motion.div
@@ -394,35 +401,35 @@ export default function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  className="mb-10"
+                  className="mb-8 sm:mb-10"
                 >
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">How It Works</h3>
-                  <p className="text-gray-500">Three simple steps to get started</p>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">How It Works</h3>
+                  <p className="text-base sm:text-base text-gray-500">Three simple steps to get started</p>
                 </motion.div>
 
                 {/* Timeline Container */}
                 <div className="relative">
                   {/* Animated connecting line - only between cards */}
                   <motion.div
-                    className="absolute left-6 w-px bg-gradient-to-b from-blue-200 via-purple-200 to-green-200"
-                    style={{ top: '3.75rem', bottom: '3.75rem' }}
+                    className="absolute left-5 sm:left-6 w-px bg-gradient-to-b from-blue-200 via-purple-200 to-green-200"
+                    style={{ top: '3rem', bottom: '3rem' }}
                     initial={{ scaleY: 0 }}
                     whileInView={{ scaleY: 1 }}
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ duration: 1.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                   />
 
-                  <div className="space-y-6">
+                  <div className="space-y-5 sm:space-y-6">
                     {/* Step 1 */}
                     <motion.div
-                      className="relative group cursor-pointer p-4 -m-4 rounded-xl transition-all duration-300 bg-gradient-to-r from-transparent to-blue-50/30 hover:to-blue-100"
+                      className="relative group cursor-pointer p-4 sm:p-4 -m-4 sm:-m-4 rounded-xl transition-all duration-300 bg-gradient-to-r from-transparent to-blue-50/30 hover:to-blue-100"
                     >
-                      <div className="flex items-start gap-4 relative">
+                      <div className="flex items-start gap-4 sm:gap-4 relative">
                         <motion.div
-                          className="relative flex-shrink-0 w-12 h-12 rounded-xl border border-blue-300 bg-blue-50 flex items-center justify-center z-10 transition-all duration-300"
+                          className="relative flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl border border-blue-300 bg-blue-50 flex items-center justify-center z-10 transition-all duration-300"
                         >
                           <motion.svg
-                            className="w-5 h-5 text-blue-600"
+                            className="w-5 h-5 sm:w-5 sm:h-5 text-blue-600"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -432,27 +439,27 @@ export default function HomePage() {
                           </motion.svg>
                         </motion.div>
                         <motion.div
-                          className="flex-1 pt-0.5"
+                          className="flex-1 pt-1"
                           animate={{ x: 0 }}
                           whileHover={{ x: 4 }}
                           transition={{ type: "spring", stiffness: 400, damping: 25 }}
                         >
-                          <h4 className="text-lg font-semibold text-gray-900 mb-1.5 group-hover:text-blue-600 transition-colors">Share Anonymously</h4>
-                          <p className="text-sm text-gray-600 leading-relaxed">Post thoughts without revealing identity. Just you and your wallet.</p>
+                          <h4 className="text-lg sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-1.5 group-hover:text-blue-600 transition-colors">Share Anonymously</h4>
+                          <p className="text-sm sm:text-sm text-gray-600 leading-relaxed">Post thoughts without revealing identity. Just you and your wallet.</p>
                         </motion.div>
                       </div>
                     </motion.div>
 
                     {/* Step 2 */}
                     <motion.div
-                      className="relative group cursor-pointer p-4 -m-4 rounded-xl transition-all duration-300 bg-gradient-to-r from-transparent to-purple-50/30 hover:to-purple-100"
+                      className="relative group cursor-pointer p-4 sm:p-4 -m-4 sm:-m-4 rounded-xl transition-all duration-300 bg-gradient-to-r from-transparent to-purple-50/30 hover:to-purple-100"
                     >
-                      <div className="flex items-start gap-4 relative">
+                      <div className="flex items-start gap-4 sm:gap-4 relative">
                         <motion.div
-                          className="relative flex-shrink-0 w-12 h-12 rounded-xl border border-purple-200 bg-purple-50 flex items-center justify-center z-10 transition-all duration-300"
+                          className="relative flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl border border-purple-200 bg-purple-50 flex items-center justify-center z-10 transition-all duration-300"
                         >
                           <motion.svg
-                            className="w-5 h-5 text-purple-600"
+                            className="w-5 h-5 sm:w-5 sm:h-5 text-purple-600"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -462,27 +469,27 @@ export default function HomePage() {
                           </motion.svg>
                         </motion.div>
                         <motion.div
-                          className="flex-1 pt-0.5"
+                          className="flex-1 pt-1"
                           animate={{ x: 0 }}
                           whileHover={{ x: 4 }}
                           transition={{ type: "spring", stiffness: 400, damping: 25 }}
                         >
-                          <h4 className="text-lg font-semibold text-gray-900 mb-1.5 group-hover:text-purple-600 transition-colors">Get Support</h4>
-                          <p className="text-sm text-gray-600 leading-relaxed">AI assistance plus real humans who get what you&apos;re going through.</p>
+                          <h4 className="text-lg sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-1.5 group-hover:text-purple-600 transition-colors">Get Support</h4>
+                          <p className="text-sm sm:text-sm text-gray-600 leading-relaxed">AI assistance plus real humans who get what you&apos;re going through.</p>
                         </motion.div>
                       </div>
                     </motion.div>
 
                     {/* Step 3 */}
                     <motion.div
-                      className="relative group cursor-pointer p-4 -m-4 rounded-xl transition-all duration-300 bg-gradient-to-r from-transparent to-green-50/30 hover:to-green-100"
+                      className="relative group cursor-pointer p-4 sm:p-4 -m-4 sm:-m-4 rounded-xl transition-all duration-300 bg-gradient-to-r from-transparent to-green-50/30 hover:to-green-100"
                     >
-                      <div className="flex items-start gap-4 relative">
+                      <div className="flex items-start gap-4 sm:gap-4 relative">
                         <motion.div
-                          className="relative flex-shrink-0 w-12 h-12 rounded-xl border border-green-200 bg-green-50 flex items-center justify-center z-10 transition-all duration-300"
+                          className="relative flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl border border-green-200 bg-green-50 flex items-center justify-center z-10 transition-all duration-300"
                         >
                           <motion.svg
-                            className="w-5 h-5 text-green-600"
+                            className="w-5 h-5 sm:w-5 sm:h-5 text-green-600"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -492,13 +499,13 @@ export default function HomePage() {
                           </motion.svg>
                         </motion.div>
                         <motion.div
-                          className="flex-1 pt-0.5"
+                          className="flex-1 pt-1"
                           animate={{ x: 0 }}
                           whileHover={{ x: 4 }}
                           transition={{ type: "spring", stiffness: 400, damping: 25 }}
                         >
-                          <h4 className="text-lg font-semibold text-gray-900 mb-1.5 group-hover:text-green-600 transition-colors">Earn Rewards</h4>
-                          <p className="text-sm text-gray-600 leading-relaxed">Get paid in ETH when you help others. Real support, real value.</p>
+                          <h4 className="text-lg sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-1.5 group-hover:text-green-600 transition-colors">Earn Rewards</h4>
+                          <p className="text-sm sm:text-sm text-gray-600 leading-relaxed">Get paid in ETH when you help others. Real support, real value.</p>
                         </motion.div>
                       </div>
                     </motion.div>
@@ -509,7 +516,7 @@ export default function HomePage() {
               {/* Right side - Chat Demo (3 columns / 60%) */}
               <motion.div
                 ref={chatRef}
-                className="lg:col-span-3 bg-white border border-gray-200 rounded-2xl p-4 sm:p-8 shadow-sm"
+                className="lg:col-span-3 bg-white border border-gray-200 rounded-2xl p-5 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300"
                 initial={{ opacity: 0, y: 20, scale: 0.98 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, margin: "-100px" }}
@@ -518,19 +525,19 @@ export default function HomePage() {
                   ease: [0.16, 1, 0.3, 1]
                 }}
               >
-                <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-4 text-left">
-                  <div className="bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 self-start">
-                    <span className="text-sm font-medium text-gray-600">AU</span>
+                <div className="flex items-start space-x-3 sm:space-x-4 text-left">
+                  <div className="bg-gray-100 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0 self-start">
+                    <span className="text-xs sm:text-sm font-medium text-gray-600">AU</span>
                   </div>
-                  <div className="flex-1 w-full">
-                    <div className="text-xs sm:text-sm text-gray-500 mb-2">
+                  <div className="flex-1 w-full min-w-0">
+                    <div className="text-xs text-gray-500 mb-2 sm:mb-2">
                       Anonymous User • 5 minutes ago
                     </div>
-                    <div className="text-sm sm:text-base text-gray-900 mb-4">
+                    <div className="text-sm sm:text-sm md:text-base text-gray-900 mb-4 sm:mb-4 break-words leading-relaxed">
                       {typedText}
                       {typedText.length < userMessage.length && (
                         <motion.span
-                          className="inline-block w-0.5 h-4 bg-gray-900 ml-0.5"
+                          className="inline-block w-0.5 h-3 sm:h-4 bg-gray-900 ml-0.5"
                           animate={{ opacity: [1, 0] }}
                           transition={{ duration: 0.5, repeat: Infinity }}
                         />
@@ -546,12 +553,12 @@ export default function HomePage() {
                           ease: [0.16, 1, 0.3, 1]
                         }}
                       >
-                        <div className="text-xs sm:text-sm font-medium text-blue-900 mb-1">AI Response</div>
-                        <div className="text-blue-800 text-xs sm:text-sm">
+                        <div className="text-xs sm:text-sm font-medium text-blue-900 mb-2">AI Response</div>
+                        <div className="text-blue-800 text-sm sm:text-sm break-words leading-relaxed">
                           {typedAIResponse}
                           {typedAIResponse.length < aiMessage.length && (
                             <motion.span
-                              className="inline-block w-0.5 h-3 bg-blue-800 ml-0.5"
+                              className="inline-block w-0.5 h-3 sm:h-3 bg-blue-800 ml-0.5"
                               animate={{ opacity: [1, 0] }}
                               transition={{ duration: 0.5, repeat: Infinity }}
                             />
@@ -561,7 +568,7 @@ export default function HomePage() {
                     )}
                     {typedAIResponse.length === aiMessage.length && (
                       <motion.div
-                        className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500"
+                        className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-3 sm:mt-4 text-xs text-gray-500"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{
@@ -582,10 +589,10 @@ export default function HomePage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 sm:py-24 px-4 sm:px-6">
+        <section className="py-12 sm:py-24 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto">
             <motion.div
-              className="bg-white border border-gray-200 rounded-3xl p-8 sm:p-10 text-center shadow-sm"
+              className="bg-white border border-gray-200 rounded-2xl sm:rounded-3xl p-6 sm:p-10 text-center shadow-sm"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
@@ -594,21 +601,24 @@ export default function HomePage() {
                 ease: [0.16, 1, 0.3, 1]
               }}
             >
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-2 sm:px-0 leading-tight">
                 Your safe space to share. Get real support. Earn real rewards.
               </h2>
-              <p className="text-gray-600 mb-8 sm:mb-10 text-base sm:text-lg max-w-2xl mx-auto">
+              <p className="text-gray-600 mb-6 sm:mb-10 text-base sm:text-lg max-w-2xl mx-auto px-2 sm:px-0 leading-relaxed">
                 No judgment, no identity required. Just honest conversations and meaningful connections—powered by blockchain technology.
               </p>
               <motion.button
                 onClick={handleMainButtonClick}
-                className={`${getPrimaryButtonClass('lg')} cursor-pointer mb-8`}
+                className={`${getPrimaryButtonClass('lg')} cursor-pointer mb-6 sm:mb-8 text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
                 {address ? 'Enter your safe space' : 'Enter your safe space'}
               </motion.button>
 
               {/* Features */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-gray-500">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-8 text-xs sm:text-sm text-gray-500">
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
                   <span>Free to join</span>
